@@ -1,0 +1,38 @@
+﻿# ── Virtual Environment ────────────────────────────────────────────────
+.venv/
+venv/
+env/
+
+# ── Python & Cache ─────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+*.egg
+.uv/
+.pytest_cache/
+
+# ── Secrets & Local Config ─────────────────────────────────────────────
+.env
+credentials.json
+*.pickle
+
+# ── Database ───────────────────────────────────────────────────────────
+*.db
+*.db-shm
+*.db-wal
+*.sqlite3
+
+# ── Generated Output ───────────────────────────────────────────────────
+generated_pdfs/
+logs/
+*.log
+
+# ── OS & IDE ───────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
