@@ -1,12 +1,14 @@
 """
 RolePointer — FastAPI Application & Orchestration Gateway
-REST Endpoints, Real-Time SSE Streams, Triage & Mock Interview Handlers.
+REST Endpoints, Real-Time SSE Streams, Executive Morning Briefing,
+and Application Response Radar with Value-Add Follow-Up Generator.
 """
 from __future__ import annotations
 
 import asyncio
 import json
 import os
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Dict, List, Optional
 from uuid import uuid4
@@ -23,7 +25,8 @@ from rolepointer.core.settings import settings
 from rolepointer.models.schemas import (
     JobListing, UserProfile, FitEvaluation, TailoredPackage, ReviewAuditResult,
     MockInterviewSession, MockInterviewQuestion, MockInterviewEvaluation,
-    TriageStatus, WorkplaceType, FeedFilterQuery
+    TriageStatus, WorkplaceType, FeedFilterQuery, ExecutiveBriefing,
+    ApplicationRecord, FollowUpDraft
 )
 from rolepointer.feeds.mock_feeds import get_mock_jobs
 from rolepointer.feeds.remote_feeds import fetch_jobicy_jobs, fetch_remoteok_jobs
@@ -33,6 +36,8 @@ from rolepointer.feeds.url_parser import parse_job_url
 from rolepointer.agents.fit_evaluator import evaluate_job_fit
 from rolepointer.agents.drafter import draft_tailored_package
 from rolepointer.agents.reviewer import audit_tailored_package
+from rolepointer.agents.briefing_agent import generate_executive_briefing
+from rolepointer.agents.followup_agent import generate_value_add_followup
 from rolepointer.agents.interview_agent import (
     generate_mock_interview_questions, evaluate_interview_answer
 )
@@ -53,21 +58,52 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ── In-Memory Repository (with instant startup & SQLite sync) ──────────────────
+# ── In-Memory Repository ──────────────────────────────────────────────────────
 CURRENT_PROFILE: UserProfile = UserProfile()
 JOBS_STORE: Dict[str, JobListing] = {}
 EVALUATIONS_STORE: Dict[str, FitEvaluation] = {}
 PACKAGES_STORE: Dict[str, TailoredPackage] = {}
 INTERVIEWS_STORE: Dict[str, MockInterviewSession] = {}
+APPLICATIONS_STORE: Dict[str, ApplicationRecord] = {}
 SSE_QUEUE: asyncio.Queue = asyncio.Queue()
 
 
 def _populate_initial_data():
-    """Seed with mock jobs evaluated against user profile."""
+    """Seed with mock jobs, auto-precompile packages for top matches, and seed pipeline radar."""
     for job in get_mock_jobs():
         JOBS_STORE[job.id] = job
         eval_res = evaluate_job_fit(job, CURRENT_PROFILE)
         EVALUATIONS_STORE[job.id] = eval_res
+
+    # Seed 1 active application in Awaiting Reply (Day 2)
+    job1 = JOBS_STORE.get("mock-job-01")
+    if job1:
+        job1.triage_status = TriageStatus.AWAITING_REPLY
+        APPLICATIONS_STORE[job1.id] = ApplicationRecord(
+            job_id=job1.id,
+            company=job1.company,
+            title=job1.title,
+            applied_at=datetime.now(timezone.utc) - timedelta(days=2),
+            days_since_applied=2,
+            status=TriageStatus.AWAITING_REPLY,
+            follow_up_due=False,
+            follow_up_count=0,
+        )
+
+    # Seed 1 active application in Follow-Up Due (Day 6 without reply)
+    job2 = JOBS_STORE.get("mock-job-02")
+    if job2:
+        job2.triage_status = TriageStatus.FOLLOW_UP_DUE
+        APPLICATIONS_STORE[job2.id] = ApplicationRecord(
+            job_id=job2.id,
+            company=job2.company,
+            title=job2.title,
+            applied_at=datetime.now(timezone.utc) - timedelta(days=6),
+            days_since_applied=6,
+            status=TriageStatus.FOLLOW_UP_DUE,
+            follow_up_due=True,
+            follow_up_count=0,
+        )
 
 
 _populate_initial_data()
@@ -84,11 +120,20 @@ def get_profile():
 def update_profile(profile: UserProfile):
     global CURRENT_PROFILE
     CURRENT_PROFILE = profile
-    # Re-evaluate stored jobs with updated preferences
     for job_id, job in JOBS_STORE.items():
         EVALUATIONS_STORE[job_id] = evaluate_job_fit(job, CURRENT_PROFILE)
     logger.info("[API] Profile updated and jobs re-evaluated")
     return CURRENT_PROFILE
+
+
+# ── Executive Morning Briefing ───────────────────────────────────────────────
+
+@app.get("/api/briefing", response_model=ExecutiveBriefing)
+def get_daily_briefing():
+    """Returns the curated Top 3 daily briefing with pre-compiled packages."""
+    all_jobs = list(JOBS_STORE.values())
+    briefing, _ = generate_executive_briefing(all_jobs, CURRENT_PROFILE, PACKAGES_STORE, top_limit=3)
+    return briefing
 
 
 # ── Job Discovery & Search ───────────────────────────────────────────────────
@@ -107,7 +152,6 @@ def list_jobs(
     for job_id, job in JOBS_STORE.items():
         eval_res = EVALUATIONS_STORE.get(job_id)
 
-        # Filters
         if domain and domain.lower() != "all" and domain.lower() not in job.domain.lower():
             continue
         if workplace_type and workplace_type != "ANY" and job.workplace_type.value != workplace_type:
@@ -129,18 +173,15 @@ def list_jobs(
             "has_package": job_id in PACKAGES_STORE,
         })
 
-    # Sort descending by score
     results.sort(key=lambda x: (x["evaluation"]["score"] if x["evaluation"] else 0), reverse=True)
     return {"total": len(results), "jobs": results}
 
 
 @app.post("/api/jobs/discover")
 async def trigger_discovery():
-    """Discovers jobs from live feeds and mock fixtures concurrently."""
     discovered_count = 0
     all_incoming: List[JobListing] = []
 
-    # 1. Fetch from connectors
     if settings.use_mock_feeds:
         all_incoming.extend(get_mock_jobs())
     else:
@@ -162,7 +203,6 @@ async def trigger_discovery():
         except Exception as e:
             logger.warning(f"HN feed error: {e}")
 
-        # Always ensure mock listings are present if feeds yield low count
         if len(all_incoming) < 5:
             all_incoming.extend(get_mock_jobs())
 
@@ -176,6 +216,9 @@ async def trigger_discovery():
                 "event": "job_discovered",
                 "data": json.dumps({"title": job.title, "company": job.company, "score": eval_res.score})
             })
+
+    # Auto-precompile for top items in background
+    generate_executive_briefing(list(JOBS_STORE.values()), CURRENT_PROFILE, PACKAGES_STORE, top_limit=3)
 
     return {"status": "success", "discovered_new": discovered_count, "total_stored": len(JOBS_STORE)}
 
@@ -200,7 +243,7 @@ def parse_direct_job_url(req: URLParseRequest):
     }
 
 
-# ── Triage Guardrail ──────────────────────────────────────────────────────────
+# ── Triage & Application Actions ──────────────────────────────────────────────
 
 class TriageActionRequest(BaseModel):
     status: TriageStatus
@@ -215,6 +258,106 @@ def triage_job(job_id: str, req: TriageActionRequest):
     job.triage_status = req.status
     logger.info(f"[API] Job {job_id} triage updated to: {req.status}")
     return {"status": "success", "job_id": job_id, "new_status": req.status}
+
+
+@app.post("/api/jobs/{job_id}/apply")
+def mark_job_applied(job_id: str):
+    """Marks role as applied and initiates 5-day Response Radar."""
+    if job_id not in JOBS_STORE:
+        raise HTTPException(status_code=404, detail="Job not found")
+
+    job = JOBS_STORE[job_id]
+    job.triage_status = TriageStatus.AWAITING_REPLY
+
+    package = PACKAGES_STORE.get(job_id)
+    pitch_text = package.direct_pitch_letter if package else None
+
+    app_record = ApplicationRecord(
+        job_id=job.id,
+        company=job.company,
+        title=job.title,
+        applied_at=datetime.now(timezone.utc),
+        days_since_applied=0,
+        status=TriageStatus.AWAITING_REPLY,
+        follow_up_due=False,
+        follow_up_count=0,
+        direct_pitch_letter=pitch_text,
+    )
+    APPLICATIONS_STORE[job_id] = app_record
+    logger.info(f"[API] Application logged for {job.company} — Response Radar active")
+    return {"status": "success", "application": app_record.model_dump()}
+
+
+# ── Application Response Radar & Pipeline ─────────────────────────────────────
+
+@app.get("/api/pipeline")
+def get_pipeline():
+    """Returns active application pipeline with response radar & follow-up due flags."""
+    pipeline_items = []
+    now = datetime.now(timezone.utc)
+    
+    for job_id, app_rec in APPLICATIONS_STORE.items():
+        job = JOBS_STORE.get(job_id)
+        app_dt = app_rec.applied_at if app_rec.applied_at.tzinfo else app_rec.applied_at.replace(tzinfo=timezone.utc)
+        days_elapsed = (now - app_dt).days
+        app_rec.days_since_applied = max(0, days_elapsed)
+        
+        # Follow-up due after 5 days if still awaiting reply
+        if days_elapsed >= 5 and app_rec.status in (TriageStatus.AWAITING_REPLY, TriageStatus.FOLLOW_UP_DUE):
+            app_rec.follow_up_due = True
+            app_rec.status = TriageStatus.FOLLOW_UP_DUE
+            if job:
+                job.triage_status = TriageStatus.FOLLOW_UP_DUE
+        
+        eval_res = EVALUATIONS_STORE.get(job_id)
+        pipeline_items.append({
+            "application": app_rec.model_dump(),
+            "job": job.model_dump() if job else None,
+            "evaluation": eval_res.model_dump() if eval_res else None,
+            "has_package": job_id in PACKAGES_STORE,
+        })
+
+    # Sort: follow-up due first, then recent applied
+    pipeline_items.sort(key=lambda x: (x["application"]["follow_up_due"], x["application"]["days_since_applied"]), reverse=True)
+    return {
+        "total_active": len(pipeline_items),
+        "follow_up_due_count": sum(1 for p in pipeline_items if p["application"]["follow_up_due"]),
+        "applications": pipeline_items,
+    }
+
+
+@app.post("/api/jobs/{job_id}/generate-followup")
+def generate_followup(job_id: str):
+    """Generates a 2-sentence value-add follow-up draft."""
+    job = JOBS_STORE.get(job_id)
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+
+    app_rec = APPLICATIONS_STORE.get(job_id)
+    days = app_rec.days_since_applied if app_rec else 5
+
+    draft = generate_value_add_followup(job, CURRENT_PROFILE, days_since=days)
+    return {"status": "success", "followup_draft": draft.model_dump()}
+
+
+@app.post("/api/jobs/{job_id}/send-followup")
+def record_followup_sent(job_id: str):
+    """Records that a follow-up was dispatched, resetting the follow-up due flag."""
+    app_rec = APPLICATIONS_STORE.get(job_id)
+    if not app_rec:
+        raise HTTPException(status_code=404, detail="Application record not found")
+
+    app_rec.follow_up_count += 1
+    app_rec.last_follow_up_at = datetime.now(timezone.utc)
+    app_rec.follow_up_due = False
+    app_rec.status = TriageStatus.AWAITING_REPLY
+
+    job = JOBS_STORE.get(job_id)
+    if job:
+        job.triage_status = TriageStatus.AWAITING_REPLY
+
+    logger.info(f"[API] Follow-up #{app_rec.follow_up_count} logged for {app_rec.company}")
+    return {"status": "success", "application": app_rec.model_dump()}
 
 
 # ── Drafter -> Reviewer -> PDF Compiler Pipeline ──────────────────────────────
@@ -237,7 +380,6 @@ def prepare_package(job_id: str):
     pdf_filename = compile_ats_resume_pdf(package, CURRENT_PROFILE)
     package.pdf_filename = pdf_filename
 
-    # Save to store & update job status
     PACKAGES_STORE[job_id] = package
     job.triage_status = TriageStatus.PACKAGE_PREPARED
 
@@ -252,7 +394,7 @@ def prepare_package(job_id: str):
 def download_resume_pdf(job_id: str):
     package = PACKAGES_STORE.get(job_id)
     if not package or not package.pdf_filename:
-        raise HTTPException(status_code=404, detail="No compiled PDF package found for this job. Click 'Prepare Package' first.")
+        raise HTTPException(status_code=404, detail="No compiled PDF package found for this job.")
     
     pdf_path = OUTPUT_DIR / package.pdf_filename
     if not pdf_path.exists():
@@ -304,14 +446,12 @@ def submit_interview_answer(sub: AnswerSubmission):
 
     evaluation = evaluate_interview_answer(question, sub.user_answer, job)
 
-    # Upsert evaluation into session
     existing_idx = next((i for i, e in enumerate(session.evaluations) if e.question_id == sub.question_id), None)
     if existing_idx is not None:
         session.evaluations[existing_idx] = evaluation
     else:
         session.evaluations.append(evaluation)
 
-    # Compute overall score
     if session.evaluations:
         session.overall_score = int(sum(e.score for e in session.evaluations) / len(session.evaluations))
 
