@@ -1,4 +1,4 @@
-﻿# ── Virtual Environment ────────────────────────────────────────────────
+# ── Virtual Environment ────────────────────────────────────────────────
 .venv/
 venv/
 env/
@@ -36,3 +36,9 @@ logs/
 Thumbs.db
 .vscode/
 .idea/
+
+# ── Local Guidelines & Roadmaps ─────────────────────────────────────────
+rule.md
+FEATURES_AND_ROADMAP.md
+features_and_roadmap.md
+
