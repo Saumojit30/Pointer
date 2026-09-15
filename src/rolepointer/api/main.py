@@ -243,6 +243,20 @@ def parse_direct_job_url(req: URLParseRequest):
     }
 
 
+# ── Executive Morning Briefing ────────────────────────────────────────────────
+
+@app.get("/api/briefing", response_model=ExecutiveBriefing)
+def get_executive_briefing():
+    """Returns today's curated Top 3 high-fit opportunities with pre-compiled packages."""
+    briefing, _ = generate_executive_briefing(
+        jobs=list(JOBS_STORE.values()),
+        profile=CURRENT_PROFILE,
+        packages_store=PACKAGES_STORE,
+        top_limit=3,
+    )
+    return briefing
+
+
 # ── Triage & Application Actions ──────────────────────────────────────────────
 
 class TriageActionRequest(BaseModel):
