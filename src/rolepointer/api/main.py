@@ -1,19 +1,21 @@
 """
 RolePointer — FastAPI Application & Orchestration Gateway
 REST Endpoints, Real-Time SSE Streams, Executive Morning Briefing,
-and Application Response Radar with Value-Add Follow-Up Generator.
+Response Radar with Value-Add Follow-Up Generator, Resume Importer,
+RFC 5322 EML Exporter, and SQLite WAL Persistence Synchronization.
 """
 from __future__ import annotations
 
 import asyncio
 import json
 import os
+from contextlib import asynccontextmanager
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Dict, List, Optional
 from uuid import uuid4
 
-from fastapi import FastAPI, HTTPException, Query, BackgroundTasks, Depends
+from fastapi import FastAPI, HTTPException, Query, BackgroundTasks, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
@@ -38,16 +40,147 @@ from rolepointer.agents.drafter import draft_tailored_package
 from rolepointer.agents.reviewer import audit_tailored_package
 from rolepointer.agents.briefing_agent import generate_executive_briefing
 from rolepointer.agents.followup_agent import generate_value_add_followup
+from rolepointer.agents.importer_agent import import_profile_from_text
+from rolepointer.agents.email_exporter import generate_eml_file, generate_mailto_url, OUTPUT_DIR as EML_DIR
 from rolepointer.agents.interview_agent import (
     generate_mock_interview_questions, evaluate_interview_answer
 )
 from rolepointer.compiler.pdf_engine import compile_ats_resume_pdf, OUTPUT_DIR
+from rolepointer.db.repository import (
+    init_db, save_job, get_all_jobs_with_evaluations,
+    save_application, get_all_applications,
+    save_tailored_package, get_all_tailored_packages,
+    save_user_profile, get_user_profile,
+    save_interview_session, get_interview_session
+)
+from rolepointer.scheduler.poller import run_discovery_cycle, background_poller_loop
+
+# ── In-Memory Repository (Synchronized with SQLite WAL) ───────────────────────
+CURRENT_PROFILE: UserProfile = UserProfile()
+JOBS_STORE: Dict[str, JobListing] = {}
+EVALUATIONS_STORE: Dict[str, FitEvaluation] = {}
+PACKAGES_STORE: Dict[str, TailoredPackage] = {}
+INTERVIEWS_STORE: Dict[str, MockInterviewSession] = {}
+APPLICATIONS_STORE: Dict[str, ApplicationRecord] = {}
+SSE_QUEUE: asyncio.Queue = asyncio.Queue()
+POLLER_TASK: Optional[asyncio.Task] = None
+
+
+def _hydrate_or_seed_db():
+    """Initializes SQLite schema and hydrates memory cache or seeds initial records."""
+    global CURRENT_PROFILE, JOBS_STORE, EVALUATIONS_STORE, PACKAGES_STORE, APPLICATIONS_STORE
+    init_db()
+
+    # 1. Profile Hydration
+    persisted_profile = get_user_profile()
+    if persisted_profile:
+        CURRENT_PROFILE = persisted_profile
+        logger.info(f"[DB] Hydrated User Profile: {CURRENT_PROFILE.name}")
+    else:
+        save_user_profile(CURRENT_PROFILE)
+        logger.info(f"[DB] Seeded default User Profile: {CURRENT_PROFILE.name}")
+
+    # 2. Jobs & Evaluations Hydration
+    persisted_jobs = get_all_jobs_with_evaluations()
+    if persisted_jobs:
+        for job, eval_res in persisted_jobs:
+            JOBS_STORE[job.id] = job
+            if eval_res:
+                EVALUATIONS_STORE[job.id] = eval_res
+        logger.info(f"[DB] Hydrated {len(JOBS_STORE)} jobs from database.")
+    else:
+        # Seed mock jobs
+        for job in get_mock_jobs():
+            JOBS_STORE[job.id] = job
+            eval_res = evaluate_job_fit(job, CURRENT_PROFILE)
+            EVALUATIONS_STORE[job.id] = eval_res
+            save_job(job, eval_res)
+        logger.info(f"[DB] Seeded and persisted {len(JOBS_STORE)} mock jobs.")
+
+    # 3. Applications Hydration
+    persisted_apps = get_all_applications()
+    if persisted_apps:
+        APPLICATIONS_STORE = persisted_apps
+        logger.info(f"[DB] Hydrated {len(APPLICATIONS_STORE)} active applications from database.")
+    else:
+        # Seed 1 active application in Awaiting Reply (Day 2)
+        job1 = JOBS_STORE.get("mock-job-01")
+        if job1:
+            job1.triage_status = TriageStatus.AWAITING_REPLY
+            app1 = ApplicationRecord(
+                job_id=job1.id,
+                company=job1.company,
+                title=job1.title,
+                applied_at=datetime.now(timezone.utc) - timedelta(days=2),
+                days_since_applied=2,
+                status=TriageStatus.AWAITING_REPLY,
+                follow_up_due=False,
+                follow_up_count=0,
+            )
+            APPLICATIONS_STORE[job1.id] = app1
+            save_application(app1)
+            save_job(job1, EVALUATIONS_STORE.get(job1.id))
+
+        # Seed 1 active application in Follow-Up Due (Day 6 without reply)
+        job2 = JOBS_STORE.get("mock-job-02")
+        if job2:
+            job2.triage_status = TriageStatus.FOLLOW_UP_DUE
+            app2 = ApplicationRecord(
+                job_id=job2.id,
+                company=job2.company,
+                title=job2.title,
+                applied_at=datetime.now(timezone.utc) - timedelta(days=6),
+                days_since_applied=6,
+                status=TriageStatus.FOLLOW_UP_DUE,
+                follow_up_due=True,
+                follow_up_count=0,
+            )
+            APPLICATIONS_STORE[job2.id] = app2
+            save_application(app2)
+            save_job(job2, EVALUATIONS_STORE.get(job2.id))
+
+    # 4. Tailored Packages Hydration
+    persisted_pkgs = get_all_tailored_packages()
+    if persisted_pkgs:
+        PACKAGES_STORE = persisted_pkgs
+        logger.info(f"[DB] Hydrated {len(PACKAGES_STORE)} tailored packages from database.")
+
+
+_hydrate_or_seed_db()
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup: hydrate database tables and seed initial state if empty
+    _hydrate_or_seed_db()
+    global POLLER_TASK
+    if os.getenv("ENABLE_BACKGROUND_POLLER", "false").lower() == "true":
+        POLLER_TASK = asyncio.create_task(
+            background_poller_loop(
+                profile_getter=lambda: CURRENT_PROFILE,
+                jobs_store=JOBS_STORE,
+                evaluations_store=EVALUATIONS_STORE,
+                sse_queue=SSE_QUEUE,
+                interval_seconds=1800,
+            )
+        )
+        logger.info("[Lifespan] Background poller daemon initialized.")
+    yield
+    # Shutdown
+    if POLLER_TASK and not POLLER_TASK.done():
+        POLLER_TASK.cancel()
+        try:
+            await POLLER_TASK
+        except asyncio.CancelledError:
+            pass
+        logger.info("[Lifespan] Background poller daemon shut down.")
 
 
 app = FastAPI(
     title="RolePointer API",
     description="Autonomous Job Discovery, Guardrail Triage & Tailored Career Pipeline",
-    version="0.1.0",
+    version="0.2.0",
+    lifespan=lifespan,
 )
 
 app.add_middleware(
@@ -57,56 +190,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# ── In-Memory Repository ──────────────────────────────────────────────────────
-CURRENT_PROFILE: UserProfile = UserProfile()
-JOBS_STORE: Dict[str, JobListing] = {}
-EVALUATIONS_STORE: Dict[str, FitEvaluation] = {}
-PACKAGES_STORE: Dict[str, TailoredPackage] = {}
-INTERVIEWS_STORE: Dict[str, MockInterviewSession] = {}
-APPLICATIONS_STORE: Dict[str, ApplicationRecord] = {}
-SSE_QUEUE: asyncio.Queue = asyncio.Queue()
-
-
-def _populate_initial_data():
-    """Seed with mock jobs, auto-precompile packages for top matches, and seed pipeline radar."""
-    for job in get_mock_jobs():
-        JOBS_STORE[job.id] = job
-        eval_res = evaluate_job_fit(job, CURRENT_PROFILE)
-        EVALUATIONS_STORE[job.id] = eval_res
-
-    # Seed 1 active application in Awaiting Reply (Day 2)
-    job1 = JOBS_STORE.get("mock-job-01")
-    if job1:
-        job1.triage_status = TriageStatus.AWAITING_REPLY
-        APPLICATIONS_STORE[job1.id] = ApplicationRecord(
-            job_id=job1.id,
-            company=job1.company,
-            title=job1.title,
-            applied_at=datetime.now(timezone.utc) - timedelta(days=2),
-            days_since_applied=2,
-            status=TriageStatus.AWAITING_REPLY,
-            follow_up_due=False,
-            follow_up_count=0,
-        )
-
-    # Seed 1 active application in Follow-Up Due (Day 6 without reply)
-    job2 = JOBS_STORE.get("mock-job-02")
-    if job2:
-        job2.triage_status = TriageStatus.FOLLOW_UP_DUE
-        APPLICATIONS_STORE[job2.id] = ApplicationRecord(
-            job_id=job2.id,
-            company=job2.company,
-            title=job2.title,
-            applied_at=datetime.now(timezone.utc) - timedelta(days=6),
-            days_since_applied=6,
-            status=TriageStatus.FOLLOW_UP_DUE,
-            follow_up_due=True,
-            follow_up_count=0,
-        )
-
-
-_populate_initial_data()
 
 
 # ── Profile Endpoints ─────────────────────────────────────────────────────────
@@ -120,107 +203,93 @@ def get_profile():
 def update_profile(profile: UserProfile):
     global CURRENT_PROFILE
     CURRENT_PROFILE = profile
-    for job_id, job in JOBS_STORE.items():
-        EVALUATIONS_STORE[job_id] = evaluate_job_fit(job, CURRENT_PROFILE)
-    logger.info("[API] Profile updated and jobs re-evaluated")
+    save_user_profile(CURRENT_PROFILE)
+    logger.info(f"[API] Profile updated & persisted for: {profile.name}")
     return CURRENT_PROFILE
 
 
-# ── Executive Morning Briefing ───────────────────────────────────────────────
-
-@app.get("/api/briefing", response_model=ExecutiveBriefing)
-def get_daily_briefing():
-    """Returns the curated Top 3 daily briefing with pre-compiled packages."""
-    all_jobs = list(JOBS_STORE.values())
-    briefing, _ = generate_executive_briefing(all_jobs, CURRENT_PROFILE, PACKAGES_STORE, top_limit=3)
-    return briefing
+class ImportProfileRequest(BaseModel):
+    raw_text: str
 
 
-# ── Job Discovery & Search ───────────────────────────────────────────────────
+@app.post("/api/profile/import", response_model=UserProfile)
+def import_profile(req: ImportProfileRequest):
+    """Parses raw resume/LinkedIn text and updates candidate profile."""
+    global CURRENT_PROFILE
+    new_profile = import_profile_from_text(req.raw_text)
+    CURRENT_PROFILE = new_profile
+    save_user_profile(CURRENT_PROFILE)
+    
+    # Re-evaluate in-memory jobs with new profile guardrails
+    for job_id, job in JOBS_STORE.items():
+        ev = evaluate_job_fit(job, CURRENT_PROFILE)
+        EVALUATIONS_STORE[job_id] = ev
+        save_job(job, ev)
+
+    logger.info(f"[API] Imported and persisted candidate profile for: {CURRENT_PROFILE.name}")
+    return CURRENT_PROFILE
+
+
+# ── Job Feeds & Discovery Endpoints ───────────────────────────────────────────
 
 @app.get("/api/jobs")
 def list_jobs(
-    domain: Optional[str] = None,
-    workplace_type: Optional[str] = None,
-    country: Optional[str] = None,
-    city: Optional[str] = None,
-    status: Optional[str] = None,
-    min_score: Optional[int] = None,
-    exclude_dealbreakers: bool = False,
+    domain: Optional[str] = Query(None),
+    workplace_type: Optional[WorkplaceType] = Query(None),
+    country: Optional[str] = Query(None),
+    city: Optional[str] = Query(None),
+    min_score: Optional[int] = Query(None),
+    status: Optional[TriageStatus] = Query(None),
 ):
+    """Returns stored jobs with fit evaluations and active triage status."""
     results = []
     for job_id, job in JOBS_STORE.items():
-        eval_res = EVALUATIONS_STORE.get(job_id)
+        if domain and job.domain.lower() != domain.lower():
+            continue
+        if workplace_type and job.workplace_type != workplace_type:
+            continue
+        if country and job.country and country.lower() not in job.country.lower():
+            continue
+        if city and job.city and city.lower() not in job.city.lower():
+            continue
+        if status and job.triage_status != status:
+            continue
 
-        if domain and domain.lower() != "all" and domain.lower() not in job.domain.lower():
-            continue
-        if workplace_type and workplace_type != "ANY" and job.workplace_type.value != workplace_type:
-            continue
-        if country and country != "All" and job.country and country.lower() not in job.country.lower():
-            continue
-        if city and city != "All" and job.city and city.lower() not in job.city.lower():
-            continue
-        if status and job.triage_status.value != status:
-            continue
-        if min_score and eval_res and eval_res.score < min_score:
-            continue
-        if exclude_dealbreakers and eval_res and eval_res.has_dealbreaker:
+        eval_res = EVALUATIONS_STORE.get(job_id)
+        if min_score is not None and eval_res and eval_res.score < min_score:
             continue
 
         results.append({
             "job": job.model_dump(),
             "evaluation": eval_res.model_dump() if eval_res else None,
             "has_package": job_id in PACKAGES_STORE,
+            "is_applied": job_id in APPLICATIONS_STORE,
         })
 
+    # Sort descending by match score
     results.sort(key=lambda x: (x["evaluation"]["score"] if x["evaluation"] else 0), reverse=True)
-    return {"total": len(results), "jobs": results}
+    return {
+        "total": len(results),
+        "jobs": results,
+        "results": results,
+    }
 
 
-@app.post("/api/jobs/discover")
-async def trigger_discovery():
-    discovered_count = 0
-    all_incoming: List[JobListing] = []
+@app.get("/api/jobs/{job_id}")
+def get_job_detail(job_id: str):
+    if job_id not in JOBS_STORE:
+        raise HTTPException(status_code=404, detail="Job not found")
+    job = JOBS_STORE[job_id]
+    eval_res = EVALUATIONS_STORE.get(job_id)
+    package = PACKAGES_STORE.get(job_id)
+    app_rec = APPLICATIONS_STORE.get(job_id)
 
-    if settings.use_mock_feeds:
-        all_incoming.extend(get_mock_jobs())
-    else:
-        try:
-            remote_jobs = fetch_jobicy_jobs(count=10) + fetch_remoteok_jobs(count=10)
-            all_incoming.extend(remote_jobs)
-        except Exception as e:
-            logger.warning(f"Remote feed error: {e}")
-
-        try:
-            loc_jobs = fetch_arbeitnow_jobs(count=10)
-            all_incoming.extend(loc_jobs)
-        except Exception as e:
-            logger.warning(f"Location feed error: {e}")
-
-        try:
-            hn_jobs = fetch_hn_hiring_jobs(limit=8)
-            all_incoming.extend(hn_jobs)
-        except Exception as e:
-            logger.warning(f"HN feed error: {e}")
-
-        if len(all_incoming) < 5:
-            all_incoming.extend(get_mock_jobs())
-
-    for job in all_incoming:
-        if job.id not in JOBS_STORE:
-            JOBS_STORE[job.id] = job
-            eval_res = evaluate_job_fit(job, CURRENT_PROFILE)
-            EVALUATIONS_STORE[job.id] = eval_res
-            discovered_count += 1
-            await SSE_QUEUE.put({
-                "event": "job_discovered",
-                "data": json.dumps({"title": job.title, "company": job.company, "score": eval_res.score})
-            })
-
-    # Auto-precompile for top items in background
-    generate_executive_briefing(list(JOBS_STORE.values()), CURRENT_PROFILE, PACKAGES_STORE, top_limit=3)
-
-    return {"status": "success", "discovered_new": discovered_count, "total_stored": len(JOBS_STORE)}
+    return {
+        "job": job.model_dump(),
+        "evaluation": eval_res.model_dump() if eval_res else None,
+        "package": package.model_dump() if package else None,
+        "application": app_rec.model_dump() if app_rec else None,
+    }
 
 
 class URLParseRequest(BaseModel):
@@ -228,14 +297,13 @@ class URLParseRequest(BaseModel):
 
 
 @app.post("/api/jobs/parse-url")
-def parse_direct_job_url(req: URLParseRequest):
+def parse_and_add_job_url(req: URLParseRequest):
+    """Scrapes a single job posting URL and adds it to the pipeline."""
     job = parse_job_url(req.url)
-    if not job:
-        raise HTTPException(status_code=400, detail="Could not extract job details from provided URL.")
-    
     JOBS_STORE[job.id] = job
     eval_res = evaluate_job_fit(job, CURRENT_PROFILE)
     EVALUATIONS_STORE[job.id] = eval_res
+    save_job(job, eval_res)
     return {
         "status": "success",
         "job": job.model_dump(),
@@ -248,12 +316,14 @@ def parse_direct_job_url(req: URLParseRequest):
 @app.get("/api/briefing", response_model=ExecutiveBriefing)
 def get_executive_briefing():
     """Returns today's curated Top 3 high-fit opportunities with pre-compiled packages."""
-    briefing, _ = generate_executive_briefing(
+    briefing, precompiled = generate_executive_briefing(
         jobs=list(JOBS_STORE.values()),
         profile=CURRENT_PROFILE,
         packages_store=PACKAGES_STORE,
         top_limit=3,
     )
+    for pkg in precompiled:
+        save_tailored_package(pkg)
     return briefing
 
 
@@ -270,6 +340,7 @@ def triage_job(job_id: str, req: TriageActionRequest):
     
     job = JOBS_STORE[job_id]
     job.triage_status = req.status
+    save_job(job, EVALUATIONS_STORE.get(job_id))
     logger.info(f"[API] Job {job_id} triage updated to: {req.status}")
     return {"status": "success", "job_id": job_id, "new_status": req.status}
 
@@ -298,7 +369,9 @@ def mark_job_applied(job_id: str):
         direct_pitch_letter=pitch_text,
     )
     APPLICATIONS_STORE[job_id] = app_record
-    logger.info(f"[API] Application logged for {job.company} — Response Radar active")
+    save_application(app_record)
+    save_job(job, EVALUATIONS_STORE.get(job_id))
+    logger.info(f"[API] Application logged and persisted for {job.company} — Response Radar active")
     return {"status": "success", "application": app_record.model_dump()}
 
 
@@ -310,7 +383,7 @@ def get_pipeline():
     pipeline_items = []
     now = datetime.now(timezone.utc)
     
-    for job_id, app_rec in APPLICATIONS_STORE.items():
+    for job_id, app_rec in list(APPLICATIONS_STORE.items()):
         job = JOBS_STORE.get(job_id)
         app_dt = app_rec.applied_at if app_rec.applied_at.tzinfo else app_rec.applied_at.replace(tzinfo=timezone.utc)
         days_elapsed = (now - app_dt).days
@@ -322,6 +395,8 @@ def get_pipeline():
             app_rec.status = TriageStatus.FOLLOW_UP_DUE
             if job:
                 job.triage_status = TriageStatus.FOLLOW_UP_DUE
+                save_job(job, EVALUATIONS_STORE.get(job_id))
+            save_application(app_rec)
         
         eval_res = EVALUATIONS_STORE.get(job_id)
         pipeline_items.append({
@@ -331,7 +406,6 @@ def get_pipeline():
             "has_package": job_id in PACKAGES_STORE,
         })
 
-    # Sort: follow-up due first, then recent applied
     pipeline_items.sort(key=lambda x: (x["application"]["follow_up_due"], x["application"]["days_since_applied"]), reverse=True)
     return {
         "total_active": len(pipeline_items),
@@ -369,8 +443,10 @@ def record_followup_sent(job_id: str):
     job = JOBS_STORE.get(job_id)
     if job:
         job.triage_status = TriageStatus.AWAITING_REPLY
+        save_job(job, EVALUATIONS_STORE.get(job_id))
 
-    logger.info(f"[API] Follow-up #{app_rec.follow_up_count} logged for {app_rec.company}")
+    save_application(app_rec)
+    logger.info(f"[API] Follow-up #{app_rec.follow_up_count} logged and persisted for {app_rec.company}")
     return {"status": "success", "application": app_rec.model_dump()}
 
 
@@ -397,10 +473,14 @@ def prepare_package(job_id: str):
     PACKAGES_STORE[job_id] = package
     job.triage_status = TriageStatus.PACKAGE_PREPARED
 
+    save_tailored_package(package)
+    save_job(job, EVALUATIONS_STORE.get(job_id))
+
     return {
         "status": "success",
         "package": package.model_dump(),
         "pdf_url": f"/api/jobs/{job_id}/pdf",
+        "eml_url": f"/api/jobs/{job_id}/eml",
     }
 
 
@@ -412,98 +492,169 @@ def download_resume_pdf(job_id: str):
     
     pdf_path = OUTPUT_DIR / package.pdf_filename
     if not pdf_path.exists():
-        raise HTTPException(status_code=404, detail="PDF file missing on server disk.")
-
+        compile_ats_resume_pdf(package, CURRENT_PROFILE)
+    
     return FileResponse(
-        str(pdf_path),
+        path=str(pdf_path),
         media_type="application/pdf",
-        filename=package.pdf_filename
+        filename=package.pdf_filename,
     )
 
 
-# ── Mock Interview Simulator ──────────────────────────────────────────────────
+# ── RFC 5322 EML & Mailto Deep Link Endpoints ─────────────────────────────────
+
+@app.get("/api/jobs/{job_id}/eml")
+def download_pitch_eml(job_id: str):
+    """Generates and downloads an RFC 5322 .eml file for native mail clients."""
+    job = JOBS_STORE.get(job_id)
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+
+    package = PACKAGES_STORE.get(job_id)
+    pitch_text = package.direct_pitch_letter if package else f"Hi {job.company} Team,\n\nI would love to connect regarding the {job.title} position."
+
+    eml_name = generate_eml_file(
+        company=job.company,
+        role_title=job.title,
+        pitch_body=pitch_text,
+        candidate_name=CURRENT_PROFILE.name,
+        candidate_email=CURRENT_PROFILE.email,
+        output_dir=EML_DIR,
+    )
+    eml_path = EML_DIR / eml_name
+
+    return FileResponse(
+        path=str(eml_path),
+        media_type="message/rfc822",
+        filename=eml_name,
+    )
+
+
+@app.get("/api/jobs/{job_id}/mailto")
+def get_mailto_link(job_id: str):
+    """Returns a pre-formatted, URL-safe mailto: link for 1-click dispatch."""
+    job = JOBS_STORE.get(job_id)
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+
+    package = PACKAGES_STORE.get(job_id)
+    pitch_text = package.direct_pitch_letter if package else f"Hi {job.company} Team,\n\nI would love to connect regarding the {job.title} position."
+
+    link = generate_mailto_url(
+        company=job.company,
+        role_title=job.title,
+        pitch_body=pitch_text,
+        candidate_name=CURRENT_PROFILE.name,
+    )
+    return {"status": "success", "mailto_url": link}
+
+
+# ── Interactive Mock Interview Endpoints ──────────────────────────────────────
 
 @app.post("/api/interview/{job_id}/start")
 def start_interview_session(job_id: str):
-    if job_id not in JOBS_STORE:
+    """Initializes a 4-question mock interview session."""
+    job = JOBS_STORE.get(job_id)
+    if not job:
         raise HTTPException(status_code=404, detail="Job not found")
 
-    job = JOBS_STORE[job_id]
-    session = generate_mock_interview_questions(job, CURRENT_PROFILE)
+    questions = generate_mock_interview_questions(job, CURRENT_PROFILE)
+    session = MockInterviewSession(
+        job_id=job.id,
+        company=job.company,
+        role=job.title,
+        questions=questions,
+        evaluations=[],
+    )
     INTERVIEWS_STORE[session.session_id] = session
-
-    return {
-        "status": "success",
-        "session": session.model_dump(),
-    }
+    save_interview_session(session)
+    logger.info(f"[API] Mock interview session started for {job.company}: {session.session_id}")
+    return {"status": "success", "session": session.model_dump()}
 
 
-class AnswerSubmission(BaseModel):
-    session_id: str
+class InterviewAnswerSubmission(BaseModel):
     question_id: int
     user_answer: str
 
 
-@app.post("/api/interview/evaluate")
-def submit_interview_answer(sub: AnswerSubmission):
-    session = INTERVIEWS_STORE.get(sub.session_id)
+@app.post("/api/interview/{session_id}/evaluate")
+def submit_interview_answer(session_id: str, sub: InterviewAnswerSubmission):
+    """Evaluates candidate answer and updates overall score."""
+    session = INTERVIEWS_STORE.get(session_id)
     if not session:
-        raise HTTPException(status_code=404, detail="Interview session not found.")
+        session = get_interview_session(session_id)
+        if not session:
+            raise HTTPException(status_code=404, detail="Interview session not found")
+        INTERVIEWS_STORE[session_id] = session
 
-    question = next((q for q in session.questions if q.question_id == sub.question_id), None)
-    if not question:
-        raise HTTPException(status_code=404, detail="Question not found in this session.")
+    target_q = next((q for q in session.questions if q.question_id == sub.question_id), None)
+    if not target_q:
+        raise HTTPException(status_code=404, detail=f"Question #{sub.question_id} not found in session")
 
-    job = JOBS_STORE.get(session.job_id)
-    if not job:
-        job = get_mock_jobs()[0]
+    evaluation = evaluate_interview_answer(target_q, sub.user_answer, CURRENT_PROFILE)
+    session.evaluations = [e for e in session.evaluations if e.question_id != sub.question_id]
+    session.evaluations.append(evaluation)
 
-    evaluation = evaluate_interview_answer(question, sub.user_answer, job)
-
-    existing_idx = next((i for i, e in enumerate(session.evaluations) if e.question_id == sub.question_id), None)
-    if existing_idx is not None:
-        session.evaluations[existing_idx] = evaluation
-    else:
-        session.evaluations.append(evaluation)
-
+    # Compute running overall score
     if session.evaluations:
         session.overall_score = int(sum(e.score for e in session.evaluations) / len(session.evaluations))
 
+    save_interview_session(session)
+    logger.info(f"[API] Evaluated question #{sub.question_id} (Score: {evaluation.score}/100)")
     return {
         "status": "success",
         "evaluation": evaluation.model_dump(),
         "overall_score": session.overall_score,
+        "completed_count": len(session.evaluations),
+        "total_questions": len(session.questions),
     }
 
 
-# ── SSE Live Stream ───────────────────────────────────────────────────────────
+# ── Background Scheduler Trigger ──────────────────────────────────────────────
 
-@app.get("/api/events")
-async def sse_events():
+@app.post("/api/scheduler/trigger")
+async def trigger_scheduler_cycle():
+    """Manually triggers a live discovery cycle across all external feeds."""
+    new_jobs = await run_discovery_cycle(CURRENT_PROFILE, JOBS_STORE, EVALUATIONS_STORE, SSE_QUEUE)
+    return {"status": "success", "new_jobs_discovered": new_jobs, "total_jobs": len(JOBS_STORE)}
+
+
+# ── Real-Time SSE Stream Endpoint ─────────────────────────────────────────────
+
+@app.get("/api/stream")
+async def sse_event_stream(request: Request):
+    """Server-Sent Events endpoint pushing real-time discovery and audit alerts."""
     async def event_generator():
         while True:
+            if await request.is_disconnected():
+                logger.info("[SSE] Client disconnected from event stream.")
+                break
             try:
-                event_data = await asyncio.wait_for(SSE_QUEUE.get(), timeout=20.0)
+                msg = await asyncio.wait_for(SSE_QUEUE.get(), timeout=15.0)
                 yield {
-                    "event": event_data.get("event", "message"),
-                    "data": event_data.get("data", "{}"),
+                    "event": msg.get("event", "update"),
+                    "data": json.dumps(msg.get("data", {})),
                 }
             except asyncio.TimeoutError:
-                yield {"event": "ping", "data": "keep-alive"}
+                yield {
+                    "event": "ping",
+                    "data": json.dumps({"timestamp": datetime.now(timezone.utc).isoformat()}),
+                }
+            except Exception as e:
+                logger.warning(f"[SSE] Stream generator error: {e}")
+                break
 
     return EventSourceResponse(event_generator())
 
 
-# ── Static UI Mount ───────────────────────────────────────────────────────────
-
+# ── Static UI Mounting ────────────────────────────────────────────────────────
 STATIC_DIR = Path(__file__).parent.parent / "static"
 if STATIC_DIR.exists():
     app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
 @app.get("/", response_class=HTMLResponse)
-def serve_ui():
-    index_path = STATIC_DIR / "index.html"
-    if index_path.exists():
-        with open(index_path, "r", encoding="utf-8") as f:
-            return f.read()
-    return "<h1>RolePointer API is running. UI not found.</h1>"
+def serve_dashboard():
+    index_file = STATIC_DIR / "index.html"
+    if index_file.exists():
+        return HTMLResponse(content=index_file.read_text(encoding="utf-8"))
+    return HTMLResponse(content="<h1>RolePointer UI Loading...</h1>")
