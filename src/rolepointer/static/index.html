@@ -1,1128 +1,956 @@
 <!DOCTYPE html>
 <html lang="en" class="dark">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>RolePointer — Autonomous Career Discovery & Application Radar</title>
-  
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Plus Jakarta Sans', 'Inter', 'system-ui', 'sans-serif'],
-          },
-          colors: {
-            brand: {
-              50: '#f0f9ff',
-              400: '#38bdf8',
-              500: '#0ea5e9',
-              600: '#0284c7',
-              700: '#0369a1',
-            },
-            accent: {
-              indigo: '#6366f1',
-              violet: '#8b5cf6',
-              cyan: '#06b6d4',
-              emerald: '#10b981',
-              amber: '#f59e0b',
-              rose: '#f43f5e',
-            },
-            surface: {
-              950: '#070b14',
-              900: '#0b1120',
-              850: '#0f172a',
-              800: '#1e293b',
-              700: '#334155',
-              600: '#475569',
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RolePointer — Autonomous Executive Career Intelligence</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#EEF2FF',
+                            100: '#E0E7FF',
+                            500: '#6366F1',
+                            600: '#4F46E5',
+                            700: '#4338CA',
+                        },
+                        dark: {
+                            900: '#070A11',
+                            800: '#0D1322',
+                            700: '#141D33',
+                            600: '#1F2C4C',
+                        }
+                    }
+                }
             }
-          },
-          boxShadow: {
-            'glow-indigo': '0 0 25px -5px rgba(99, 102, 241, 0.35)',
-            'glow-cyan': '0 0 25px -5px rgba(6, 182, 212, 0.35)',
-            'glow-emerald': '0 0 25px -5px rgba(16, 185, 129, 0.35)',
-          }
         }
-      }
-    }
-  </script>
-  
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-
-  <style>
-    body { font-family: 'Plus Jakarta Sans', sans-serif; }
-    ::-webkit-scrollbar { width: 5px; height: 5px; }
-    ::-webkit-scrollbar-track { background: #070b14; }
-    ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 9999px; }
-    ::-webkit-scrollbar-thumb:hover { background: #334155; }
-    
-    .glass-panel {
-      background: rgba(15, 23, 42, 0.75);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.07);
-    }
-    .glass-card {
-      background: rgba(15, 23, 42, 0.85);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 10px 25px -5px rgba(0, 0, 0, 0.35);
-    }
-    .glass-card:hover {
-      border-color: rgba(255, 255, 255, 0.16);
-    }
-  </style>
+    </script>
+    <style>
+        body {
+            background-color: #070A11;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.12) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(236, 72, 153, 0.08) 0px, transparent 50%);
+            background-attachment: fixed;
+        }
+        .glass-panel {
+            background: rgba(13, 19, 34, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+        }
+        .glass-card {
+            background: rgba(20, 29, 51, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .glass-card:hover {
+            border-color: rgba(99, 102, 241, 0.35);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.5);
+        }
+        .waveform-bar {
+            animation: soundWave 1.2s ease-in-out infinite alternate;
+        }
+        @keyframes soundWave {
+            0% { height: 4px; }
+            100% { height: 28px; }
+        }
+        .waveform-bar:nth-child(2) { animation-delay: 0.15s; }
+        .waveform-bar:nth-child(3) { animation-delay: 0.3s; }
+        .waveform-bar:nth-child(4) { animation-delay: 0.45s; }
+        .waveform-bar:nth-child(5) { animation-delay: 0.6s; }
+        .waveform-bar:nth-child(6) { animation-delay: 0.2s; }
+        .waveform-bar:nth-child(7) { animation-delay: 0.35s; }
+        .waveform-bar:nth-child(8) { animation-delay: 0.5s; }
+    </style>
 </head>
-<body class="bg-surface-950 text-slate-100 min-h-screen flex flex-col antialiased selection:bg-accent-indigo selection:text-white">
+<body class="text-slate-200 font-sans min-h-screen flex flex-col antialiased selection:bg-brand-500 selection:text-white">
 
-  <!-- TOP HEADER -->
-  <header class="border-b border-surface-800/80 bg-surface-900/90 backdrop-blur-xl sticky top-0 z-40 px-6 py-3.5 flex items-center justify-between">
-    <div class="flex items-center space-x-4">
-      
-      <!-- Brand Logo Glyph -->
-      <div class="relative group cursor-pointer" onclick="switchView('briefing')">
-        <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-accent-indigo via-accent-violet to-accent-cyan p-[1.5px] shadow-glow-indigo transition-all duration-300 group-hover:scale-105">
-          <div class="w-full h-full bg-surface-950 rounded-[14px] flex items-center justify-center relative overflow-hidden">
-            <div class="absolute inset-0 bg-gradient-to-br from-accent-indigo/30 via-transparent to-accent-cyan/20 opacity-80"></div>
-            <svg class="w-6 h-6 text-white relative z-10 transition-transform duration-300 group-hover:rotate-45" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="8" stroke="url(#logo-grad)" stroke-width="2" stroke-dasharray="3 3"/>
-              <path d="M12 2v3m0 14v3M2 12h3m14 0h3" stroke="#38bdf8" stroke-width="1.8"/>
-              <path d="M15.5 8.5L8 16l2.5-7.5L15.5 8.5z" fill="url(#logo-fill)" stroke="#ffffff" stroke-width="1.2"/>
-              <defs>
-                <linearGradient id="logo-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#6366f1"/>
-                  <stop offset="50%" stop-color="#06b6d4"/>
-                  <stop offset="100%" stop-color="#10b981"/>
-                </linearGradient>
-                <linearGradient id="logo-fill" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#8b5cf6"/>
-                  <stop offset="100%" stop-color="#38bdf8"/>
-                </linearGradient>
-              </defs>
-            </svg>
-          </div>
+    <!-- Header Navigation -->
+    <header class="sticky top-0 z-40 glass-panel border-b border-white/5">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <!-- Brand Logo -->
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-400 flex items-center justify-center shadow-lg shadow-brand-500/20">
+                    <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polygon points="12 8 8 16 12 14 16 16 12 8" fill="currentColor"></polygon>
+                    </svg>
+                </div>
+                <div>
+                    <span class="text-lg font-bold tracking-tight text-white">Role<span class="text-brand-500">Pointer</span></span>
+                    <span class="ml-2 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider bg-brand-500/10 text-brand-400 rounded-full border border-brand-500/20">Executive</span>
+                </div>
+            </div>
+
+            <!-- View Switcher -->
+            <nav class="hidden md:flex items-center p-1 rounded-xl bg-dark-800 border border-white/5 space-x-1">
+                <button onclick="switchView('briefing')" id="tab-briefing" class="px-4 py-1.5 rounded-lg text-sm font-medium transition-all bg-brand-600 text-white shadow-sm">
+                    Morning Briefing
+                </button>
+                <button onclick="switchView('radar')" id="tab-radar" class="px-4 py-1.5 rounded-lg text-sm font-medium transition-all text-slate-400 hover:text-white">
+                    Response Radar <span id="radar-badge" class="ml-1 px-1.5 py-0.2 text-[10px] bg-rose-500/20 text-rose-300 rounded-full border border-rose-500/30">1</span>
+                </button>
+                <button onclick="switchView('archive')" id="tab-archive" class="px-4 py-1.5 rounded-lg text-sm font-medium transition-all text-slate-400 hover:text-white">
+                    All Feeds Archive
+                </button>
+            </nav>
+
+            <!-- Profile & Live SSE Status -->
+            <div class="flex items-center space-x-3">
+                <div class="flex items-center space-x-2 px-2.5 py-1 rounded-full bg-dark-800 border border-white/5 text-xs text-slate-400">
+                    <span id="sse-indicator" class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span id="sse-text" class="font-mono text-[11px]">Radar Live</span>
+                </div>
+
+                <button onclick="triggerSchedulerSync()" title="Scour Live Feeds" class="p-2 rounded-lg bg-dark-800 hover:bg-dark-700 border border-white/5 text-slate-300 hover:text-white transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                </button>
+
+                <button onclick="openProfileImporterModal()" class="flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-dark-800 hover:bg-dark-700 border border-white/5 transition">
+                    <div class="w-6 h-6 rounded-full bg-brand-500/20 text-brand-400 flex items-center justify-center text-xs font-bold">
+                        <span id="profile-initials">AM</span>
+                    </div>
+                    <span id="header-user-name" class="text-sm font-medium text-slate-200 hidden sm:inline">Alex Morgan</span>
+                </button>
+            </div>
         </div>
-      </div>
+    </header>
 
-      <!-- Title & Live Status -->
-      <div>
-        <div class="flex items-center space-x-2.5">
-          <h1 class="font-extrabold text-xl tracking-tight text-white flex items-center">
-            <span>Role</span><span class="text-transparent bg-clip-text bg-gradient-to-r from-accent-cyan via-brand-400 to-accent-indigo">Pointer</span>
-          </h1>
-          <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-accent-indigo/15 text-accent-indigo border border-accent-indigo/30 tracking-wide">AUTONOMOUS</span>
-          <span class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-accent-emerald/10 text-accent-emerald border border-accent-emerald/30 flex items-center gap-1.5">
-            <span class="w-1.5 h-1.5 rounded-full bg-accent-emerald animate-pulse"></span>
-            AWS Bedrock &bull; Ollama Hybrid
-          </span>
-        </div>
-        <p class="text-xs text-slate-400 font-medium">Autonomous Executive Briefing &bull; Zero-Click ATS Drafts &bull; Response Radar</p>
-      </div>
-    </div>
+    <!-- Main Content Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full">
 
-    <!-- Center View Switcher Tabs -->
-    <div class="flex items-center p-1 bg-surface-950 rounded-2xl border border-surface-800 text-xs font-bold shadow-inner">
-      <button onclick="switchView('briefing')" id="tabBtnBriefing" class="view-tab-btn active px-4 py-1.5 rounded-xl bg-gradient-to-r from-accent-indigo to-accent-violet text-white transition flex items-center gap-2">
-        <i class="fa-solid fa-sparkles text-accent-cyan text-xs"></i>
-        <span>Morning Briefing (Top 3)</span>
-      </button>
-      <button onclick="switchView('radar')" id="tabBtnRadar" class="view-tab-btn px-4 py-1.5 rounded-xl text-slate-400 hover:text-white transition flex items-center gap-2">
-        <i class="fa-solid fa-satellite-dish text-xs"></i>
-        <span>Response Radar</span>
-        <span id="badgeRadarDue" class="px-1.5 py-0.2 rounded-full text-[9px] bg-accent-rose/20 text-accent-rose border border-accent-rose/30 hidden">1 Due</span>
-      </button>
-      <button onclick="switchView('explorer')" id="tabBtnExplorer" class="view-tab-btn px-4 py-1.5 rounded-xl text-slate-400 hover:text-white transition flex items-center gap-2">
-        <i class="fa-solid fa-compass text-xs"></i>
-        <span>All Feeds Archive</span>
-      </button>
-    </div>
+        <!-- VIEW 1: Executive Morning Briefing -->
+        <section id="view-briefing" class="space-y-6">
+            <!-- Executive Banner -->
+            <div class="glass-panel rounded-2xl p-6 sm:p-8 border border-white/10 relative overflow-hidden">
+                <div class="absolute right-0 top-0 w-96 h-96 bg-brand-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="relative z-10 space-y-3">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <div class="flex items-center space-x-2 text-xs font-mono text-brand-400">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <span id="briefing-date">Tuesday, September 15, 2026</span>
+                        </div>
+                        <span class="px-3 py-1 text-xs font-semibold rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                            Auto-Precompiled in Background
+                        </span>
+                    </div>
+                    <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">Executive Morning Briefing</h1>
+                    <p id="briefing-summary" class="text-slate-300 text-sm sm:text-base leading-relaxed max-w-4xl">
+                        Overnight discovery scoured feeds. We identified 3 tier-one opportunities with high compatibility. All bespoke ATS resume packages and 4-sentence direct pitches are pre-compiled and ready for 1-click review.
+                    </p>
+                </div>
+            </div>
 
-    <!-- Quick Action Controls -->
-    <div class="flex items-center space-x-3">
-      <button onclick="openUrlModal()" class="px-3.5 py-2 rounded-xl bg-surface-850 hover:bg-surface-800 text-xs font-semibold text-slate-200 border border-surface-700/70 transition flex items-center gap-2 hover:border-accent-cyan/50">
-        <i class="fa-solid fa-link text-accent-cyan"></i>
-        <span>Parse URL</span>
-      </button>
-
-      <button onclick="triggerDiscovery()" id="discoverBtn" class="px-4 py-2 rounded-xl bg-gradient-to-r from-accent-indigo via-accent-violet to-brand-500 hover:from-indigo-500 hover:to-brand-600 text-xs font-bold text-white shadow-glow-indigo transition flex items-center gap-2">
-        <i class="fa-solid fa-arrows-rotate"></i>
-        <span>Sync Feeds</span>
-      </button>
-
-      <button onclick="toggleProfileModal()" class="w-9 h-9 rounded-xl bg-surface-850 hover:bg-surface-800 flex items-center justify-center text-slate-300 border border-surface-700/70 transition hover:text-white hover:border-accent-indigo/50" title="Candidate Preferences">
-        <i class="fa-solid fa-sliders text-sm"></i>
-      </button>
-    </div>
-  </header>
-
-  <!-- MAIN CONTAINER -->
-  <div class="flex-1 flex overflow-hidden">
-    
-    <!-- LEFT SIDEBAR: PREFERENCE GUARDRAILS & METRICS -->
-    <aside class="w-80 border-r border-surface-800/80 bg-surface-900/50 p-5 overflow-y-auto flex flex-col space-y-5 flex-shrink-0">
-      
-      <!-- Bento Stats Overview -->
-      <div class="glass-card rounded-2xl p-4 border border-surface-800">
-        <div class="flex items-center justify-between mb-3">
-          <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Pipeline Pulse</span>
-          <span class="w-2 h-2 rounded-full bg-accent-cyan animate-ping"></span>
-        </div>
-        <div class="grid grid-cols-2 gap-2 text-center">
-          <div class="bg-surface-950/70 p-2.5 rounded-xl border border-surface-800/60">
-            <span class="text-[11px] text-slate-400 block font-medium">Scoured</span>
-            <span id="statTotal" class="text-xl font-extrabold text-white">0</span>
-          </div>
-          <div class="bg-surface-950/70 p-2.5 rounded-xl border border-surface-800/60">
-            <span class="text-[11px] text-accent-emerald block font-medium">Daily Top 3</span>
-            <span id="statHighMatch" class="text-xl font-extrabold text-accent-emerald">3</span>
-          </div>
-          <div class="bg-surface-950/70 p-2.5 rounded-xl border border-surface-800/60">
-            <span class="text-[11px] text-accent-cyan block font-medium">Radar Active</span>
-            <span id="statRadarActive" class="text-xl font-extrabold text-accent-cyan">0</span>
-          </div>
-          <div class="bg-surface-950/70 p-2.5 rounded-xl border border-surface-800/60">
-            <span class="text-[11px] text-accent-rose block font-medium">Follow-Up Due</span>
-            <span id="statFollowUpDue" class="text-xl font-extrabold text-accent-rose">0</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Domain Filter -->
-      <div>
-        <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2 block flex items-center justify-between">
-          <span>Target Domain</span>
-          <i class="fa-solid fa-shapes text-slate-500"></i>
-        </label>
-        <select id="domainFilter" onchange="applyFilters()" class="w-full bg-surface-950 border border-surface-700/80 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-accent-cyan transition font-medium cursor-pointer">
-          <option value="All">All Domains & Stacks</option>
-          <option value="AI/ML">AI / Machine Learning</option>
-          <option value="Backend">Backend Engineering</option>
-          <option value="Fullstack">Full Stack Engineering</option>
-          <option value="DevOps/Cloud">DevOps / Cloud & SRE</option>
-          <option value="Data Engineering">Data Engineering</option>
-          <option value="Frontend">Frontend Engineering</option>
-        </select>
-      </div>
-
-      <!-- Workplace Model Segmented Control -->
-      <div>
-        <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2 block flex items-center justify-between">
-          <span>Workplace Model</span>
-          <i class="fa-solid fa-building-user text-slate-500"></i>
-        </label>
-        <div class="grid grid-cols-3 gap-1.5 p-1 bg-surface-950 rounded-xl border border-surface-800 text-xs">
-          <button onclick="setWorkplaceFilter('ANY')" id="btnWorkplaceANY" class="workplace-btn active py-1.5 rounded-lg bg-accent-indigo text-white font-bold text-center transition">All</button>
-          <button onclick="setWorkplaceFilter('REMOTE')" id="btnWorkplaceREMOTE" class="workplace-btn py-1.5 rounded-lg text-slate-400 hover:text-white font-semibold text-center transition">Remote</button>
-          <button onclick="setWorkplaceFilter('ONSITE')" id="btnWorkplaceONSITE" class="workplace-btn py-1.5 rounded-lg text-slate-400 hover:text-white font-semibold text-center transition">Onsite</button>
-        </div>
-      </div>
-
-      <!-- Preference Guardrails Card -->
-      <div class="glass-card rounded-2xl p-4 border border-surface-800 relative overflow-hidden">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-xs font-bold text-slate-200 flex items-center gap-1.5">
-            <i class="fa-solid fa-shield-halved text-accent-indigo"></i>
-            <span>Preference Guardrails</span>
-          </span>
-          <label class="relative inline-flex items-center cursor-pointer">
-            <input type="checkbox" id="hideDealbreakers" onchange="applyFilters()" class="sr-only peer" />
-            <div class="w-8 h-4.5 bg-surface-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-accent-indigo"></div>
-          </label>
-        </div>
-        <p class="text-[11px] text-slate-400 leading-relaxed mb-1.5">Auto-discards roles with on-call shifts, excluded tech, or below salary floor.</p>
-        <span class="text-[10px] text-accent-indigo font-semibold">Hide roles with criteria mismatches</span>
-      </div>
-
-      <!-- Navigation Shortlist -->
-      <div>
-        <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2 block">Quick Shortlists</label>
-        <div class="flex flex-col space-y-1 text-xs font-medium">
-          <button onclick="switchView('briefing')" class="text-left px-3.5 py-2 rounded-xl bg-surface-800 text-accent-cyan font-bold transition flex items-center justify-between">
-            <span>Morning Briefing</span>
-            <span class="px-2 py-0.5 rounded-full text-[10px] bg-accent-cyan/20 text-accent-cyan font-bold">Top 3</span>
-          </button>
-          <button onclick="switchView('radar')" class="text-left px-3.5 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-surface-800/60 transition flex items-center justify-between">
-            <span>Response Radar</span>
-            <span id="sideRadarCount" class="px-2 py-0.5 rounded-full text-[10px] bg-surface-800 text-slate-300">0</span>
-          </button>
-        </div>
-      </div>
-
-    </aside>
-
-    <!-- RIGHT MAIN CONTENT (Dynamic View Routing) -->
-    <main class="flex-1 flex flex-col overflow-hidden bg-surface-950">
-      
-      <!-- VIEW 1: EXECUTIVE MORNING BRIEFING (DEFAULT) -->
-      <div id="viewBriefing" class="flex-1 overflow-y-auto p-6 space-y-6">
-        
-        <!-- Briefing Banner -->
-        <div class="bg-gradient-to-r from-accent-indigo/20 via-surface-900 to-accent-cyan/15 rounded-3xl p-6 border border-accent-indigo/30 relative overflow-hidden shadow-2xl">
-          <div class="flex items-start justify-between gap-4 relative z-10">
+            <!-- Top 3 Curated Bento Cards -->
             <div>
-              <div class="flex items-center gap-2 mb-1.5">
-                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-accent-indigo text-white uppercase tracking-wider">Executive Daily Briefing</span>
-                <span id="briefingDate" class="text-xs text-slate-300 font-medium">Today</span>
-              </div>
-              <h2 id="briefingHeading" class="text-xl font-extrabold text-white mb-2 tracking-tight">Your Curated 3 High-Impact Roles Today</h2>
-              <p id="briefingSynthesis" class="text-xs text-slate-300 max-w-3xl leading-relaxed">
-                Overnight discovery evaluated all live listings against your tech stack and salary floor. Top 3 packages are pre-compiled and ready for 1-click review.
-              </p>
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-bold text-white flex items-center space-x-2">
+                        <span>Top 3 Curated Opportunities</span>
+                        <span class="text-xs px-2 py-0.5 rounded bg-brand-500/20 text-brand-300 font-mono">15-Hr Grind &rarr; 90-Sec Decision</span>
+                    </h2>
+                </div>
+                <div id="briefing-cards" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Loaded dynamically -->
+                    <div class="col-span-3 text-center py-12 text-slate-500 font-mono text-sm">Loading today's curated briefing...</div>
+                </div>
             </div>
-            <div class="text-right flex-shrink-0">
-              <span class="text-xs text-slate-400 block font-medium">Autonomous Zero-Click</span>
-              <span class="text-xs font-extrabold text-accent-emerald bg-accent-emerald/15 px-3 py-1 rounded-full border border-accent-emerald/30 inline-block mt-1">
-                ✓ 3 Drafts Pre-Compiled
-              </span>
+        </section>
+
+        <!-- VIEW 2: Application Response Radar -->
+        <section id="view-radar" class="space-y-6 hidden">
+            <div class="glass-panel rounded-2xl p-6 border border-white/10 flex flex-wrap items-center justify-between gap-4">
+                <div>
+                    <h1 class="text-2xl font-bold text-white tracking-tight">Application Response Radar</h1>
+                    <p class="text-sm text-slate-400 mt-1">
+                        Bypasses recruiter spam filters with 2-sentence value-add technical benchmark notes on Day 5.
+                    </p>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <div class="px-4 py-2 rounded-xl bg-dark-800 border border-white/5 text-center">
+                        <span class="text-xs text-slate-400 block font-mono">Active Applications</span>
+                        <span id="radar-active-count" class="text-xl font-bold text-white">2</span>
+                    </div>
+                    <div class="px-4 py-2 rounded-xl bg-rose-500/10 border border-rose-500/20 text-center">
+                        <span class="text-xs text-rose-300 block font-mono">Follow-Up Due (5d+)</span>
+                        <span id="radar-due-count" class="text-xl font-bold text-rose-400">1</span>
+                    </div>
+                </div>
             </div>
-          </div>
-        </div>
 
-        <!-- 3-Column Top Opportunities Bento Grid -->
-        <div id="briefingCardsGrid" class="grid grid-cols-1 md:grid-cols-3 gap-5">
-          <!-- Top 3 Cards populated by JS -->
-        </div>
-
-      </div>
-
-      <!-- VIEW 2: APPLICATION RESPONSE RADAR & PIPELINE -->
-      <div id="viewRadar" class="flex-1 overflow-y-auto p-6 space-y-6 hidden">
-        
-        <!-- Radar Banner -->
-        <div class="glass-card rounded-3xl p-6 border border-surface-800 flex items-center justify-between">
-          <div>
-            <div class="flex items-center gap-2 mb-1">
-              <span class="w-2.5 h-2.5 rounded-full bg-accent-cyan animate-pulse"></span>
-              <h2 class="text-lg font-extrabold text-white">Application Response Radar</h2>
+            <div id="radar-pipeline-list" class="space-y-4">
+                <!-- Loaded dynamically -->
+                <div class="text-center py-12 text-slate-500 font-mono text-sm">Loading active pipeline radar...</div>
             </div>
-            <p class="text-xs text-slate-400">Monitors active applications and auto-generates 2-sentence value-add technical follow-ups after 5 days without reply.</p>
-          </div>
-          <div class="flex items-center gap-3">
-            <div class="px-3.5 py-2 rounded-xl bg-surface-900 border border-surface-800 text-center">
-              <span class="text-[10px] text-slate-400 block font-bold">Active Radar</span>
-              <span id="radarActiveCount" class="text-base font-extrabold text-white">0</span>
+        </section>
+
+        <!-- VIEW 3: All Feeds Archive -->
+        <section id="view-archive" class="space-y-6 hidden">
+            <!-- Filter Bar -->
+            <div class="glass-panel rounded-2xl p-5 border border-white/10 flex flex-wrap gap-3 items-center justify-between">
+                <div class="flex flex-wrap gap-2 items-center flex-1">
+                    <input type="text" id="filter-search" oninput="applyFilters()" placeholder="Filter by title, company, skills..." class="px-3.5 py-2 rounded-xl bg-dark-800 border border-white/10 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 w-64">
+                    <select id="filter-domain" onchange="applyFilters()" class="px-3 py-2 rounded-xl bg-dark-800 border border-white/10 text-sm text-slate-300 focus:outline-none">
+                        <option value="">All Domains</option>
+                        <option value="AI/ML">AI/ML</option>
+                        <option value="Backend">Backend</option>
+                        <option value="Fullstack">Fullstack</option>
+                        <option value="DevOps/Cloud">DevOps/Cloud</option>
+                    </select>
+                    <select id="filter-workplace" onchange="applyFilters()" class="px-3 py-2 rounded-xl bg-dark-800 border border-white/10 text-sm text-slate-300 focus:outline-none">
+                        <option value="">All Locations</option>
+                        <option value="REMOTE">Remote Only</option>
+                        <option value="HYBRID">Hybrid</option>
+                        <option value="ONSITE">Onsite</option>
+                    </select>
+                </div>
+                <div class="text-xs font-mono text-slate-400">
+                    Showing <span id="archive-count" class="text-white font-bold">0</span> roles
+                </div>
             </div>
-            <div class="px-3.5 py-2 rounded-xl bg-accent-rose/10 border border-accent-rose/30 text-center">
-              <span class="text-[10px] text-accent-rose block font-bold">Follow-Up Due</span>
-              <span id="radarDueCount" class="text-base font-extrabold text-accent-rose">0</span>
+
+            <div id="archive-jobs-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Loaded dynamically -->
             </div>
-          </div>
-        </div>
-
-        <!-- Pipeline Cards Grid -->
-        <div id="radarCardsGrid" class="space-y-4">
-          <!-- Populated by JS -->
-        </div>
-
-      </div>
-
-      <!-- VIEW 3: ALL FEEDS EXPLORER ARCHIVE -->
-      <div id="viewExplorer" class="flex-1 flex flex-col overflow-hidden hidden">
-        <div class="px-6 py-3.5 border-b border-surface-800/80 bg-surface-900/30 flex items-center justify-between gap-4">
-          <div class="relative flex-1 max-w-2xl">
-            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
-            <input type="text" id="searchInput" oninput="applyFilters()" placeholder="Search archive by title, company, or stack (e.g. Python, FastAPI, AWS)..." class="w-full bg-surface-900/80 border border-surface-700/80 rounded-xl pl-9 pr-4 py-2 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-accent-cyan transition" />
-          </div>
-          <div class="text-xs text-slate-400">
-            <span>Archive: <strong id="displayedCount" class="text-white font-bold">0</strong> opportunities</span>
-          </div>
-        </div>
-        <div id="explorerCardsGrid" class="flex-1 overflow-y-auto p-6 space-y-4"></div>
-      </div>
+        </section>
 
     </main>
-  </div>
 
-  <!-- MODAL: PREPARE PACKAGE & ATS AUDIT -->
-  <div id="packageModal" class="fixed inset-0 z-50 bg-surface-950/80 backdrop-blur-md hidden items-center justify-center p-4">
-    <div class="glass-panel border border-surface-700 rounded-3xl w-full max-w-3xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-fadeIn">
-      
-      <div class="px-6 py-4 border-b border-surface-800 flex items-center justify-between bg-surface-900/90">
-        <div class="flex items-center space-x-3">
-          <div class="w-10 h-10 rounded-2xl bg-accent-violet/15 text-accent-violet border border-accent-violet/30 flex items-center justify-center font-bold text-base shadow-glow-indigo">
-            <i class="fa-solid fa-wand-magic-sparkles"></i>
-          </div>
-          <div>
-            <h3 id="modalPkgTitle" class="font-extrabold text-base text-white">Tailored Career Package</h3>
-            <p id="modalPkgCompany" class="text-xs text-slate-400 font-medium">Tailored for Company</p>
-          </div>
-        </div>
-        <button onclick="closePackageModal()" class="w-8 h-8 rounded-xl bg-surface-800 hover:bg-surface-700 flex items-center justify-center text-slate-400 hover:text-white transition">
-          <i class="fa-solid fa-xmark text-sm"></i>
-        </button>
-      </div>
-
-      <div class="flex-1 overflow-y-auto p-6 space-y-5">
-        <div class="bg-gradient-to-r from-accent-emerald/15 via-surface-900 to-surface-900 p-4 rounded-2xl border border-accent-emerald/30 flex items-center justify-between">
-          <div class="flex items-center space-x-3.5">
-            <div class="w-12 h-12 rounded-2xl bg-accent-emerald/20 text-accent-emerald border border-accent-emerald/40 flex items-center justify-center text-xl font-extrabold shadow-glow-emerald">
-              <span id="modalAtsScore">94</span>%
-            </div>
-            <div>
-              <h4 class="font-bold text-sm text-accent-emerald">ATS Compliance & Audit Verified</h4>
-              <p class="text-xs text-slate-400">Zero hallucinations detected &bull; High keyword density match &bull; STAR structured</p>
-            </div>
-          </div>
-          <a id="downloadPdfBtn" href="#" target="_blank" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-accent-emerald to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-xs font-bold text-white shadow-glow-emerald transition flex items-center gap-2">
-            <i class="fa-solid fa-download"></i>
-            <span>Download ATS PDF</span>
-          </a>
-        </div>
-
-        <div class="glass-card rounded-2xl p-4 border border-surface-800">
-          <div class="flex items-center justify-between mb-2.5">
-            <span class="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
-              <i class="fa-solid fa-bolt text-accent-amber"></i>
-              <span>High-Impact 4-Sentence Direct Pitch</span>
-            </span>
-            <button onclick="copyPitchText()" class="px-2.5 py-1 rounded-lg bg-surface-800 hover:bg-surface-700 text-xs text-accent-cyan font-semibold transition flex items-center gap-1.5">
-              <i class="fa-solid fa-copy"></i>
-              <span id="copyPitchLabel">Copy Pitch</span>
-            </button>
-          </div>
-          <pre id="modalPitchText" class="text-xs text-slate-200 whitespace-pre-wrap font-sans bg-surface-950/80 p-4 rounded-xl border border-surface-800/80 leading-relaxed"></pre>
-        </div>
-
-        <div class="glass-card rounded-2xl p-4 border border-surface-800">
-          <span class="text-xs font-bold uppercase tracking-wider text-slate-300 mb-2.5 block flex items-center gap-1.5">
-            <i class="fa-solid fa-list-check text-accent-indigo"></i>
-            <span>Tailored STAR Experience Bullets</span>
-          </span>
-          <ul id="modalBulletsList" class="space-y-2.5 text-xs text-slate-200"></ul>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL: VALUE-ADD FOLLOW-UP GENERATOR -->
-  <div id="followupModal" class="fixed inset-0 z-50 bg-surface-950/80 backdrop-blur-md hidden items-center justify-center p-4">
-    <div class="glass-panel border border-surface-700 rounded-3xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-fadeIn">
-      
-      <div class="px-6 py-4 border-b border-surface-800 flex items-center justify-between bg-surface-900/90">
-        <div class="flex items-center space-x-3">
-          <div class="w-10 h-10 rounded-2xl bg-accent-rose/15 text-accent-rose border border-accent-rose/30 flex items-center justify-center font-bold text-base">
-            <i class="fa-solid fa-paper-plane"></i>
-          </div>
-          <div>
-            <h3 id="modalFollowupTitle" class="font-extrabold text-base text-white">Value-Add Follow-Up Generator</h3>
-            <p id="modalFollowupSubtitle" class="text-xs text-slate-400 font-medium">Bypasses spam filters with technical benchmark data</p>
-          </div>
-        </div>
-        <button onclick="closeFollowupModal()" class="w-8 h-8 rounded-xl bg-surface-800 hover:bg-surface-700 flex items-center justify-center text-slate-400 hover:text-white transition">
-          <i class="fa-solid fa-xmark text-sm"></i>
-        </button>
-      </div>
-
-      <div class="flex-1 overflow-y-auto p-6 space-y-4 text-xs">
-        <div class="p-3.5 rounded-xl bg-surface-900 border border-surface-800">
-          <span class="text-[11px] font-bold text-accent-cyan uppercase tracking-wider block mb-1">Strategic Talking Point</span>
-          <p id="modalFollowupTalkingPoint" class="text-slate-300 leading-relaxed"></p>
-        </div>
-
-        <div>
-          <label class="font-bold text-slate-300 block mb-1">Subject Line</label>
-          <input type="text" id="modalFollowupSubject" class="w-full bg-surface-950 border border-surface-700 rounded-xl px-3 py-2 text-slate-100 font-mono text-xs" />
-        </div>
-
-        <div>
-          <label class="font-bold text-slate-300 block mb-1">2-Sentence Value-Add Note</label>
-          <textarea id="modalFollowupBody" rows="6" class="w-full bg-surface-950 border border-surface-700 rounded-xl p-3 text-slate-100 leading-relaxed"></textarea>
-        </div>
-      </div>
-
-      <div class="px-6 py-3.5 border-t border-surface-800 flex justify-between items-center bg-surface-900/60">
-        <button onclick="copyFollowupText()" class="px-4 py-2 rounded-xl bg-surface-800 text-slate-200 font-semibold hover:bg-surface-700 flex items-center gap-1.5">
-          <i class="fa-solid fa-copy"></i>
-          <span id="copyFollowupLabel">Copy to Clipboard</span>
-        </button>
-        <button onclick="confirmFollowupSent()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-accent-emerald to-teal-600 text-white font-bold hover:shadow-glow-emerald transition flex items-center gap-1.5">
-          <i class="fa-solid fa-check"></i>
-          <span>Mark Follow-Up Sent</span>
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL: MOCK INTERVIEW SIMULATOR -->
-  <div id="interviewModal" class="fixed inset-0 z-50 bg-surface-950/80 backdrop-blur-md hidden items-center justify-center p-4">
-    <div class="glass-panel border border-surface-700 rounded-3xl w-full max-w-3xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
-      <div class="px-6 py-4 border-b border-surface-800 flex items-center justify-between bg-surface-900/90">
-        <div class="flex items-center space-x-3">
-          <div class="w-10 h-10 rounded-2xl bg-accent-indigo/15 text-accent-indigo border border-accent-indigo/30 flex items-center justify-center font-bold text-base shadow-glow-indigo">
-            <i class="fa-solid fa-microphone-lines"></i>
-          </div>
-          <div>
-            <h3 id="modalIntRole" class="font-extrabold text-base text-white">Mock Interview Simulator</h3>
-            <p id="modalIntCompany" class="text-xs text-slate-400 font-medium">Company Technical Assessment</p>
-          </div>
-        </div>
-        <button onclick="closeInterviewModal()" class="w-8 h-8 rounded-xl bg-surface-800 hover:bg-surface-700 flex items-center justify-center text-slate-400 hover:text-white transition">
-          <i class="fa-solid fa-xmark text-sm"></i>
-        </button>
-      </div>
-
-      <div class="flex-1 overflow-y-auto p-6 space-y-5">
-        <div id="intQuestionTabs" class="grid grid-cols-4 gap-2"></div>
-        <div class="glass-card p-4 rounded-2xl border border-surface-800">
-          <div class="flex items-center justify-between mb-2">
-            <span id="intCatBadge" class="text-[11px] font-extrabold uppercase tracking-wider text-accent-cyan">Technical Core</span>
-            <span class="text-[11px] font-semibold text-slate-400">Question <span id="intCurrentQNum">1</span> of 4</span>
-          </div>
-          <h4 id="intQuestionText" class="text-sm font-bold text-white mb-2 leading-relaxed">Loading question...</h4>
-          <p id="intGuidanceText" class="text-xs text-slate-300 italic bg-surface-950/60 p-2.5 rounded-xl border border-surface-800/60"></p>
-        </div>
-
-        <div>
-          <label class="text-xs font-bold text-slate-200 mb-1.5 block">Your Response:</label>
-          <textarea id="intUserAnswer" rows="4" placeholder="Structure your response with technical specifics..." class="w-full bg-surface-950 border border-surface-700/80 rounded-2xl p-3.5 text-xs text-slate-100 focus:outline-none focus:border-accent-indigo transition shadow-inner leading-relaxed"></textarea>
-          <div class="mt-2.5 flex justify-end">
-            <button onclick="submitAnswer()" id="submitAnswerBtn" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-accent-indigo to-accent-violet hover:from-indigo-500 hover:to-violet-600 text-xs font-bold text-white shadow-glow-indigo transition flex items-center gap-2">
-              <i class="fa-solid fa-paper-plane"></i>
-              <span>Evaluate Answer</span>
-            </button>
-          </div>
-        </div>
-
-        <div id="intFeedbackSection" class="hidden glass-card p-4 rounded-2xl border border-surface-800 space-y-3">
-          <div class="flex items-center justify-between">
-            <h5 class="text-xs font-extrabold text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
-              <i class="fa-solid fa-chart-line text-accent-amber"></i>
-              <span>Score & Feedback</span>
-            </h5>
-            <span id="intScoreBadge" class="px-3 py-1 rounded-full text-xs font-extrabold bg-accent-emerald/20 text-accent-emerald border border-accent-emerald/40 shadow-glow-emerald">85%</span>
-          </div>
-          <div class="grid grid-cols-2 gap-3 text-xs">
-            <div class="bg-surface-950/70 p-3 rounded-xl border border-surface-800">
-              <span class="font-bold text-accent-emerald block mb-1">Demonstrated Strengths:</span>
-              <ul id="intStrengthsList" class="list-disc list-inside text-slate-300 space-y-1 text-[11px]"></ul>
-            </div>
-            <div class="bg-surface-950/70 p-3 rounded-xl border border-surface-800">
-              <span class="font-bold text-accent-amber block mb-1">Refinement Opportunities:</span>
-              <ul id="intImprovementsList" class="list-disc list-inside text-slate-300 space-y-1 text-[11px]"></ul>
-            </div>
-          </div>
-          <div class="bg-surface-950/80 p-3 rounded-xl border border-surface-800 text-xs">
-            <span class="font-bold text-accent-indigo block mb-1">Exemplary Reference Answer:</span>
-            <p id="intModelAnswer" class="text-slate-300 leading-relaxed text-[11px]"></p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL: PARSE JOB URL -->
-  <div id="urlModal" class="fixed inset-0 z-50 bg-surface-950/80 backdrop-blur-md hidden items-center justify-center p-4">
-    <div class="glass-panel border border-surface-700 rounded-3xl w-full max-w-md p-6 shadow-2xl">
-      <div class="flex items-center justify-between mb-4">
-        <h3 class="font-bold text-sm text-white flex items-center gap-2">
-          <i class="fa-solid fa-link text-accent-cyan"></i>
-          <span>Scrape & Evaluate Role URL</span>
-        </h3>
-        <button onclick="closeUrlModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
-      </div>
-      <input type="url" id="customJobUrl" placeholder="https://boards.greenhouse.io/company/jobs/..." class="w-full bg-surface-950 border border-surface-700 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 mb-4" />
-      <button onclick="submitParseUrl()" id="parseUrlBtn" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-accent-indigo to-accent-cyan text-xs font-bold text-white transition flex items-center justify-center gap-2">
-        <i class="fa-solid fa-magnifying-glass"></i>
-        <span>Extract & Score Fit</span>
-      </button>
-    </div>
-  </div>
-
-  <!-- MODAL: CANDIDATE PROFILE -->
-  <div id="profileModal" class="fixed inset-0 z-50 bg-surface-950/80 backdrop-blur-md hidden items-center justify-center p-4">
-    <div class="glass-panel border border-surface-700 rounded-3xl w-full max-w-xl max-h-[90vh] flex flex-col shadow-2xl">
-      <div class="px-6 py-4 border-b border-surface-800 flex items-center justify-between">
-        <h3 class="font-bold text-sm text-white flex items-center gap-2">
-          <i class="fa-solid fa-sliders text-accent-indigo"></i>
-          <span>Candidate Preferences & Guardrails</span>
-        </h3>
-        <button onclick="toggleProfileModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
-      </div>
-      <div class="flex-1 overflow-y-auto p-6 space-y-4 text-xs">
-        <div>
-          <label class="font-bold text-slate-300 block mb-1">Candidate Name</label>
-          <input type="text" id="profName" class="w-full bg-surface-950 border border-surface-700 rounded-xl px-3 py-2 text-slate-100" />
-        </div>
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="font-bold text-slate-300 block mb-1">Email</label>
-            <input type="email" id="profEmail" class="w-full bg-surface-950 border border-surface-700 rounded-xl px-3 py-2 text-slate-100" />
-          </div>
-          <div>
-            <label class="font-bold text-slate-300 block mb-1">Minimum Target Compensation ($/yr)</label>
-            <input type="number" id="profSalaryFloor" class="w-full bg-surface-950 border border-surface-700 rounded-xl px-3 py-2 text-slate-100" />
-          </div>
-        </div>
-        <div>
-          <label class="font-bold text-slate-300 block mb-1">Core Tech Competencies (comma-separated)</label>
-          <input type="text" id="profSkills" class="w-full bg-surface-950 border border-surface-700 rounded-xl px-3 py-2 text-slate-100" />
-        </div>
-        <div>
-          <label class="font-bold text-slate-300 block mb-1">Role Alignment Guardrails (Excluded conditions)</label>
-          <input type="text" id="profDealbreakers" class="w-full bg-surface-950 border border-surface-700 rounded-xl px-3 py-2 text-slate-100" />
-        </div>
-        <div>
-          <label class="font-bold text-slate-300 block mb-1">Professional Experience Highlights</label>
-          <textarea id="profSummary" rows="3" class="w-full bg-surface-950 border border-surface-700 rounded-xl p-3 text-slate-100"></textarea>
-        </div>
-      </div>
-      <div class="px-6 py-3.5 border-t border-surface-800 flex justify-end gap-2.5">
-        <button onclick="toggleProfileModal()" class="px-4 py-2 rounded-xl bg-surface-800 text-slate-300 font-medium hover:bg-surface-700">Cancel</button>
-        <button onclick="saveProfile()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-accent-indigo to-accent-cyan text-white font-bold transition">Save & Re-evaluate</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- JAVASCRIPT LOGIC -->
-  <script>
-    let ALL_JOBS = [];
-    let CURRENT_BRIEFING = null;
-    let CURRENT_PIPELINE = null;
-    let CURRENT_VIEW = 'briefing';
-    let CURRENT_WORKPLACE = 'ANY';
-    let CURRENT_INTERVIEW_SESSION = null;
-    let ACTIVE_QUESTION_IDX = 0;
-    let ACTIVE_FOLLOWUP_JOB_ID = null;
-
-    async function init() {
-      await loadProfile();
-      await fetchBriefing();
-      await fetchPipeline();
-      await fetchJobs();
-    }
-
-    function switchView(view) {
-      CURRENT_VIEW = view;
-      document.querySelectorAll('.view-tab-btn').forEach(b => {
-        b.classList.remove('bg-gradient-to-r', 'from-accent-indigo', 'to-accent-violet', 'text-white');
-        b.classList.add('text-slate-400');
-      });
-
-      document.getElementById('viewBriefing').classList.add('hidden');
-      document.getElementById('viewRadar').classList.add('hidden');
-      document.getElementById('viewExplorer').classList.add('hidden');
-
-      if (view === 'briefing') {
-        document.getElementById('tabBtnBriefing').classList.add('bg-gradient-to-r', 'from-accent-indigo', 'to-accent-violet', 'text-white');
-        document.getElementById('tabBtnBriefing').classList.remove('text-slate-400');
-        document.getElementById('viewBriefing').classList.remove('hidden');
-        fetchBriefing();
-      } else if (view === 'radar') {
-        document.getElementById('tabBtnRadar').classList.add('bg-gradient-to-r', 'from-accent-indigo', 'to-accent-violet', 'text-white');
-        document.getElementById('tabBtnRadar').classList.remove('text-slate-400');
-        document.getElementById('viewRadar').classList.remove('hidden');
-        fetchPipeline();
-      } else {
-        document.getElementById('tabBtnExplorer').classList.add('bg-gradient-to-r', 'from-accent-indigo', 'to-accent-violet', 'text-white');
-        document.getElementById('tabBtnExplorer').classList.remove('text-slate-400');
-        document.getElementById('viewExplorer').classList.remove('hidden');
-        applyFilters();
-      }
-    }
-
-    async function loadProfile() {
-      try {
-        const res = await fetch('/api/profile');
-        const p = await res.json();
-        document.getElementById('profName').value = p.name || '';
-        document.getElementById('profEmail').value = p.email || '';
-        document.getElementById('profSalaryFloor').value = p.min_salary_floor || 120000;
-        document.getElementById('profSkills').value = (p.skills || []).join(', ');
-        document.getElementById('profDealbreakers').value = (p.dealbreakers || []).join(', ');
-        document.getElementById('profSummary').value = p.experience_summary || '';
-      } catch (e) {
-        console.error('Failed to load profile', e);
-      }
-    }
-
-    async function saveProfile() {
-      const p = {
-        name: document.getElementById('profName').value,
-        email: document.getElementById('profEmail').value,
-        min_salary_floor: parseFloat(document.getElementById('profSalaryFloor').value) || 0,
-        skills: document.getElementById('profSkills').value.split(',').map(s => s.trim()).filter(Boolean),
-        dealbreakers: document.getElementById('profDealbreakers').value.split(',').map(s => s.trim()).filter(Boolean),
-        experience_summary: document.getElementById('profSummary').value,
-      };
-      await fetch('/api/profile', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(p),
-      });
-      toggleProfileModal();
-      await fetchBriefing();
-      await fetchJobs();
-    }
-
-    async function fetchBriefing() {
-      try {
-        const res = await fetch('/api/briefing');
-        CURRENT_BRIEFING = await res.json();
-        document.getElementById('briefingDate').innerText = CURRENT_BRIEFING.date;
-        document.getElementById('briefingSynthesis').innerText = CURRENT_BRIEFING.executive_summary;
-        renderBriefingGrid();
-      } catch (e) {
-        console.error('Error fetching briefing', e);
-      }
-    }
-
-    function renderBriefingGrid() {
-      const container = document.getElementById('briefingCardsGrid');
-      if (!CURRENT_BRIEFING || !CURRENT_BRIEFING.top_opportunities.length) {
-        container.innerHTML = `<div class="col-span-3 text-center py-12 text-slate-500">No high-fit roles generated yet. Click 'Sync Feeds'.</div>`;
-        return;
-      }
-
-      container.innerHTML = CURRENT_BRIEFING.top_opportunities.map((j, idx) => {
-        const ev = CURRENT_BRIEFING.top_evaluations[idx] || { score: 90, match_tier: 'EXCELLENT', pros: [] };
-        const pkg = CURRENT_BRIEFING.precompiled_packages[idx] || {};
-        const initials = (j.company || 'TC').split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
-
-        return `
-          <div class="glass-card rounded-3xl p-5 border border-surface-800 flex flex-col justify-between hover:border-accent-indigo/40 transition-all duration-300 relative group shadow-xl">
-            <div>
-              <div class="flex items-center justify-between gap-3 mb-3">
-                <div class="flex items-center gap-2.5">
-                  <div class="w-10 h-10 rounded-2xl bg-surface-800 text-white font-black text-xs flex items-center justify-center border border-surface-700">
-                    ${initials}
-                  </div>
-                  <div>
-                    <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wide truncate">${j.company}</h4>
-                    <span class="text-[10px] text-slate-500">${j.location}</span>
-                  </div>
+    <!-- MODAL 1: Tailored Package & ATS PDF Viewer -->
+    <div id="package-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 hidden">
+        <div class="glass-panel w-full max-w-3xl rounded-2xl border border-white/10 max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+            <div class="p-6 border-b border-white/10 flex items-center justify-between">
+                <div>
+                    <h3 id="modal-role-title" class="text-xl font-bold text-white">Senior AI Platform Engineer</h3>
+                    <p id="modal-company-name" class="text-sm text-brand-400 font-mono">CognitiveFlow AI</p>
                 </div>
-                <div class="w-12 h-12 rounded-2xl bg-accent-emerald/10 border border-accent-emerald/30 flex flex-col items-center justify-center text-center">
-                  <span class="text-base font-black text-accent-emerald">${ev.score}%</span>
-                  <span class="text-[8px] font-bold text-accent-emerald uppercase">MATCH</span>
+                <button onclick="closeModal('package-modal')" class="p-2 rounded-lg text-slate-400 hover:text-white bg-dark-800 border border-white/5">&times;</button>
+            </div>
+            
+            <div class="p-6 overflow-y-auto space-y-6 flex-1 text-sm">
+                <!-- 4-Sentence Direct Pitch Box -->
+                <div class="p-4 rounded-xl bg-dark-800 border border-brand-500/30 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-mono font-semibold text-brand-300 uppercase tracking-wider">4-Sentence Direct Pitch (Bypasses Spam Filter)</span>
+                        <div class="flex space-x-2">
+                            <button onclick="copyPitchText()" class="px-2.5 py-1 text-xs rounded-lg bg-brand-600 hover:bg-brand-500 text-white font-medium transition">Copy Pitch</button>
+                            <a id="btn-mailto" href="#" class="px-2.5 py-1 text-xs rounded-lg bg-dark-700 hover:bg-dark-600 text-slate-300 border border-white/10 transition">Open in Mail Client</a>
+                            <a id="btn-eml" href="#" class="px-2.5 py-1 text-xs rounded-lg bg-dark-700 hover:bg-dark-600 text-slate-300 border border-white/10 transition">Download .EML</a>
+                        </div>
+                    </div>
+                    <p id="modal-pitch-body" class="text-slate-200 leading-relaxed font-sans bg-dark-900/60 p-3.5 rounded-lg border border-white/5"></p>
                 </div>
-              </div>
 
-              <h3 class="text-base font-extrabold text-white mb-2 line-clamp-2">
-                <a href="${j.url}" target="_blank" class="hover:text-accent-cyan hover:underline">${j.title}</a>
-              </h3>
-
-              <div class="flex items-center gap-2 mb-3">
-                <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-surface-800 text-accent-cyan border border-surface-700">${j.domain}</span>
-                <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-accent-emerald/15 text-accent-emerald">${j.salary_range || 'Competitive'}</span>
-              </div>
-
-              <div class="p-2.5 rounded-xl bg-surface-950/70 border border-surface-800 mb-4 text-[11px] text-slate-300">
-                <span class="font-bold text-accent-emerald block mb-0.5">Key Advantage:</span>
-                <span>${ev.pros && ev.pros[0] ? ev.pros[0] : 'High stack overlap with candidate core skills.'}</span>
-              </div>
+                <!-- ATS Audit & Tailored Bullets -->
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-mono text-slate-400">ATS Keyword Match: <strong id="modal-ats-score" class="text-emerald-400">95%</strong></span>
+                        <span class="text-xs font-mono text-slate-400">Zero Hallucinations Verified</span>
+                    </div>
+                    <div class="p-4 rounded-xl bg-dark-800 border border-white/5 space-y-2">
+                        <span class="text-xs font-semibold text-slate-300 block">Tailored Resume Experience Bullets:</span>
+                        <ul id="modal-bullets-list" class="space-y-2 text-slate-300 text-xs list-disc list-inside"></ul>
+                    </div>
+                </div>
             </div>
 
-            <div class="pt-3 border-t border-surface-800 flex flex-col gap-2">
-              <button onclick="applyAndActivateRadar('${j.id}')" class="w-full py-2 rounded-xl bg-gradient-to-r from-accent-indigo via-accent-violet to-accent-cyan text-white text-xs font-bold shadow-glow-indigo transition flex items-center justify-center gap-1.5">
-                <i class="fa-solid fa-paper-plane"></i>
-                <span>1-Click Apply & Activate Radar</span>
-              </button>
-              
-              <div class="grid grid-cols-2 gap-2">
-                <button onclick="preparePackage('${j.id}')" class="py-1.5 px-2 rounded-xl bg-surface-850 hover:bg-surface-800 text-xs text-slate-200 font-semibold border border-surface-700 transition flex items-center justify-center gap-1">
-                  <i class="fa-solid fa-file-pdf text-accent-emerald"></i>
-                  <span>View Package</span>
+            <div class="p-4 border-t border-white/10 bg-dark-900/80 flex items-center justify-between">
+                <a id="btn-download-pdf" href="#" target="_blank" class="px-4 py-2 rounded-xl bg-dark-700 hover:bg-dark-600 text-white font-medium text-sm flex items-center space-x-2 border border-white/10 transition">
+                    <svg class="w-4 h-4 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    <span>Download ATS Resume (ReportLab PDF)</span>
+                </a>
+                <button id="btn-modal-apply" onclick="applyFromModal()" class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm shadow-lg shadow-emerald-600/20 transition">
+                    Mark Applied & Start Radar
                 </button>
-                <button onclick="startInterview('${j.id}')" class="py-1.5 px-2 rounded-xl bg-surface-850 hover:bg-surface-800 text-xs text-slate-200 font-semibold border border-surface-700 transition flex items-center justify-center gap-1">
-                  <i class="fa-solid fa-microphone text-accent-cyan"></i>
-                  <span>Mock Prep</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: Value-Add Follow-Up Generator Modal -->
+    <div id="followup-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 hidden">
+        <div class="glass-panel w-full max-w-2xl rounded-2xl border border-white/10 flex flex-col shadow-2xl overflow-hidden">
+            <div class="p-6 border-b border-white/10 flex items-center justify-between">
+                <div>
+                    <h3 class="text-xl font-bold text-white">Value-Add Technical Follow-Up</h3>
+                    <p id="followup-modal-target" class="text-sm text-brand-400 font-mono">ScaleSphere Cloud</p>
+                </div>
+                <button onclick="closeModal('followup-modal')" class="p-2 rounded-lg text-slate-400 hover:text-white bg-dark-800 border border-white/5">&times;</button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div class="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-300">
+                    <strong>Anti-Spam Strategy:</strong> Shares real benchmark data and engineering insights rather than generic check-ins.
+                </div>
+                <div class="space-y-2">
+                    <label class="text-xs font-mono text-slate-400 block">Subject Line</label>
+                    <input type="text" id="followup-subject" class="w-full px-3.5 py-2 rounded-xl bg-dark-800 border border-white/10 text-sm text-white font-mono" readonly>
+                </div>
+                <div class="space-y-2">
+                    <label class="text-xs font-mono text-slate-400 block">Technical Benchmark Follow-Up Note</label>
+                    <textarea id="followup-body" rows="6" class="w-full p-3.5 rounded-xl bg-dark-800 border border-white/10 text-sm text-slate-200 font-sans focus:outline-none focus:border-brand-500"></textarea>
+                </div>
+            </div>
+            <div class="p-4 border-t border-white/10 bg-dark-900/80 flex items-center justify-between">
+                <button onclick="copyFollowupText()" class="px-4 py-2 rounded-xl bg-dark-700 hover:bg-dark-600 text-slate-200 text-sm font-medium border border-white/10 transition">
+                    Copy Follow-Up Note
                 </button>
-              </div>
+                <button id="btn-confirm-followup-sent" onclick="confirmFollowupSent()" class="px-5 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-sm font-semibold shadow-lg shadow-brand-500/20 transition">
+                    Mark Follow-Up Sent
+                </button>
             </div>
-          </div>
-        `;
-      }).join('');
-    }
+        </div>
+    </div>
 
-    async function fetchPipeline() {
-      try {
-        const res = await fetch('/api/pipeline');
-        CURRENT_PIPELINE = await res.json();
-        document.getElementById('statRadarActive').innerText = CURRENT_PIPELINE.total_active;
-        document.getElementById('radarActiveCount').innerText = CURRENT_PIPELINE.total_active;
-        document.getElementById('sideRadarCount').innerText = CURRENT_PIPELINE.total_active;
-        document.getElementById('statFollowUpDue').innerText = CURRENT_PIPELINE.follow_up_due_count;
-        document.getElementById('radarDueCount').innerText = CURRENT_PIPELINE.follow_up_due_count;
-
-        const badge = document.getElementById('badgeRadarDue');
-        if (CURRENT_PIPELINE.follow_up_due_count > 0) {
-          badge.innerText = `${CURRENT_PIPELINE.follow_up_due_count} Due`;
-          badge.classList.remove('hidden');
-        } else {
-          badge.classList.add('hidden');
-        }
-
-        renderRadarCards();
-      } catch (e) {
-        console.error('Error fetching pipeline', e);
-      }
-    }
-
-    function renderRadarCards() {
-      const container = document.getElementById('radarCardsGrid');
-      if (!CURRENT_PIPELINE || !CURRENT_PIPELINE.applications.length) {
-        container.innerHTML = `
-          <div class="text-center py-16 text-slate-500">
-            <i class="fa-solid fa-satellite-dish text-3xl mb-3 text-slate-600"></i>
-            <p class="text-sm font-bold text-slate-300">No active applications being tracked</p>
-            <p class="text-xs text-slate-500 mt-1">Apply to a role in your Morning Briefing to initiate response tracking.</p>
-          </div>
-        `;
-        return;
-      }
-
-      container.innerHTML = CURRENT_PIPELINE.applications.map(item => {
-        const app = item.application;
-        const j = item.job || { company: app.company, title: app.title, location: 'Remote' };
-        const days = app.days_since_applied;
-
-        const isDue = app.follow_up_due;
-        const statusBadge = isDue ? `
-          <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-accent-rose/15 text-accent-rose border border-accent-rose/30 animate-pulse">
-            ⚠️ Follow-Up Due (Day ${days})
-          </span>
-        ` : `
-          <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold bg-accent-cyan/15 text-accent-cyan border border-accent-cyan/30">
-            Radar Active &bull; Applied ${days === 0 ? 'Today' : `${days}d ago`}
-          </span>
-        `;
-
-        return `
-          <div class="glass-card rounded-2xl p-5 border ${isDue ? 'border-accent-rose/40 bg-rose-950/10' : 'border-surface-800'} flex items-center justify-between gap-4 transition">
-            <div class="flex items-start gap-3.5 flex-1">
-              <div class="w-11 h-11 rounded-2xl ${isDue ? 'bg-accent-rose/20 text-accent-rose border-accent-rose/40' : 'bg-surface-800 text-white border-surface-700'} flex items-center justify-center font-extrabold text-sm border flex-shrink-0">
-                <i class="fa-solid ${isDue ? 'fa-bell' : 'fa-paper-plane'}"></i>
-              </div>
-              <div>
-                <div class="flex items-center gap-2 mb-1">
-                  <span class="text-xs font-bold text-slate-300 uppercase">${app.company}</span>
-                  ${statusBadge}
+    <!-- MODAL 3: Interactive Voice Mock Interview Studio -->
+    <div id="interview-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 hidden">
+        <div class="glass-panel w-full max-w-3xl rounded-2xl border border-white/10 max-h-[92vh] flex flex-col shadow-2xl overflow-hidden">
+            <div class="p-6 border-b border-white/10 flex items-center justify-between">
+                <div>
+                    <h3 id="interview-modal-title" class="text-xl font-bold text-white">Interactive Mock Interview Studio</h3>
+                    <p id="interview-modal-subtitle" class="text-xs text-brand-400 font-mono">CognitiveFlow AI • Question 1 of 4</p>
                 </div>
-                <h3 class="text-sm font-extrabold text-white">${app.title}</h3>
-                <p class="text-xs text-slate-400 mt-0.5">Follow-ups sent: ${app.follow_up_count}</p>
-              </div>
+                <button onclick="closeModal('interview-modal')" class="p-2 rounded-lg text-slate-400 hover:text-white bg-dark-800 border border-white/5">&times;</button>
             </div>
-
-            <div class="flex items-center gap-2">
-              <button onclick="openFollowupModal('${app.job_id}')" class="px-3.5 py-2 rounded-xl ${isDue ? 'bg-accent-rose hover:bg-rose-600 text-white font-bold shadow-lg' : 'bg-surface-800 hover:bg-surface-700 text-slate-200'} text-xs font-semibold transition flex items-center gap-1.5">
-                <i class="fa-solid fa-wand-magic-sparkles"></i>
-                <span>${isDue ? 'Generate Value Follow-Up' : 'Draft Follow-Up'}</span>
-              </button>
-              <button onclick="preparePackage('${app.job_id}')" class="px-3 py-2 rounded-xl bg-surface-800 hover:bg-surface-700 text-xs text-slate-300 border border-surface-700 transition" title="View Applied Package">
-                <i class="fa-solid fa-file-pdf"></i>
-              </button>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    async function applyAndActivateRadar(jobId) {
-      await fetch(`/api/jobs/${jobId}/apply`, { method: 'POST' });
-      await fetchPipeline();
-      await fetchJobs();
-      switchView('radar');
-    }
-
-    async function openFollowupModal(jobId) {
-      ACTIVE_FOLLOWUP_JOB_ID = jobId;
-      const res = await fetch(`/api/jobs/${jobId}/generate-followup`, { method: 'POST' });
-      const data = await res.json();
-      if (data.status === 'success') {
-        const draft = data.followup_draft;
-        document.getElementById('modalFollowupTitle').innerText = `Value-Add Follow-Up: ${draft.company}`;
-        document.getElementById('modalFollowupSubtitle').innerText = `Strategic outreach for ${draft.role} (Day ${draft.days_since_outreach})`;
-        document.getElementById('modalFollowupTalkingPoint').innerText = draft.talking_point;
-        document.getElementById('modalFollowupSubject').value = draft.subject;
-        document.getElementById('modalFollowupBody').value = draft.body;
-
-        document.getElementById('followupModal').classList.remove('hidden');
-        document.getElementById('followupModal').classList.add('flex');
-      }
-    }
-
-    function closeFollowupModal() {
-      document.getElementById('followupModal').classList.add('hidden');
-      document.getElementById('followupModal').classList.remove('flex');
-    }
-
-    function copyFollowupText() {
-      const subject = document.getElementById('modalFollowupSubject').value;
-      const body = document.getElementById('modalFollowupBody').value;
-      navigator.clipboard.writeText(`Subject: ${subject}\n\n${body}`);
-      document.getElementById('copyFollowupLabel').innerText = 'Copied!';
-      setTimeout(() => {
-        document.getElementById('copyFollowupLabel').innerText = 'Copy to Clipboard';
-      }, 2000);
-    }
-
-    async function confirmFollowupSent() {
-      if (!ACTIVE_FOLLOWUP_JOB_ID) return;
-      await fetch(`/api/jobs/${ACTIVE_FOLLOWUP_JOB_ID}/send-followup`, { method: 'POST' });
-      closeFollowupModal();
-      await fetchPipeline();
-    }
-
-    async function fetchJobs() {
-      try {
-        const res = await fetch('/api/jobs');
-        const data = await res.json();
-        ALL_JOBS = data.jobs || [];
-        document.getElementById('statTotal').innerText = ALL_JOBS.length;
-        applyFilters();
-      } catch (e) {
-        console.error('Error fetching jobs', e);
-      }
-    }
-
-    function applyFilters() {
-      const domain = document.getElementById('domainFilter').value;
-      const hideDealbreakers = document.getElementById('hideDealbreakers').checked;
-      const query = (document.getElementById('searchInput') ? document.getElementById('searchInput').value : '').toLowerCase().trim();
-
-      const filtered = ALL_JOBS.filter(item => {
-        const j = item.job;
-        const ev = item.evaluation;
-
-        if (domain !== 'All' && !j.domain.toLowerCase().includes(domain.toLowerCase())) return false;
-        if (CURRENT_WORKPLACE !== 'ANY' && j.workplace_type !== CURRENT_WORKPLACE) return false;
-        if (hideDealbreakers && ev && ev.has_dealbreaker) return false;
-        if (query) {
-          const matchText = `${j.title} ${j.company} ${j.domain} ${(j.tags||[]).join(' ')}`.toLowerCase();
-          if (!matchText.includes(query)) return false;
-        }
-        return true;
-      });
-
-      if (document.getElementById('displayedCount')) {
-        document.getElementById('displayedCount').innerText = filtered.length;
-      }
-      renderExplorerCards(filtered);
-    }
-
-    function renderExplorerCards(items) {
-      const container = document.getElementById('explorerCardsGrid');
-      if (!container) return;
-      if (items.length === 0) {
-        container.innerHTML = `<div class="text-center py-16 text-slate-500">No opportunities match current filter.</div>`;
-        return;
-      }
-
-      container.innerHTML = items.map(item => {
-        const j = item.job;
-        const ev = item.evaluation || { score: 50, match_tier: 'MODERATE', pros: [], cons: [] };
-        const initials = (j.company || 'TC').split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
-
-        return `
-          <div class="glass-card rounded-2xl p-4 border border-surface-800 flex items-center justify-between gap-4">
-            <div class="flex items-center gap-3.5 flex-1">
-              <div class="w-10 h-10 rounded-xl bg-surface-800 text-white font-bold text-xs flex items-center justify-center border border-surface-700">
-                ${initials}
-              </div>
-              <div>
-                <div class="flex items-center gap-2 mb-0.5">
-                  <span class="text-xs font-bold text-slate-300">${j.company}</span>
-                  <span class="px-2 py-0.2 rounded text-[9px] bg-surface-800 text-slate-400">${j.domain}</span>
+            
+            <div class="p-6 overflow-y-auto space-y-6 flex-1 text-sm">
+                <!-- Question Card -->
+                <div class="p-5 rounded-2xl bg-dark-800 border border-white/10 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span id="interview-q-category" class="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-semibold bg-brand-500/20 text-brand-300">Technical Core</span>
+                        <button onclick="speakCurrentQuestion()" class="flex items-center space-x-1.5 px-3 py-1 rounded-lg bg-dark-700 hover:bg-dark-600 text-xs text-slate-300 transition">
+                            <svg class="w-3.5 h-3.5 text-brand-400" fill="currentColor" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+                            <span>Read Aloud</span>
+                        </button>
+                    </div>
+                    <h4 id="interview-q-text" class="text-base font-semibold text-white leading-snug"></h4>
+                    <p id="interview-q-guidance" class="text-xs text-slate-400 italic"></p>
                 </div>
-                <h4 class="text-sm font-extrabold text-white"><a href="${j.url}" target="_blank" class="hover:underline">${j.title}</a></h4>
-              </div>
+
+                <!-- Answer Dictation / Text Input -->
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <label class="text-xs font-mono text-slate-300">Your Verbal or Typed Response:</label>
+                        <button id="btn-voice-record" onclick="toggleVoiceDictation()" class="flex items-center space-x-2 px-3 py-1 rounded-lg bg-rose-500/20 text-rose-300 hover:bg-rose-500/30 border border-rose-500/30 transition text-xs">
+                            <span class="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
+                            <span id="voice-record-text">Start Mic Dictation</span>
+                        </button>
+                    </div>
+
+                    <!-- Audio Waveform Visualizer -->
+                    <div id="audio-waveform" class="h-10 bg-dark-900/60 rounded-xl border border-white/5 flex items-center justify-center space-x-1 hidden">
+                        <div class="w-1 bg-brand-400 rounded-full waveform-bar"></div>
+                        <div class="w-1 bg-brand-500 rounded-full waveform-bar"></div>
+                        <div class="w-1 bg-indigo-400 rounded-full waveform-bar"></div>
+                        <div class="w-1 bg-indigo-500 rounded-full waveform-bar"></div>
+                        <div class="w-1 bg-pink-400 rounded-full waveform-bar"></div>
+                        <div class="w-1 bg-pink-500 rounded-full waveform-bar"></div>
+                        <div class="w-1 bg-brand-400 rounded-full waveform-bar"></div>
+                        <div class="w-1 bg-brand-500 rounded-full waveform-bar"></div>
+                    </div>
+
+                    <textarea id="interview-answer-input" rows="4" placeholder="Speak into microphone or type your STAR response here..." class="w-full p-4 rounded-xl bg-dark-800 border border-white/10 text-sm text-slate-200 focus:outline-none focus:border-brand-500"></textarea>
+                </div>
+
+                <!-- AI Evaluation Feedback Result Box -->
+                <div id="interview-eval-box" class="p-5 rounded-2xl bg-dark-800 border border-emerald-500/30 space-y-4 hidden">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-mono font-semibold text-emerald-400">AI Evaluation Feedback</span>
+                        <div class="flex items-center space-x-1.5 text-emerald-300 font-bold text-lg font-mono">
+                            <span id="eval-score-num">88</span><span>/100</span>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                        <div class="p-3 rounded-xl bg-dark-900/60 border border-white/5">
+                            <span class="text-emerald-400 font-semibold block mb-1">Demonstrated Strengths:</span>
+                            <ul id="eval-strengths" class="space-y-1 list-disc list-inside text-slate-300"></ul>
+                        </div>
+                        <div class="p-3 rounded-xl bg-dark-900/60 border border-white/5">
+                            <span class="text-amber-400 font-semibold block mb-1">Target Improvements:</span>
+                            <ul id="eval-improvements" class="space-y-1 list-disc list-inside text-slate-300"></ul>
+                        </div>
+                    </div>
+                    <div class="p-3.5 rounded-xl bg-dark-900/80 border border-white/5 text-xs text-slate-300">
+                        <span class="text-brand-300 font-semibold block mb-1">Exemplary Reference Answer:</span>
+                        <p id="eval-ideal-answer" class="text-slate-300 leading-relaxed"></p>
+                    </div>
+                </div>
             </div>
-            <div class="flex items-center gap-3">
-              <span class="text-xs font-bold text-accent-emerald">${ev.score}% Match</span>
-              <button onclick="preparePackage('${j.id}')" class="px-3 py-1.5 rounded-lg bg-surface-800 hover:bg-surface-700 text-xs font-semibold text-slate-200">Prepare</button>
+
+            <div class="p-4 border-t border-white/10 bg-dark-900/80 flex items-center justify-between">
+                <button onclick="closeModal('interview-modal')" class="px-4 py-2 rounded-xl text-slate-400 hover:text-white text-sm">Exit Session</button>
+                <button id="btn-submit-answer" onclick="submitInterviewAnswer()" class="px-5 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-sm shadow-lg shadow-brand-500/20 transition">
+                    Evaluate Answer with AI
+                </button>
             </div>
-          </div>
-        `;
-      }).join('');
-    }
+        </div>
+    </div>
 
-    function setWorkplaceFilter(type) {
-      CURRENT_WORKPLACE = type;
-      document.querySelectorAll('.workplace-btn').forEach(b => {
-        b.classList.remove('bg-accent-indigo', 'text-white', 'font-bold');
-        b.classList.add('text-slate-400', 'font-semibold');
-      });
-      const active = document.getElementById(`btnWorkplace${type}`);
-      if (active) {
-        active.classList.add('bg-accent-indigo', 'text-white', 'font-bold');
-        active.classList.remove('text-slate-400');
-      }
-      applyFilters();
-    }
+    <!-- MODAL 4: Resume & LinkedIn Profile Importer -->
+    <div id="importer-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 hidden">
+        <div class="glass-panel w-full max-w-2xl rounded-2xl border border-white/10 flex flex-col shadow-2xl overflow-hidden">
+            <div class="p-6 border-b border-white/10 flex items-center justify-between">
+                <div>
+                    <h3 class="text-xl font-bold text-white">Import Candidate Profile</h3>
+                    <p class="text-xs text-slate-400 mt-0.5">Paste your resume text or LinkedIn summary to auto-update target guardrails and skills.</p>
+                </div>
+                <button onclick="closeModal('importer-modal')" class="p-2 rounded-lg text-slate-400 hover:text-white bg-dark-800 border border-white/5">&times;</button>
+            </div>
+            <div class="p-6 space-y-4">
+                <textarea id="import-text-input" rows="8" placeholder="Paste your raw resume text or LinkedIn 'About' / experience section here..." class="w-full p-4 rounded-xl bg-dark-800 border border-white/10 text-sm text-slate-200 focus:outline-none focus:border-brand-500"></textarea>
+            </div>
+            <div class="p-4 border-t border-white/10 bg-dark-900/80 flex items-center justify-between">
+                <button onclick="closeModal('importer-modal')" class="px-4 py-2 rounded-xl text-slate-400 hover:text-white text-sm">Cancel</button>
+                <button onclick="submitProfileImport()" class="px-5 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-sm shadow-lg shadow-brand-500/20 transition">
+                    Parse & Sync Profile
+                </button>
+            </div>
+        </div>
+    </div>
 
-    async function triggerDiscovery() {
-      const btn = document.getElementById('discoverBtn');
-      btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i><span>Syncing...</span>`;
-      btn.disabled = true;
-      try {
-        await fetch('/api/jobs/discover', { method: 'POST' });
-        await fetchBriefing();
-        await fetchJobs();
-      } catch (e) {
-        console.error(e);
-      } finally {
-        btn.innerHTML = `<i class="fa-solid fa-arrows-rotate"></i><span>Sync Feeds</span>`;
-        btn.disabled = false;
-      }
-    }
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed bottom-6 right-6 z-50 space-y-2 pointer-events-none"></div>
 
-    async function preparePackage(jobId) {
-      const res = await fetch(`/api/jobs/${jobId}/prepare-package`, { method: 'POST' });
-      const data = await res.json();
-      if (data.status === 'success') {
-        const pkg = data.package;
-        document.getElementById('modalPkgTitle').innerText = pkg.title;
-        document.getElementById('modalPkgCompany').innerText = `Tailored for ${pkg.company}`;
-        document.getElementById('modalAtsScore').innerText = pkg.audit_result ? pkg.audit_result.ats_score : 94;
-        document.getElementById('modalPitchText').innerText = pkg.direct_pitch_letter;
-        document.getElementById('downloadPdfBtn').href = `/api/jobs/${jobId}/pdf`;
+    <!-- Application Script -->
+    <script>
+        let currentView = 'briefing';
+        let activeBriefingData = null;
+        let activePipelineData = null;
+        let allJobsData = [];
+        let selectedJobId = null;
+        let currentInterviewSession = null;
+        let currentQuestionIndex = 0;
+        let speechRecognition = null;
+        let isRecording = false;
 
-        const bulletsList = document.getElementById('modalBulletsList');
-        bulletsList.innerHTML = (pkg.tailored_experience_bullets || []).map(b => `<li class="flex items-start gap-2.5"><i class="fa-solid fa-circle-check text-accent-violet text-xs mt-1"></i><span>${b}</span></li>`).join('');
-
-        document.getElementById('packageModal').classList.remove('hidden');
-        document.getElementById('packageModal').classList.add('flex');
-        await fetchJobs();
-      }
-    }
-
-    function closePackageModal() {
-      document.getElementById('packageModal').classList.add('hidden');
-      document.getElementById('packageModal').classList.remove('flex');
-    }
-
-    function copyPitchText() {
-      const text = document.getElementById('modalPitchText').innerText;
-      navigator.clipboard.writeText(text);
-      document.getElementById('copyPitchLabel').innerText = 'Copied!';
-      setTimeout(() => {
-        document.getElementById('copyPitchLabel').innerText = 'Copy Pitch';
-      }, 2000);
-    }
-
-    async function startInterview(jobId) {
-      const res = await fetch(`/api/interview/${jobId}/start`, { method: 'POST' });
-      const data = await res.json();
-      if (data.status === 'success') {
-        CURRENT_INTERVIEW_SESSION = data.session;
-        ACTIVE_QUESTION_IDX = 0;
-        document.getElementById('modalIntRole').innerText = `Interview for ${CURRENT_INTERVIEW_SESSION.role}`;
-        document.getElementById('modalIntCompany').innerText = CURRENT_INTERVIEW_SESSION.company;
-        renderInterviewQuestionTabs();
-        loadQuestion(0);
-        document.getElementById('interviewModal').classList.remove('hidden');
-        document.getElementById('interviewModal').classList.add('flex');
-      }
-    }
-
-    function renderInterviewQuestionTabs() {
-      const tabs = document.getElementById('intQuestionTabs');
-      tabs.innerHTML = CURRENT_INTERVIEW_SESSION.questions.map((q, idx) => `
-        <button onclick="loadQuestion(${idx})" class="int-tab-btn py-2 px-2.5 rounded-xl text-[11px] font-bold text-center border transition ${idx === ACTIVE_QUESTION_IDX ? 'bg-gradient-to-r from-accent-indigo to-accent-violet text-white border-accent-indigo' : 'bg-surface-950 text-slate-400 border-surface-800 hover:bg-surface-800'}">
-          Q${q.question_id}: ${q.category.split(' ')[0]}
-        </button>
-      `).join('');
-    }
-
-    function loadQuestion(idx) {
-      ACTIVE_QUESTION_IDX = idx;
-      renderInterviewQuestionTabs();
-      const q = CURRENT_INTERVIEW_SESSION.questions[idx];
-      document.getElementById('intCatBadge').innerText = q.category;
-      document.getElementById('intCurrentQNum').innerText = q.question_id;
-      document.getElementById('intQuestionText').innerText = q.question;
-      document.getElementById('intGuidanceText').innerText = `Strategic Guidance: ${q.guidance}`;
-      document.getElementById('intUserAnswer').value = '';
-      document.getElementById('intFeedbackSection').classList.add('hidden');
-    }
-
-    async function submitAnswer() {
-      const q = CURRENT_INTERVIEW_SESSION.questions[ACTIVE_QUESTION_IDX];
-      const answer = document.getElementById('intUserAnswer').value.trim();
-      if (!answer) return;
-
-      const btn = document.getElementById('submitAnswerBtn');
-      btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i><span>Analyzing...</span>`;
-      btn.disabled = true;
-
-      try {
-        const res = await fetch('/api/interview/evaluate', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            session_id: CURRENT_INTERVIEW_SESSION.session_id,
-            question_id: q.question_id,
-            user_answer: answer,
-          }),
+        // ── Init & Event Listeners ────────────────────────────────────────────
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchProfile();
+            fetchBriefing();
+            fetchPipeline();
+            fetchJobsArchive();
+            initSSE();
+            initSpeechRecognition();
         });
-        const data = await res.json();
-        if (data.status === 'success') {
-          const ev = data.evaluation;
-          document.getElementById('intScoreBadge').innerText = `${ev.score}%`;
-          document.getElementById('intStrengthsList').innerHTML = (ev.strengths || []).map(s => `<li>${s}</li>`).join('');
-          document.getElementById('intImprovementsList').innerHTML = (ev.improvements || []).map(i => `<li>${i}</li>`).join('');
-          document.getElementById('intModelAnswer').innerText = ev.suggested_ideal_answer;
-          document.getElementById('intFeedbackSection').classList.remove('hidden');
+
+        function showToast(title, message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `p-4 rounded-xl glass-panel border ${type === 'success' ? 'border-emerald-500/40 text-emerald-300' : 'border-brand-500/40 text-brand-300'} text-xs shadow-2xl flex items-center space-x-3 pointer-events-auto transition transform translate-y-2 opacity-0`;
+            toast.innerHTML = `
+                <div class="w-2 h-2 rounded-full ${type === 'success' ? 'bg-emerald-400' : 'bg-brand-400'}"></div>
+                <div>
+                    <strong class="block font-semibold text-white">${title}</strong>
+                    <span class="text-slate-300">${message}</span>
+                </div>
+            `;
+            container.appendChild(toast);
+            setTimeout(() => { toast.classList.remove('translate-y-2', 'opacity-0'); }, 50);
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
         }
-      } catch (e) {
-        console.error(e);
-      } finally {
-        btn.innerHTML = `<i class="fa-solid fa-paper-plane"></i><span>Evaluate Answer</span>`;
-        btn.disabled = false;
-      }
-    }
 
-    function closeInterviewModal() {
-      document.getElementById('interviewModal').classList.add('hidden');
-      document.getElementById('interviewModal').classList.remove('flex');
-    }
-
-    function openUrlModal() {
-      document.getElementById('urlModal').classList.remove('hidden');
-      document.getElementById('urlModal').classList.add('flex');
-    }
-    function closeUrlModal() {
-      document.getElementById('urlModal').classList.add('hidden');
-      document.getElementById('urlModal').classList.remove('flex');
-    }
-    async function submitParseUrl() {
-      const url = document.getElementById('customJobUrl').value.trim();
-      if (!url) return;
-      const btn = document.getElementById('parseUrlBtn');
-      btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i><span>Extracting...</span>`;
-      btn.disabled = true;
-      try {
-        const res = await fetch('/api/jobs/parse-url', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ url }),
-        });
-        if (res.ok) {
-          closeUrlModal();
-          await fetchJobs();
-          switchView('explorer');
+        function switchView(viewName) {
+            currentView = viewName;
+            ['briefing', 'radar', 'archive'].forEach(v => {
+                const el = document.getElementById(`view-${v}`);
+                const tab = document.getElementById(`tab-${v}`);
+                if (v === viewName) {
+                    el.classList.remove('hidden');
+                    tab.className = "px-4 py-1.5 rounded-lg text-sm font-medium transition-all bg-brand-600 text-white shadow-sm";
+                } else {
+                    el.classList.add('hidden');
+                    tab.className = "px-4 py-1.5 rounded-lg text-sm font-medium transition-all text-slate-400 hover:text-white";
+                }
+            });
+            if (viewName === 'briefing') fetchBriefing();
+            if (viewName === 'radar') fetchPipeline();
+            if (viewName === 'archive') fetchJobsArchive();
         }
-      } catch (e) {
-        console.error(e);
-      } finally {
-        btn.innerHTML = `<i class="fa-solid fa-magnifying-glass"></i><span>Extract & Score Fit</span>`;
-        btn.disabled = false;
-      }
-    }
 
-    function toggleProfileModal() {
-      const m = document.getElementById('profileModal');
-      m.classList.toggle('hidden');
-      m.classList.toggle('flex');
-    }
+        // ── Profile API ───────────────────────────────────────────────────────
+        async function fetchProfile() {
+            try {
+                const res = await fetch('/api/profile');
+                const data = await res.json();
+                document.getElementById('header-user-name').innerText = data.name || 'Alex Morgan';
+                const initials = (data.name || 'AM').split(' ').map(n => n[0]).join('');
+                document.getElementById('profile-initials').innerText = initials;
+            } catch (e) {
+                console.error(e);
+            }
+        }
 
-    window.onload = init;
-  </script>
+        function openProfileImporterModal() {
+            document.getElementById('importer-modal').classList.remove('hidden');
+        }
+
+        async function submitProfileImport() {
+            const rawText = document.getElementById('import-text-input').value;
+            if (!rawText || rawText.trim().length < 20) {
+                showToast('Text too short', 'Please paste at least a few sentences from your resume.', 'error');
+                return;
+            }
+            try {
+                const res = await fetch('/api/profile/import', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ raw_text: rawText })
+                });
+                const profile = await res.json();
+                showToast('Profile Updated', `Parsed skills for ${profile.name} and synced with DB.`);
+                closeModal('importer-modal');
+                fetchProfile();
+                fetchBriefing();
+            } catch (e) {
+                showToast('Import Error', e.message, 'error');
+            }
+        }
+
+        // ── Executive Briefing API ────────────────────────────────────────────
+        async function fetchBriefing() {
+            try {
+                const res = await fetch('/api/briefing');
+                activeBriefingData = await res.json();
+                document.getElementById('briefing-date').innerText = activeBriefingData.date || 'Today';
+                document.getElementById('briefing-summary').innerText = activeBriefingData.executive_summary || '';
+                renderBriefingCards(activeBriefingData.top_opportunities || [], activeBriefingData.top_evaluations || []);
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function renderBriefingCards(jobs, evaluations) {
+            const container = document.getElementById('briefing-cards');
+            if (!jobs.length) {
+                container.innerHTML = '<div class="col-span-3 text-center py-12 text-slate-400 font-mono text-sm">No high-fit opportunities discovered yet.</div>';
+                return;
+            }
+            container.innerHTML = jobs.map((job, idx) => {
+                const ev = evaluations[idx] || { score: 90, match_tier: 'EXCELLENT', pros: [] };
+                return `
+                    <div class="glass-card rounded-2xl p-6 flex flex-col justify-between space-y-5 border border-white/5">
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-semibold bg-brand-500/20 text-brand-300">${job.domain || 'Backend'}</span>
+                                <div class="flex items-center space-x-1 text-emerald-400 font-mono font-bold text-sm">
+                                    <span>${ev.score}% Match</span>
+                                </div>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold text-white leading-tight">${job.title}</h3>
+                                <p class="text-sm text-slate-400 font-medium">${job.company} • <span class="text-slate-500">${job.location}</span></p>
+                            </div>
+                            <div class="space-y-1 text-xs text-slate-300">
+                                ${(ev.pros || []).slice(0, 2).map(pro => `<div class="flex items-start space-x-1.5"><span class="text-emerald-400">&bull;</span><span>${pro}</span></div>`).join('')}
+                            </div>
+                        </div>
+
+                        <div class="pt-4 border-t border-white/5 space-y-2">
+                            <button onclick="openPackageModal('${job.id}')" class="w-full py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-xs transition shadow-md shadow-brand-500/20 flex items-center justify-center space-x-2">
+                                <span>Review Precompiled Package & Pitch</span>
+                            </button>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button onclick="startMockInterview('${job.id}')" class="py-2 rounded-xl bg-dark-700 hover:bg-dark-600 text-slate-300 font-medium text-xs border border-white/5 transition">
+                                    Mock Interview
+                                </button>
+                                <button onclick="applyDirectly('${job.id}')" class="py-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 font-semibold text-xs border border-emerald-500/30 transition">
+                                    1-Click Apply
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ── Response Radar API ────────────────────────────────────────────────
+        async function fetchPipeline() {
+            try {
+                const res = await fetch('/api/pipeline');
+                activePipelineData = await res.json();
+                document.getElementById('radar-active-count').innerText = activePipelineData.total_active || 0;
+                document.getElementById('radar-due-count').innerText = activePipelineData.follow_up_due_count || 0;
+                document.getElementById('radar-badge').innerText = activePipelineData.follow_up_due_count || 0;
+                renderPipelineRadar(activePipelineData.applications || []);
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function renderPipelineRadar(items) {
+            const container = document.getElementById('radar-pipeline-list');
+            if (!items.length) {
+                container.innerHTML = '<div class="text-center py-12 text-slate-500 font-mono text-sm">No active applications currently tracked.</div>';
+                return;
+            }
+            container.innerHTML = items.map(item => {
+                const app = item.application;
+                const isDue = app.follow_up_due;
+                return `
+                    <div class="glass-card rounded-2xl p-5 border ${isDue ? 'border-amber-500/30 bg-amber-500/5' : 'border-white/5'} flex flex-wrap items-center justify-between gap-4">
+                        <div class="space-y-1">
+                            <div class="flex items-center space-x-2">
+                                <h4 class="font-bold text-white text-base">${app.title}</h4>
+                                <span class="text-sm text-slate-400 font-medium">@ ${app.company}</span>
+                                ${isDue ? '<span class="px-2 py-0.5 rounded-full text-[10px] font-mono bg-amber-500/20 text-amber-300 font-bold border border-amber-500/30">FOLLOW-UP DUE (DAY ' + app.days_since_applied + ')</span>' : '<span class="px-2 py-0.5 rounded-full text-[10px] font-mono bg-dark-700 text-slate-400">Day ' + app.days_since_applied + '</span>'}
+                            </div>
+                            <p class="text-xs text-slate-400 font-mono">Follow-ups dispatched: ${app.follow_up_count}</p>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="openFollowupModal('${app.job_id}')" class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-dark-900 font-bold text-xs shadow-md transition">
+                                Generate Benchmark Note
+                            </button>
+                            <button onclick="openPackageModal('${app.job_id}')" class="px-3 py-2 rounded-xl bg-dark-700 hover:bg-dark-600 text-slate-300 text-xs font-medium border border-white/5 transition">
+                                View Pitch
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ── Archive Jobs ──────────────────────────────────────────────────────
+        async function fetchJobsArchive() {
+            try {
+                const res = await fetch('/api/jobs');
+                const data = await res.json();
+                allJobsData = data.jobs || data.results || [];
+                document.getElementById('archive-count').innerText = allJobsData.length;
+                applyFilters();
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function applyFilters() {
+            const query = (document.getElementById('filter-search').value || '').toLowerCase();
+            const domain = document.getElementById('filter-domain').value;
+            const workplace = document.getElementById('filter-workplace').value;
+
+            const filtered = allJobsData.filter(item => {
+                const job = item.job;
+                if (domain && job.domain !== domain) return false;
+                if (workplace && job.workplace_type !== workplace) return false;
+                if (query) {
+                    const matchTitle = job.title.toLowerCase().includes(query);
+                    const matchComp = job.company.toLowerCase().includes(query);
+                    const matchTags = (job.tags || []).some(t => t.toLowerCase().includes(query));
+                    if (!matchTitle && !matchComp && !matchTags) return false;
+                }
+                return true;
+            });
+
+            document.getElementById('archive-count').innerText = filtered.length;
+            const container = document.getElementById('archive-jobs-grid');
+            if (!filtered.length) {
+                container.innerHTML = '<div class="col-span-3 text-center py-12 text-slate-500 font-mono text-sm">No jobs match your filter.</div>';
+                return;
+            }
+            container.innerHTML = filtered.map(item => {
+                const job = item.job;
+                const ev = item.evaluation || { score: 75 };
+                return `
+                    <div class="glass-card rounded-2xl p-5 flex flex-col justify-between space-y-4 border border-white/5">
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-dark-700 text-slate-300">${job.domain}</span>
+                                <span class="text-xs font-mono font-bold text-emerald-400">${ev.score}% Match</span>
+                            </div>
+                            <h4 class="font-bold text-white text-base">${job.title}</h4>
+                            <p class="text-xs text-slate-400">${job.company} • ${job.location}</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="openPackageModal('${job.id}')" class="flex-1 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-xs transition">
+                                Package & Pitch
+                            </button>
+                            <button onclick="applyDirectly('${job.id}')" class="px-3 py-2 rounded-xl bg-dark-700 hover:bg-dark-600 text-slate-300 text-xs font-medium border border-white/5 transition">
+                                Apply
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ── Package Modal & Direct Pitch ──────────────────────────────────────
+        async function openPackageModal(jobId) {
+            selectedJobId = jobId;
+            try {
+                let pkgRes = await fetch(`/api/jobs/${jobId}/prepare-package`, { method: 'POST' });
+                let data = await pkgRes.json();
+                let pkg = data.package;
+
+                document.getElementById('modal-role-title').innerText = pkg.title;
+                document.getElementById('modal-company-name').innerText = pkg.company;
+                document.getElementById('modal-pitch-body').innerText = pkg.direct_pitch_letter;
+                document.getElementById('modal-ats-score').innerText = (pkg.audit_result?.ats_score || 92) + '%';
+                
+                const bullets = document.getElementById('modal-bullets-list');
+                bullets.innerHTML = (pkg.tailored_experience_bullets || []).map(b => `<li>${b}</li>`).join('');
+
+                document.getElementById('btn-download-pdf').href = `/api/jobs/${jobId}/pdf`;
+                document.getElementById('btn-eml').href = `/api/jobs/${jobId}/eml`;
+
+                // Fetch mailto link
+                const mRes = await fetch(`/api/jobs/${jobId}/mailto`);
+                const mData = await mRes.json();
+                document.getElementById('btn-mailto').href = mData.mailto_url || '#';
+
+                document.getElementById('package-modal').classList.remove('hidden');
+            } catch (e) {
+                showToast('Error', e.message, 'error');
+            }
+        }
+
+        function copyPitchText() {
+            const pitch = document.getElementById('modal-pitch-body').innerText;
+            navigator.clipboard.writeText(pitch);
+            showToast('Copied to Clipboard', '4-sentence direct pitch copied successfully.');
+        }
+
+        async function applyFromModal() {
+            if (!selectedJobId) return;
+            await applyDirectly(selectedJobId);
+            closeModal('package-modal');
+        }
+
+        async function applyDirectly(jobId) {
+            try {
+                const res = await fetch(`/api/jobs/${jobId}/apply`, { method: 'POST' });
+                showToast('Application Logged', '5-day Response Radar is now monitoring this role.');
+                fetchPipeline();
+                fetchBriefing();
+            } catch (e) {
+                showToast('Error', e.message, 'error');
+            }
+        }
+
+        // ── Follow-Up Modal ───────────────────────────────────────────────────
+        async function openFollowupModal(jobId) {
+            selectedJobId = jobId;
+            try {
+                const res = await fetch(`/api/jobs/${jobId}/generate-followup`, { method: 'POST' });
+                const data = await res.json();
+                const draft = data.followup_draft;
+
+                document.getElementById('followup-modal-target').innerText = draft.company;
+                document.getElementById('followup-subject').value = draft.subject;
+                document.getElementById('followup-body').value = draft.body;
+
+                document.getElementById('followup-modal').classList.remove('hidden');
+            } catch (e) {
+                showToast('Error', e.message, 'error');
+            }
+        }
+
+        function copyFollowupText() {
+            const body = document.getElementById('followup-body').value;
+            navigator.clipboard.writeText(body);
+            showToast('Copied to Clipboard', 'Technical benchmark follow-up note copied.');
+        }
+
+        async function confirmFollowupSent() {
+            if (!selectedJobId) return;
+            try {
+                await fetch(`/api/jobs/${selectedJobId}/send-followup`, { method: 'POST' });
+                showToast('Follow-Up Dispatched', 'Reset radar alert flag and recorded timestamp.');
+                closeModal('followup-modal');
+                fetchPipeline();
+            } catch (e) {
+                showToast('Error', e.message, 'error');
+            }
+        }
+
+        // ── Mock Interview Audio Studio ───────────────────────────────────────
+        async function startMockInterview(jobId) {
+            try {
+                const res = await fetch(`/api/interview/${jobId}/start`, { method: 'POST' });
+                const data = await res.json();
+                currentInterviewSession = data.session;
+                currentQuestionIndex = 0;
+                renderInterviewQuestion();
+                document.getElementById('interview-modal').classList.remove('hidden');
+            } catch (e) {
+                showToast('Error', e.message, 'error');
+            }
+        }
+
+        function renderInterviewQuestion() {
+            if (!currentInterviewSession) return;
+            const q = currentInterviewSession.questions[currentQuestionIndex];
+            document.getElementById('interview-modal-subtitle').innerText = `${currentInterviewSession.company} • Question ${currentQuestionIndex + 1} of ${currentInterviewSession.questions.length}`;
+            document.getElementById('interview-q-category').innerText = q.category;
+            document.getElementById('interview-q-text').innerText = q.question;
+            document.getElementById('interview-q-guidance').innerText = `Pro-Tip: ${q.guidance}`;
+            document.getElementById('interview-answer-input').value = '';
+            document.getElementById('interview-eval-box').classList.add('hidden');
+            document.getElementById('btn-submit-answer').innerText = 'Evaluate Answer with AI';
+            document.getElementById('btn-submit-answer').onclick = submitInterviewAnswer;
+        }
+
+        function speakCurrentQuestion() {
+            if (!('speechSynthesis' in window) || !currentInterviewSession) return;
+            const q = currentInterviewSession.questions[currentQuestionIndex];
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(q.question);
+            utterance.rate = 1.0;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function initSpeechRecognition() {
+            const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRec) {
+                console.log("Web Speech Recognition API not supported in this browser.");
+                return;
+            }
+            speechRecognition = new SpeechRec();
+            speechRecognition.continuous = true;
+            speechRecognition.interimResults = true;
+
+            speechRecognition.onresult = (event) => {
+                let transcript = '';
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    transcript += event.results[i][0].transcript;
+                }
+                document.getElementById('interview-answer-input').value = transcript;
+            };
+
+            speechRecognition.onerror = (e) => {
+                console.error("Speech rec error:", e);
+                stopVoiceDictation();
+            };
+        }
+
+        function toggleVoiceDictation() {
+            if (!speechRecognition) {
+                showToast('Speech API Note', 'Please type your answer directly in the box.', 'error');
+                return;
+            }
+            if (isRecording) {
+                stopVoiceDictation();
+            } else {
+                startVoiceDictation();
+            }
+        }
+
+        function startVoiceDictation() {
+            try {
+                speechRecognition.start();
+                isRecording = true;
+                document.getElementById('voice-record-text').innerText = 'Recording... Click to Stop';
+                document.getElementById('audio-waveform').classList.remove('hidden');
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function stopVoiceDictation() {
+            try {
+                speechRecognition.stop();
+                isRecording = false;
+                document.getElementById('voice-record-text').innerText = 'Start Mic Dictation';
+                document.getElementById('audio-waveform').classList.add('hidden');
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        async function submitInterviewAnswer() {
+            const ans = document.getElementById('interview-answer-input').value;
+            if (!ans || ans.trim().length < 10) {
+                showToast('Answer required', 'Please speak or type a response first.', 'error');
+                return;
+            }
+            stopVoiceDictation();
+            const q = currentInterviewSession.questions[currentQuestionIndex];
+
+            try {
+                const res = await fetch(`/api/interview/${currentInterviewSession.session_id}/evaluate`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ question_id: q.question_id, user_answer: ans })
+                });
+                const data = await res.json();
+                const evalData = data.evaluation;
+
+                document.getElementById('eval-score-num').innerText = evalData.score;
+                document.getElementById('eval-strengths').innerHTML = (evalData.strengths || []).map(s => `<li>${s}</li>`).join('');
+                document.getElementById('eval-improvements').innerHTML = (evalData.improvements || []).map(i => `<li>${i}</li>`).join('');
+                document.getElementById('eval-ideal-answer').innerText = evalData.suggested_ideal_answer || '';
+                document.getElementById('interview-eval-box').classList.remove('hidden');
+
+                if (currentQuestionIndex + 1 < currentInterviewSession.questions.length) {
+                    const btn = document.getElementById('btn-submit-answer');
+                    btn.innerText = `Next Question (${currentQuestionIndex + 2}/4) →`;
+                    btn.onclick = () => {
+                        currentQuestionIndex++;
+                        renderInterviewQuestion();
+                    };
+                } else {
+                    const btn = document.getElementById('btn-submit-answer');
+                    btn.innerText = 'Complete Session';
+                    btn.onclick = () => {
+                        closeModal('interview-modal');
+                        showToast('Session Complete', `Overall Mock Interview Score: ${data.overall_score}%`);
+                    };
+                }
+            } catch (e) {
+                showToast('Error', e.message, 'error');
+            }
+        }
+
+        // ── SSE Stream Listener ───────────────────────────────────────────────
+        function initSSE() {
+            try {
+                const source = new EventSource('/api/stream');
+                source.onopen = () => {
+                    document.getElementById('sse-indicator').className = 'w-2 h-2 rounded-full bg-emerald-400 animate-pulse';
+                    document.getElementById('sse-text').innerText = 'Radar Live';
+                };
+                source.addEventListener('high_fit_match', (e) => {
+                    const data = JSON.parse(e.data);
+                    showToast('High-Fit Role Discovered', `${data.company} - ${data.title} (${data.score}% match)`);
+                    fetchBriefing();
+                });
+                source.onerror = () => {
+                    document.getElementById('sse-indicator').className = 'w-2 h-2 rounded-full bg-rose-500';
+                    document.getElementById('sse-text').innerText = 'Connecting...';
+                };
+            } catch (e) {
+                console.error("SSE not supported:", e);
+            }
+        }
+
+        async function triggerSchedulerSync() {
+            showToast('Scouring Feeds', 'Querying Jobicy, RemoteOK, Arbeitnow, and HN...');
+            try {
+                const res = await fetch('/api/scheduler/trigger', { method: 'POST' });
+                const data = await res.json();
+                showToast('Sync Complete', `Discovered ${data.new_jobs_discovered} new opportunities.`);
+                fetchBriefing();
+                fetchJobsArchive();
+            } catch (e) {
+                showToast('Sync Error', e.message, 'error');
+            }
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+    </script>
 </body>
 </html>
