@@ -3,7 +3,7 @@ RolePointer — Pydantic Schemas & Data Contracts
 """
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import List, Optional
 from uuid import UUID, uuid4
@@ -31,9 +31,54 @@ class TriageStatus(str, Enum):
     SKIPPED = "skipped"
     PACKAGE_PREPARED = "package_prepared"
     APPLIED = "applied"
+    AWAITING_REPLY = "awaiting_reply"
+    FOLLOW_UP_DUE = "follow_up_due"
     INTERVIEWING = "interviewing"
     REJECTED = "rejected"
     OFFER = "offer"
+
+
+# ── Application Tracking & Response Radar ──────────────────────────────────
+
+class ApplicationRecord(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid4()))
+    job_id: str
+    company: str
+    title: str
+    applied_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    days_since_applied: int = 0
+    status: TriageStatus = TriageStatus.AWAITING_REPLY
+    follow_up_due: bool = False
+    follow_up_count: int = 0
+    last_follow_up_at: Optional[datetime] = None
+    direct_pitch_letter: Optional[str] = None
+
+
+class FollowUpDraft(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid4()))
+    job_id: str
+    company: str
+    role: str
+    days_since_outreach: int
+    follow_up_strategy: str = "Value-Add Technical Insight"
+    subject: str
+    body: str
+    talking_point: str
+    recommended_action: str = "Send 1-Click Value-Add Follow-Up"
+
+
+# ── Executive Morning Briefing ───────────────────────────────────────────────
+
+class ExecutiveBriefing(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid4()))
+    date: str
+    greeting: str
+    total_scoured: int
+    qualified_count: int
+    top_opportunities: List[JobListing] = Field(default_factory=list)
+    top_evaluations: List[FitEvaluation] = Field(default_factory=list)
+    precompiled_packages: List[TailoredPackage] = Field(default_factory=list)
+    executive_summary: str
 
 
 # ── User Profile ─────────────────────────────────────────────────────────────
@@ -84,7 +129,7 @@ class JobListing(BaseModel):
     description: str
     url: str
     source: str = "Direct"
-    posted_at: datetime = Field(default_factory=datetime.utcnow)
+    posted_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     triage_status: TriageStatus = TriageStatus.DISCOVERED
 
 
@@ -131,7 +176,7 @@ class TailoredPackage(BaseModel):
     direct_pitch_letter: str  # 4-sentence direct pitch
     audit_result: ReviewAuditResult = Field(default_factory=ReviewAuditResult)
     pdf_filename: Optional[str] = None
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 # ── Mock Interview Simulator ──────────────────────────────────────────────────
@@ -160,7 +205,7 @@ class MockInterviewSession(BaseModel):
     questions: List[MockInterviewQuestion] = Field(default_factory=list)
     evaluations: List[MockInterviewEvaluation] = Field(default_factory=list)
     overall_score: Optional[int] = None
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 # ── Feed Search Filter Request ────────────────────────────────────────────────
