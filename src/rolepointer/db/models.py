@@ -119,3 +119,21 @@ class InterviewSessionORM(Base):
     evaluations_json: Mapped[str] = mapped_column(Text, default="[]")
     overall_score: Mapped[int | None] = mapped_column(Integer, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=_now)
+
+
+class ApplicationRecordORM(Base):
+    __tablename__ = "application_records"
+
+    id: Mapped[str] = mapped_column(String, primary_key=True, default=_uuid)
+    job_id: Mapped[str] = mapped_column(String, nullable=False, unique=True)
+    company: Mapped[str] = mapped_column(String, nullable=False)
+    title: Mapped[str] = mapped_column(String, nullable=False)
+    applied_at: Mapped[datetime] = mapped_column(DateTime, default=_now)
+    days_since_applied: Mapped[int] = mapped_column(Integer, default=0)
+    status: Mapped[str] = mapped_column(String, default="awaiting_reply")
+    follow_up_due: Mapped[bool] = mapped_column(Boolean, default=False)
+    follow_up_count: Mapped[int] = mapped_column(Integer, default=0)
+    last_follow_up_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    direct_pitch_letter: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=_now)
+
