@@ -37,7 +37,8 @@ from rolepointer.agents.interview_agent import (
 )
 from rolepointer.compiler.pdf_engine import compile_ats_resume_pdf, OUTPUT_DIR
 from rolepointer.core.model_config import (
-    get_strands_model, BedrockStrandsModel, GCPGeminiStrandsModel, OllamaStrandsModel
+    get_strands_model, BedrockStrandsModel, GCPGeminiStrandsModel,
+    OllamaStrandsModel, LMStudioStrandsModel
 )
 from rolepointer.db.repository import (
     init_db, save_job, get_all_jobs_with_evaluations,
@@ -81,6 +82,15 @@ def test_model_config_initialization():
     assert gcp_vertex.project == "test-gcp-project"
     assert gcp_vertex.location == "us-central1"
     assert gcp_vertex.use_vertex_ai is True
+
+    # Local Ollama & LM Studio Adapter Tests
+    ollama = OllamaStrandsModel(model_id="llama3.2", base_url="http://localhost:11434/v1")
+    assert ollama.model_id == "llama3.2"
+    assert hasattr(ollama, "discover_local_models")
+
+    lm_studio = LMStudioStrandsModel(model_id="local-model", base_url="http://localhost:1234/v1")
+    assert lm_studio.model_id == "local-model"
+    assert hasattr(lm_studio, "discover_loaded_models")
 
 
 def test_mock_feeds_generation():

@@ -33,10 +33,11 @@ class Settings(BaseSettings):
     google_application_credentials: str = ""
     use_vertex_ai: bool = False
 
-    # Local Ollama Fallback
+    # Local Offline Models (Ollama & LM Studio)
     use_local_model: bool = False
     local_model_name: str = "llama3.2"
     ollama_base_url: str = "http://localhost:11434/v1"
+    lm_studio_base_url: str = "http://localhost:1234/v1"
 
     # Database
     database_url: str = "sqlite:///rolepointer.db"

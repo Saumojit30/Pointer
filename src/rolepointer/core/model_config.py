@@ -19,7 +19,20 @@ class OllamaStrandsModel:
     def __init__(self, model_id: str = "llama3.2", base_url: str = "http://localhost:11434/v1"):
         self.model_id = model_id
         self.base_url = base_url.rstrip("/")
+        self._server_root = self.base_url[:-3] if self.base_url.endswith("/v1") else self.base_url
         logger.info(f"[ModelConfig] Initialized Local Ollama Model: {model_id} @ {self.base_url}")
+
+    def discover_local_models(self) -> list[str]:
+        """Queries Ollama /api/tags to list available downloaded model weights."""
+        try:
+            with httpx.Client(timeout=3.0) as client:
+                res = client.get(f"{self._server_root}/api/tags")
+                if res.status_code == 200:
+                    models = res.json().get("models", [])
+                    return [m.get("name", "") for m in models if m.get("name")]
+        except Exception as e:
+            logger.debug(f"[Ollama] Local /api/tags inspection note: {e}")
+        return []
 
     def generate(self, prompt: str, system_prompt: Optional[str] = None) -> str:
         messages = []
@@ -44,6 +57,57 @@ class OllamaStrandsModel:
         except Exception as e:
             logger.warning(f"Ollama invocation failed: {e}")
         return ""
+
+    def invoke(self, prompt: str) -> str:
+        return self.generate(prompt)
+
+
+class LMStudioStrandsModel:
+    """Local LM Studio adapter compatible with OpenAI drop-in completion protocol."""
+
+    def __init__(self, model_id: str = "local-model", base_url: str = "http://localhost:1234/v1"):
+        self.model_id = model_id
+        self.base_url = base_url.rstrip("/")
+        logger.info(f"[ModelConfig] Initialized Local LM Studio Model: {model_id} @ {self.base_url}")
+
+    def discover_loaded_models(self) -> list[str]:
+        """Queries LM Studio /v1/models to list active loaded models."""
+        try:
+            with httpx.Client(timeout=3.0) as client:
+                res = client.get(f"{self.base_url}/models")
+                if res.status_code == 200:
+                    models = res.json().get("data", [])
+                    return [m.get("id", "") for m in models if m.get("id")]
+        except Exception as e:
+            logger.debug(f"[LMStudio] Local /v1/models inspection note: {e}")
+        return []
+
+    def generate(self, prompt: str, system_prompt: Optional[str] = None) -> str:
+        messages = []
+        if system_prompt:
+            messages.append({"role": "system", "content": system_prompt})
+        messages.append({"role": "user", "content": prompt})
+
+        try:
+            with httpx.Client(timeout=60.0) as client:
+                res = client.post(
+                    f"{self.base_url}/chat/completions",
+                    json={
+                        "model": self.model_id,
+                        "messages": messages,
+                        "temperature": 0.2,
+                    },
+                )
+                if res.status_code == 200:
+                    data = res.json()
+                    return data["choices"][0]["message"]["content"]
+                logger.warning(f"LM Studio returned HTTP {res.status_code}: {res.text}")
+        except Exception as e:
+            logger.warning(f"LM Studio invocation failed: {e}")
+        return ""
+
+    def invoke(self, prompt: str) -> str:
+        return self.generate(prompt)
 
 
 class BedrockStrandsModel:
@@ -216,6 +280,13 @@ def get_strands_model() -> Any:
             project=settings.google_cloud_project or None,
             location=settings.google_cloud_location,
             use_vertex_ai=settings.use_vertex_ai,
+        )
+
+    # Explicit LM Studio
+    if provider in ("lmstudio", "lm_studio"):
+        return LMStudioStrandsModel(
+            model_id=settings.local_model_name,
+            base_url=settings.lm_studio_base_url,
         )
 
     # Local Ollama Fallback
