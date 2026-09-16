@@ -39,6 +39,12 @@ class Settings(BaseSettings):
     ollama_base_url: str = "http://localhost:11434/v1"
     lm_studio_base_url: str = "http://localhost:1234/v1"
 
+    # LangSmith Observability & Evals (Free Developer Tier)
+    langsmith_tracing: bool = False
+    langsmith_api_key: str = ""
+    langsmith_project: str = "rolepointer"
+    langsmith_endpoint: str = "https://api.smith.langchain.com"
+
     # Database
     database_url: str = "sqlite:///rolepointer.db"
 

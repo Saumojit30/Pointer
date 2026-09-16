@@ -696,6 +696,19 @@ async def sse_event_stream(request: Request):
     return EventSourceResponse(event_generator())
 
 
+# ── Agent Evaluation & Benchmark Endpoint ─────────────────────────────────────
+
+@app.post("/api/evals/run")
+def run_agent_evals(sync_langsmith: bool = False):
+    """Executes the agent evaluation suite across benchmark test cases."""
+    from rolepointer.evals import run_evaluation_suite
+    summary = run_evaluation_suite(sync_langsmith=sync_langsmith)
+    return {
+        "status": "success",
+        "benchmark_summary": summary.model_dump()
+    }
+
+
 # ── Static UI Mounting ────────────────────────────────────────────────────────
 STATIC_DIR = Path(__file__).parent.parent / "static"
 if STATIC_DIR.exists():

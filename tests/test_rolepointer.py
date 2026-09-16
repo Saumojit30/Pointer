@@ -586,3 +586,14 @@ def test_api_profile_import_endpoint():
     profile = res.json()
     assert profile["email"] == "jane.doe@example.com"
     assert "Python" in profile["skills"]
+
+
+def test_api_evals_run_endpoint():
+    res = client.post("/api/evals/run?sync_langsmith=false")
+    assert res.status_code == 200
+    data = res.json()
+    assert data["status"] == "success"
+    assert "benchmark_summary" in data
+    summary = data["benchmark_summary"]
+    assert summary["total_cases"] >= 5
+    assert summary["average_overall_score"] >= 0.80
