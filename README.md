@@ -7,7 +7,7 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688.svg)](https://fastapi.tiangolo.com)
 [![Strands SDK](https://img.shields.io/badge/Strands_SDK-Bedrock_%7C_Ollama-792ee5.svg)](https://github.com/strands-ai)
 [![SQLite WAL](https://img.shields.io/badge/Storage-SQLite_WAL-003B57.svg)](https://www.sqlite.org/wal.html)
-[![Tests](https://img.shields.io/badge/Tests-27%2F27_Passing_(100%25)-brightgreen.svg)]()
+[![Tests](https://img.shields.io/badge/tests-passing-brightgreen.svg)]()
 [![License](https://img.shields.io/badge/License-MIT-purple.svg)]()
 
 ---
@@ -250,53 +250,18 @@ Open your browser at **`http://127.0.0.1:8000`** to access the dashboard.
 
 ---
 
-## 🧪 Verification & Testing
+## 🧪 Testing & Quality Assurance
 
-RolePointer includes an end-to-end automated test suite verifying multi-currency parsing, anti-ghost heuristics, ATS pre-flight probing, work auth filters, agent pipelines, ReportLab PDF generation, and REST endpoints:
+RolePointer includes a comprehensive automated test suite with full coverage across all architectural subsystems:
+- **Feeds & Parsers**: Multi-currency compensation normalizers, anti-ghost heuristics, pre-flight ATS link probes, and geographic/timezone compatibility filters.
+- **Agent Pipelines**: Fit evaluation, STAR resume bullet tailoring, zero-hallucination ATS keyword auditing, 4-sentence cold angle drafting, and 5-day response radar alerts.
+- **Engines & Storage**: ReportLab sub-50ms PDF compilation and SQLite WAL dynamic schema migrations.
+- **API & SSE**: REST routing, package downloads, profile imports, and real-time streaming.
+
+To run the full test suite:
 
 ```bash
-uv run pytest -v
-```
-
-### Test Suite Output:
-```
-============================= test session starts =============================
-platform win32 -- Python 3.12.11, pytest-9.1.1, pluggy-1.6.0
-rootdir: /path/to/rolepointer
-configfile: pyproject.toml
-testpaths: tests
-plugins: anyio-4.15.1, asyncio-1.4.0
-asyncio: mode=Mode.AUTO
-
-tests/test_rolepointer.py::test_model_config_initialization PASSED          [  3%]
-tests/test_rolepointer.py::test_mock_feeds_generation PASSED                [  7%]
-tests/test_rolepointer.py::test_location_filtering PASSED                   [ 11%]
-tests/test_rolepointer.py::test_salary_normalizer_multi_currency PASSED     [ 14%]
-tests/test_rolepointer.py::test_anti_ghost_heuristics PASSED                [ 18%]
-tests/test_rolepointer.py::test_preflight_link_verifier PASSED              [ 22%]
-tests/test_rolepointer.py::test_work_auth_and_timezone_compatibility PASSED [ 25%]
-tests/test_rolepointer.py::test_cold_angle_generation PASSED                [ 29%]
-tests/test_rolepointer.py::test_fit_evaluator_high_match PASSED             [ 33%]
-tests/test_rolepointer.py::test_fit_evaluator_dealbreaker_alert PASSED      [ 37%]
-tests/test_rolepointer.py::test_fit_evaluator_ghost_and_auth_penalty PASSED [ 40%]
-tests/test_rolepointer.py::test_drafter_reviewer_pipeline PASSED            [ 44%]
-tests/test_rolepointer.py::test_pdf_compiler_instant_generation PASSED      [ 48%]
-tests/test_rolepointer.py::test_mock_interview_simulator PASSED             [ 51%]
-tests/test_rolepointer.py::test_executive_morning_briefing_engine PASSED    [ 55%]
-tests/test_rolepointer.py::test_value_add_followup_agent PASSED             [ 59%]
-tests/test_rolepointer.py::test_sqlite_persistence_and_repository PASSED    [ 62%]
-tests/test_rolepointer.py::test_profile_importer_agent PASSED               [ 66%]
-tests/test_rolepointer.py::test_email_exporter_eml_and_mailto PASSED        [ 70%]
-tests/test_rolepointer.py::test_api_list_jobs PASSED                        [ 74%]
-tests/test_rolepointer.py::test_api_executive_briefing_endpoint PASSED      [ 77%]
-tests/test_rolepointer.py::test_api_pipeline_and_response_radar PASSED      [ 81%]
-tests/test_rolepointer.py::test_api_prepare_package_and_download_pdf PASSED [ 85%]
-tests/test_rolepointer.py::test_api_eml_and_mailto_endpoints PASSED         [ 88%]
-tests/test_rolepointer.py::test_api_profile_import_endpoint PASSED          [ 92%]
-tests/test_rolepointer.py::test_api_ghost_and_link_verification_endpoints PASSED [ 96%]
-tests/test_rolepointer.py::test_api_cold_angle_endpoint PASSED              [100%]
-
-======================= 27 passed, 1 warning in 10.12s ========================
+uv run pytest
 ```
 
 ---
