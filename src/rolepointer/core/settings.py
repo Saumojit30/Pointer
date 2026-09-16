@@ -15,9 +15,13 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-    # AWS Bedrock
+    # Provider Selector ("auto" | "bedrock" | "gemini" | "ollama" | "lmstudio")
+    llm_provider: str = "auto"
+
+    # AWS Bedrock (Official SDK & Boto3 Converse API)
     aws_access_key_id: str = ""
     aws_secret_access_key: str = ""
+    aws_session_token: str = ""
     aws_region: str = "us-east-1"
     bedrock_model_id: str = "anthropic.claude-3-5-haiku-20241022-v1:0"
 

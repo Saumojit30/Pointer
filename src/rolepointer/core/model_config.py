@@ -46,27 +46,95 @@ class OllamaStrandsModel:
         return ""
 
 
+class BedrockStrandsModel:
+    """Official AWS Bedrock client adapter using boto3 converse API and Strands SDK."""
+
+    def __init__(
+        self,
+        model_id: str,
+        region_name: str = "us-east-1",
+        aws_access_key_id: Optional[str] = None,
+        aws_secret_access_key: Optional[str] = None,
+        aws_session_token: Optional[str] = None,
+    ):
+        self.model_id = model_id
+        self.region_name = region_name
+        self._client = None
+        self._strands_model = None
+
+        # Attempt Strands BedrockModel
+        try:
+            from strands.models import BedrockModel  # type: ignore
+            self._strands_model = BedrockModel(model_id=model_id, region_name=region_name)
+        except Exception as e:
+            logger.debug(f"[Bedrock] Strands BedrockModel direct load note: {e}")
+
+        # Official Boto3 Bedrock Runtime Client (Converse API)
+        try:
+            import boto3
+            client_kwargs: dict[str, Any] = {"region_name": region_name}
+            if aws_access_key_id and aws_secret_access_key:
+                client_kwargs["aws_access_key_id"] = aws_access_key_id
+                client_kwargs["aws_secret_access_key"] = aws_secret_access_key
+                if aws_session_token:
+                    client_kwargs["aws_session_token"] = aws_session_token
+            self._client = boto3.client("bedrock-runtime", **client_kwargs)
+            logger.info(f"[Bedrock] Initialized Bedrock Runtime Client for model {model_id} in {region_name}")
+        except Exception as e:
+            logger.warning(f"[Bedrock] Could not initialize boto3 bedrock-runtime client: {e}")
+
+    def generate(self, prompt: str, system_prompt: Optional[str] = None) -> str:
+        # Try Strands model first
+        if self._strands_model and hasattr(self._strands_model, "generate"):
+            try:
+                res = self._strands_model.generate(prompt, system_prompt)
+                if res:
+                    return res
+            except Exception as e:
+                logger.debug(f"[Bedrock] Strands generate fallback: {e}")
+
+        # Official Boto3 Converse API
+        if self._client:
+            try:
+                params: dict[str, Any] = {
+                    "modelId": self.model_id,
+                    "messages": [{"role": "user", "content": [{"text": prompt}]}],
+                    "inferenceConfig": {"temperature": 0.2, "maxTokens": 2048},
+                }
+                if system_prompt:
+                    params["system"] = [{"text": system_prompt}]
+                response = self._client.converse(**params)
+                output_message = response.get("output", {}).get("message", {})
+                content_blocks = output_message.get("content", [])
+                if content_blocks and "text" in content_blocks[0]:
+                    return content_blocks[0]["text"]
+            except Exception as e:
+                logger.warning(f"[Bedrock] Converse API invocation note: {e}")
+        return ""
+
+    def invoke(self, prompt: str) -> str:
+        return self.generate(prompt)
+
+
 def get_strands_model() -> Any:
     """Returns Strands BedrockModel or Ollama fallback."""
-    if settings.use_local_model or os.getenv("USE_LOCAL_MODEL", "false").lower() == "true":
-        return OllamaStrandsModel(
-            model_id=settings.local_model_name,
-            base_url=settings.ollama_base_url,
-        )
+    provider = settings.llm_provider.lower().strip()
+    has_aws_keys = bool(settings.aws_access_key_id and settings.aws_secret_access_key)
 
-    # AWS Bedrock via Strands SDK
-    try:
-        from strands.models import BedrockModel  # type: ignore
-        return BedrockModel(
+    if provider == "bedrock" or (provider == "auto" and has_aws_keys and not settings.use_local_model):
+        return BedrockStrandsModel(
             model_id=settings.bedrock_model_id,
             region_name=settings.aws_region,
+            aws_access_key_id=settings.aws_access_key_id or None,
+            aws_secret_access_key=settings.aws_secret_access_key or None,
+            aws_session_token=settings.aws_session_token or None,
         )
-    except Exception as e:
-        logger.debug(f"Strands BedrockModel direct load note: {e}")
-        return OllamaStrandsModel(
-            model_id=settings.local_model_name,
-            base_url=settings.ollama_base_url,
-        )
+
+    # Local Ollama Fallback
+    return OllamaStrandsModel(
+        model_id=settings.local_model_name,
+        base_url=settings.ollama_base_url,
+    )
 
 
 def generate_llm_response(prompt: str, system_prompt: Optional[str] = None) -> str:
