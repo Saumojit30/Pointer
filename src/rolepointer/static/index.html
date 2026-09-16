@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RolePointer 🎯 — Autonomous Executive Career Intelligence</title>
+    <title>RolePointer — Autonomous Career Intelligence</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts: Geist Sans, Geist Mono, Plus Jakarta Sans, JetBrains Mono -->
+    <!-- Google Fonts: Inter & JetBrains Mono (YC Startup Standard) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
@@ -19,24 +19,24 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['"Geist"', 'system-ui', '-apple-system', 'sans-serif'],
-                        mono: ['"Geist Mono"', 'monospace'],
+                        sans: ['"Inter"', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
                     },
                     colors: {
                         zinc: {
-                            950: '#080809',
-                            900: '#0F0F12',
-                            850: '#16161A',
-                            800: '#1E1E24',
-                            750: '#26262E',
-                            700: '#32323D',
-                            600: '#52525B',
-                            500: '#71717A',
-                            400: '#A1A1AA',
-                            300: '#D4D4D8',
-                            200: '#E4E4E7',
-                            100: '#F4F4F5',
-                            50: '#FAFAFA',
+                            950: '#09090B',
+                            900: '#111114',
+                            850: '#17171C',
+                            800: '#202026',
+                            750: '#282830',
+                            700: '#34343F',
+                            600: '#52525E',
+                            500: '#71717F',
+                            400: '#A1A1AE',
+                            300: '#D4D4DE',
+                            200: '#E4E4EC',
+                            100: '#F4F4F8',
+                            50: '#FAFAFC',
                         }
                     }
                 }
@@ -44,73 +44,79 @@
         }
     </script>
     <style>
-        /* Strict Monochromatic Cold-Zinc Design System (Linear / Vercel / Ashby standard) */
+        /* YC Startup Design System: Inter + 8px Spacing Grid + Specular Inset Borders */
         :root {
-            --rp-canvas: #080809;
-            --rp-surface-1: #0F0F12;
-            --rp-surface-2: #16161A;
-            --rp-surface-3: #1E1E24;
-            --rp-border-subtle: rgba(255, 255, 255, 0.06);
-            --rp-border-medium: rgba(255, 255, 255, 0.10);
-            --rp-border-strong: rgba(255, 255, 255, 0.18);
+            --canvas: #09090B;
+            --surface-1: #111114;
+            --surface-2: #17171C;
+            --surface-3: #202026;
+            --border-subtle: rgba(255, 255, 255, 0.07);
+            --border-medium: rgba(255, 255, 255, 0.12);
+            --border-strong: rgba(255, 255, 255, 0.20);
+        }
+
+        * {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
         }
 
         body {
-            background-color: var(--rp-canvas);
+            background-color: var(--canvas);
             background-image: 
-                radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.035) 0%, rgba(0, 0, 0, 0) 65%),
-                linear-gradient(to bottom, rgba(8, 8, 9, 0.8), rgba(8, 8, 9, 1));
+                radial-gradient(circle at 50% -20%, rgba(255, 255, 255, 0.04) 0%, rgba(0, 0, 0, 0) 70%),
+                linear-gradient(to bottom, rgba(9, 9, 11, 0.95), rgba(9, 9, 11, 1));
             background-attachment: fixed;
-            color: #E4E4E7;
-            font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+            color: #E4E4EC;
+            font-feature-settings: "cv02", "cv03", "cv04", "cv11", "ss01";
         }
 
-        /* Machined Inset Specular Card */
+        /* Machined Specular Card Surfaces */
         .card-surface {
-            background-color: var(--rp-surface-1);
-            border: 1px solid var(--rp-border-subtle);
-            box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.06), 0 4px 20px -2px rgba(0, 0, 0, 0.6);
+            background-color: var(--surface-1);
+            border: 1px solid var(--border-subtle);
+            box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.07), 0 4px 24px -2px rgba(0, 0, 0, 0.6);
             transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .card-surface:hover {
-            background-color: var(--rp-surface-2);
-            border-color: var(--rp-border-medium);
-            box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.09), 0 8px 30px -4px rgba(0, 0, 0, 0.8);
+            background-color: var(--surface-2);
+            border-color: var(--border-medium);
+            box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.10), 0 8px 32px -4px rgba(0, 0, 0, 0.8);
         }
 
         .card-featured {
-            background-color: var(--rp-surface-2);
-            border: 1px solid var(--rp-border-medium);
-            box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.10), 0 8px 32px -4px rgba(0, 0, 0, 0.7);
+            background-color: var(--surface-2);
+            border: 1px solid var(--border-medium);
+            box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.12), 0 8px 36px -4px rgba(0, 0, 0, 0.7);
         }
 
-        /* Floating Nav & Modals */
+        /* Glass Elements */
         .glass-nav {
-            background: rgba(15, 15, 18, 0.85);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--rp-border-medium);
-            box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.08), 0 20px 40px -15px rgba(0, 0, 0, 0.9);
+            background: rgba(17, 17, 20, 0.85);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--border-medium);
+            box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.08), 0 20px 45px -15px rgba(0, 0, 0, 0.9);
         }
 
         .glass-modal {
-            background: rgba(18, 18, 22, 0.96);
-            backdrop-filter: blur(28px);
-            -webkit-backdrop-filter: blur(28px);
-            border: 1px solid var(--rp-border-medium);
-            box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.10), 0 25px 60px -15px rgba(0, 0, 0, 0.95);
+            background: rgba(17, 17, 20, 0.96);
+            backdrop-filter: blur(32px);
+            -webkit-backdrop-filter: blur(32px);
+            border: 1px solid var(--border-medium);
+            box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.10), 0 30px 70px -20px rgba(0, 0, 0, 0.95);
         }
 
         .glass-drawer {
-            background: rgba(15, 15, 18, 0.98);
-            backdrop-filter: blur(28px);
-            -webkit-backdrop-filter: blur(28px);
-            border-left: 1px solid var(--rp-border-medium);
-            box-shadow: -20px 0 60px rgba(0, 0, 0, 0.9), inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+            background: rgba(17, 17, 20, 0.98);
+            backdrop-filter: blur(32px);
+            -webkit-backdrop-filter: blur(32px);
+            border-left: 1px solid var(--border-medium);
+            box-shadow: -24px 0 70px rgba(0, 0, 0, 0.9), inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
         }
 
-        /* Tabular Numbers */
+        /* Tabular Figures */
         .tabular-nums {
             font-variant-numeric: tabular-nums;
         }
@@ -119,11 +125,11 @@
         .freq-bar {
             width: 2.5px;
             border-radius: 9999px;
-            background-color: #52525B;
+            background-color: #52525E;
             transition: height 0.15s ease, background-color 0.15s ease;
         }
         .freq-bar.active {
-            background-color: #FAFAFA;
+            background-color: #FAFAFC;
             animation: freqJump 0.7s ease-in-out infinite alternate;
         }
         @keyframes freqJump {
@@ -140,27 +146,27 @@
             background: rgba(255, 255, 255, 0.06);
             border: 1px solid rgba(255, 255, 255, 0.10);
             border-radius: 5px;
-            padding: 1.5px 5px;
-            font-size: 10.5px;
-            font-family: 'Geist Mono', monospace;
-            color: #A1A1AA;
+            padding: 1.5px 5.5px;
+            font-size: 11px;
+            font-family: 'JetBrains Mono', monospace;
+            color: #A1A1AE;
         }
 
         /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #26262E; border-radius: 9999px; }
-        ::-webkit-scrollbar-thumb:hover { background: #32323D; }
+        ::-webkit-scrollbar-thumb { background: #282830; border-radius: 9999px; }
+        ::-webkit-scrollbar-thumb:hover { background: #34343F; }
     </style>
 </head>
 <body class="font-sans antialiased min-h-screen flex flex-col selection:bg-white selection:text-black">
 
     <!-- Toast Notification Container (Sonner Style) -->
-    <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col space-y-2.5 pointer-events-none"></div>
+    <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col space-y-3 pointer-events-none"></div>
 
     <!-- Top Floating Navigation Pill -->
-    <div class="sticky top-3.5 z-40 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
-        <header class="glass-nav rounded-2xl px-4 py-2 flex items-center justify-between">
+    <div class="sticky top-4 z-40 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
+        <header class="glass-nav rounded-2xl px-5 py-2.5 flex items-center justify-between">
             <!-- Brand Logo -->
             <div class="flex items-center space-x-3 cursor-pointer" onclick="switchView('briefing')">
                 <div class="w-8 h-8 rounded-lg bg-white text-black flex items-center justify-center font-bold shadow-sm">
@@ -173,43 +179,43 @@
             </div>
 
             <!-- Segmented Monochromatic View Switcher -->
-            <nav class="flex items-center p-1 rounded-xl bg-zinc-950/80 border border-white/[0.06] space-x-1">
-                <button onclick="switchView('briefing')" id="tab-briefing" class="px-3 py-1.5 rounded-lg text-xs font-medium transition-all bg-white text-black shadow-sm flex items-center space-x-1.5">
+            <nav class="flex items-center p-1 rounded-xl bg-zinc-950/90 border border-white/[0.06] space-x-1">
+                <button onclick="switchView('briefing')" id="tab-briefing" class="px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all bg-white text-black shadow-sm flex items-center space-x-1.5">
                     <i data-lucide="sun" class="w-3.5 h-3.5"></i>
                     <span>Morning Briefing</span>
                 </button>
-                <button onclick="switchView('radar')" id="tab-radar" class="px-3 py-1.5 rounded-lg text-xs font-medium transition-all text-zinc-400 hover:text-white flex items-center space-x-1.5">
+                <button onclick="switchView('radar')" id="tab-radar" class="px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all text-zinc-400 hover:text-white flex items-center space-x-1.5">
                     <i data-lucide="radar" class="w-3.5 h-3.5"></i>
                     <span>Response Radar</span>
                     <span id="radar-count-badge" class="px-1.5 py-0.2 text-[10px] font-mono bg-white/[0.06] text-zinc-300 rounded-full border border-white/[0.08]">1</span>
                 </button>
-                <button onclick="switchView('archive')" id="tab-archive" class="px-3 py-1.5 rounded-lg text-xs font-medium transition-all text-zinc-400 hover:text-white flex items-center space-x-1.5">
+                <button onclick="switchView('archive')" id="tab-archive" class="px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all text-zinc-400 hover:text-white flex items-center space-x-1.5">
                     <i data-lucide="layers" class="w-3.5 h-3.5"></i>
                     <span>Catalog</span>
                 </button>
             </nav>
 
             <!-- Right Controls: Command Menu, Evals, Profile -->
-            <div class="flex items-center space-x-2">
+            <div class="flex items-center space-x-2.5">
                 <!-- Command Palette Trigger Button (⌘K) -->
-                <button onclick="openCommandPalette()" class="hidden md:flex items-center space-x-2 px-2.5 py-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-xs text-zinc-300 transition">
+                <button onclick="openCommandPalette()" class="hidden md:flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-xs text-zinc-300 transition">
                     <i data-lucide="search" class="w-3.5 h-3.5 text-zinc-400"></i>
                     <span class="font-mono text-[11px] text-zinc-400">Search</span>
                     <kbd>⌘K</kbd>
                 </button>
 
                 <!-- Eval Benchmark Trigger -->
-                <button onclick="openEvalModal()" title="Run Agent Evaluation Benchmarks" class="p-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-zinc-300 hover:text-white transition">
+                <button onclick="openEvalModal()" title="Run Agent Evaluation Benchmarks" class="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-zinc-300 hover:text-white transition">
                     <i data-lucide="gauge" class="w-4 h-4"></i>
                 </button>
 
                 <!-- Sync Feeds Button -->
-                <button onclick="triggerSchedulerSync()" title="Scour Live Feeds" class="p-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-zinc-300 hover:text-white transition">
+                <button onclick="triggerSchedulerSync()" title="Scour Live Feeds" class="p-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-zinc-300 hover:text-white transition">
                     <i data-lucide="refresh-cw" class="w-4 h-4" id="sync-icon"></i>
                 </button>
 
                 <!-- Profile Modal Trigger -->
-                <button onclick="openProfileModal()" class="px-2.5 py-1.5 rounded-lg bg-white/[0.06] hover:bg-white/[0.10] border border-white/[0.10] text-xs font-medium text-white transition flex items-center space-x-1.5">
+                <button onclick="openProfileModal()" class="px-3 py-1.5 rounded-lg bg-white/[0.06] hover:bg-white/[0.10] border border-white/[0.10] text-xs font-medium text-white transition flex items-center space-x-2">
                     <i data-lucide="user" class="w-3.5 h-3.5 text-zinc-400"></i>
                     <span id="profile-btn-label">Jane Doe</span>
                 </button>
@@ -217,26 +223,26 @@
         </header>
     </div>
 
-    <!-- Main Content Container -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full space-y-8">
+    <!-- Main Content Container with Generous Whitespace -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-1 w-full space-y-10">
 
         <!-- ========================================================================= -->
         <!-- VIEW 1: EXECUTIVE MORNING BRIEFING -->
         <!-- ========================================================================= -->
-        <section id="view-briefing" class="space-y-8">
-            <!-- Hero Bento Header -->
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        <section id="view-briefing" class="space-y-10">
+            <!-- Hero Bento Header Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 <!-- Welcome Executive Card (8-Cols) -->
-                <div class="lg:col-span-8 card-surface rounded-2xl p-6 sm:p-7 flex flex-col justify-between">
-                    <div class="space-y-2.5">
-                        <div class="flex items-center space-x-2">
-                            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-white/[0.04] border border-white/[0.08] text-[11px] font-mono text-zinc-300">
+                <div class="lg:col-span-8 card-surface rounded-2xl p-7 sm:p-8 flex flex-col justify-between space-y-6">
+                    <div class="space-y-3">
+                        <div class="flex items-center space-x-2.5">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/[0.04] border border-white/[0.08] text-[11px] font-mono text-zinc-300">
                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                                 <span>Autonomous 8:00 AM Curation</span>
                             </span>
                             <span id="briefing-date" class="text-xs text-zinc-500 font-mono">Wednesday, Sep 17, 2026</span>
                         </div>
-                        <h1 class="text-2xl font-semibold tracking-tight text-zinc-50">
+                        <h1 class="text-2xl sm:text-3xl font-semibold tracking-tight text-zinc-50">
                             Good morning, <span id="welcome-name">Jane</span>.
                         </h1>
                         <p id="briefing-summary-text" class="text-xs sm:text-sm text-zinc-400 max-w-2xl leading-relaxed">
@@ -244,49 +250,49 @@
                         </p>
                     </div>
 
-                    <!-- Metric Stats Bar -->
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6 pt-5 border-t border-white/[0.06]">
+                    <!-- Metric Stats Bar with 8px Grid Spacing -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-6 pt-6 border-t border-white/[0.06]">
                         <div>
-                            <div class="text-[11px] text-zinc-500 font-mono uppercase">Scoured Overnight</div>
-                            <div id="stat-scoured" class="text-xl font-semibold text-zinc-100 mt-0.5 font-mono tabular-nums">124</div>
+                            <div class="text-[11px] text-zinc-500 font-mono uppercase tracking-wider">Scoured Overnight</div>
+                            <div id="stat-scoured" class="text-2xl font-semibold text-zinc-100 mt-1 font-mono tabular-nums">124</div>
                         </div>
                         <div>
-                            <div class="text-[11px] text-zinc-500 font-mono uppercase">Passed Fit (≥85%)</div>
-                            <div id="stat-qualified" class="text-xl font-semibold text-zinc-100 mt-0.5 font-mono tabular-nums">3</div>
+                            <div class="text-[11px] text-zinc-500 font-mono uppercase tracking-wider">Passed Fit (≥85%)</div>
+                            <div id="stat-qualified" class="text-2xl font-semibold text-zinc-100 mt-1 font-mono tabular-nums">3</div>
                         </div>
                         <div>
-                            <div class="text-[11px] text-zinc-500 font-mono uppercase">Ghost Filtered</div>
-                            <div id="stat-ghost" class="text-xl font-semibold text-zinc-400 mt-0.5 font-mono tabular-nums">18</div>
+                            <div class="text-[11px] text-zinc-500 font-mono uppercase tracking-wider">Ghost Filtered</div>
+                            <div id="stat-ghost" class="text-2xl font-semibold text-zinc-400 mt-1 font-mono tabular-nums">18</div>
                         </div>
                         <div>
-                            <div class="text-[11px] text-zinc-500 font-mono uppercase">Avg Normalized Comp</div>
-                            <div id="stat-avg-comp" class="text-xl font-semibold text-zinc-100 mt-0.5 font-mono tabular-nums">$175k/yr</div>
+                            <div class="text-[11px] text-zinc-500 font-mono uppercase tracking-wider">Avg Normalized Comp</div>
+                            <div id="stat-avg-comp" class="text-2xl font-semibold text-zinc-100 mt-1 font-mono tabular-nums">$175k/yr</div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Radar Sentinel Quick Action Widget (4-Cols) -->
-                <div class="lg:col-span-4 card-surface rounded-2xl p-6 flex flex-col justify-between border-white/[0.08]">
-                    <div class="space-y-2">
+                <div class="lg:col-span-4 card-surface rounded-2xl p-7 flex flex-col justify-between space-y-6 border-white/[0.08]">
+                    <div class="space-y-3">
                         <div class="flex items-center justify-between">
-                            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-white/[0.04] border border-white/[0.08] text-[11px] font-mono text-zinc-300">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/[0.04] border border-white/[0.08] text-[11px] font-mono text-zinc-300">
                                 <span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span>
                                 <span>Radar Sentinel</span>
                             </span>
                             <span class="text-xs font-mono text-zinc-500">Day 5 Trigger</span>
                         </div>
-                        <h2 class="text-sm font-semibold text-zinc-100">Value-Add Follow-Up Due</h2>
+                        <h2 class="text-base font-semibold text-zinc-100">Value-Add Follow-Up Due</h2>
                         <p class="text-xs text-zinc-400 leading-relaxed">
                             <span class="text-zinc-200 font-medium">ScaleOps AI</span> (Staff SRE) has reached 6 days without response. Sentinel prepared a 2-sentence technical benchmark note sharing cache hit performance findings.
                         </p>
                     </div>
 
-                    <div class="mt-4 pt-4 border-t border-white/[0.06] flex items-center justify-between">
+                    <div class="pt-5 border-t border-white/[0.06] flex items-center justify-between">
                         <div>
                             <div class="text-[11px] text-zinc-500 font-mono">Applied 6d ago</div>
                             <div class="text-xs font-medium text-zinc-200">ScaleOps AI • $185k</div>
                         </div>
-                        <button onclick="switchView('radar')" class="px-3 py-1.5 rounded-lg bg-white text-black hover:bg-zinc-200 text-xs font-medium transition flex items-center space-x-1.5">
+                        <button onclick="switchView('radar')" class="px-3.5 py-1.5 rounded-lg bg-white text-black hover:bg-zinc-200 text-xs font-medium transition flex items-center space-x-1.5">
                             <span>Open Radar</span>
                             <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
                         </button>
@@ -295,18 +301,18 @@
             </div>
 
             <!-- Top 3 Curated Opportunities Grid -->
-            <div class="space-y-4">
+            <div class="space-y-5">
                 <div class="flex items-center justify-between">
-                    <div class="flex items-center space-x-2">
+                    <div class="flex items-center space-x-2.5">
                         <i data-lucide="sparkles" class="w-4 h-4 text-zinc-400"></i>
-                        <h2 class="text-base font-semibold tracking-tight text-zinc-100">Top 3 Pre-Compiled Executive Packages</h2>
+                        <h2 class="text-lg font-semibold tracking-tight text-zinc-100">Top 3 Pre-Compiled Executive Packages</h2>
                     </div>
                     <span class="text-xs font-mono text-zinc-500 hidden sm:block">Pre-compiled STAR Resumes & Cold Hooks Ready</span>
                 </div>
 
                 <!-- Briefing Bento Cards Container -->
-                <div id="briefing-cards-container" class="grid grid-cols-1 gap-4">
-                    <div class="p-10 text-center text-zinc-500 font-mono card-surface rounded-2xl animate-pulse text-xs">
+                <div id="briefing-cards-container" class="grid grid-cols-1 gap-6">
+                    <div class="p-12 text-center text-zinc-500 font-mono card-surface rounded-2xl animate-pulse text-xs">
                         Curating top opportunities...
                     </div>
                 </div>
@@ -316,26 +322,26 @@
         <!-- ========================================================================= -->
         <!-- VIEW 2: APPLICATION RESPONSE RADAR -->
         <!-- ========================================================================= -->
-        <section id="view-radar" class="space-y-6 hidden">
+        <section id="view-radar" class="space-y-8 hidden">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h1 class="text-xl font-semibold tracking-tight text-zinc-100 flex items-center space-x-2">
+                    <h1 class="text-2xl font-semibold tracking-tight text-zinc-100 flex items-center space-x-2.5">
                         <i data-lucide="radar" class="w-5 h-5 text-zinc-400"></i>
                         <span>Response Radar & Follow-Up Sentinel</span>
                     </h1>
-                    <p class="text-xs text-zinc-400 font-mono mt-1">
+                    <p class="text-xs sm:text-sm text-zinc-400 font-mono mt-1.5">
                         Tracking outreach latency. Automatically prepares high-converting 2-sentence technical benchmark notes at Day 5.
                     </p>
                 </div>
                 <div class="flex items-center space-x-3">
-                    <span class="text-xs font-mono px-2.5 py-1.5 rounded-lg bg-white/[0.04] border border-white/[0.08] text-zinc-300">
+                    <span class="text-xs font-mono px-3 py-1.5 rounded-lg bg-white/[0.04] border border-white/[0.08] text-zinc-300">
                         Active In Pipeline: <span id="radar-active-count" class="text-white font-semibold">2</span>
                     </span>
                 </div>
             </div>
 
             <!-- Radar Applications Grid -->
-            <div id="radar-cards-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div id="radar-cards-container" class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Populated dynamically -->
             </div>
         </section>
@@ -343,14 +349,14 @@
         <!-- ========================================================================= -->
         <!-- VIEW 3: ALL FEEDS CATALOG & LIVE SEARCH -->
         <!-- ========================================================================= -->
-        <section id="view-archive" class="space-y-6 hidden">
+        <section id="view-archive" class="space-y-8 hidden">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h1 class="text-xl font-semibold tracking-tight text-zinc-100 flex items-center space-x-2">
+                    <h1 class="text-2xl font-semibold tracking-tight text-zinc-100 flex items-center space-x-2.5">
                         <i data-lucide="layers" class="w-5 h-5 text-zinc-400"></i>
                         <span>All Feeds Catalog</span>
                     </h1>
-                    <p class="text-xs text-zinc-400 font-mono mt-1">
+                    <p class="text-xs sm:text-sm text-zinc-400 font-mono mt-1.5">
                         Scoured opportunities from Jobicy, RemoteOK, Arbeitnow, and Hacker News.
                     </p>
                 </div>
@@ -358,13 +364,13 @@
                 <div class="flex items-center space-x-3 w-full sm:w-auto">
                     <div class="relative flex-1 sm:w-72">
                         <i data-lucide="search" class="w-3.5 h-3.5 text-zinc-500 absolute left-3 top-3"></i>
-                        <input type="text" id="archive-search" oninput="filterArchiveJobs()" placeholder="Search title, tech stack, company..." class="w-full pl-8 pr-3 py-1.5 rounded-lg bg-zinc-900 border border-white/[0.08] text-xs text-zinc-100 focus:outline-none focus:border-white/[0.2] font-mono">
+                        <input type="text" id="archive-search" oninput="filterArchiveJobs()" placeholder="Search title, tech stack, company..." class="w-full pl-9 pr-3.5 py-2 rounded-lg bg-zinc-900 border border-white/[0.08] text-xs text-zinc-100 focus:outline-none focus:border-white/[0.2] font-mono">
                     </div>
                 </div>
             </div>
 
             <!-- Archive Cards Grid -->
-            <div id="archive-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div id="archive-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <!-- Populated dynamically -->
             </div>
         </section>
@@ -372,90 +378,90 @@
     </main>
 
     <!-- ============================================================================= -->
-    <!-- SLIDE-OVER INSPECTION DRAWER (540px ASHBY/LINEAR PATTERN) -->
+    <!-- SLIDE-OVER INSPECTION DRAWER (560px YC STANDARD) -->
     <!-- ============================================================================= -->
-    <div id="drawer-overlay" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex justify-end" onclick="closeDrawer(event)">
-        <div id="drawer-panel" class="glass-drawer w-full max-w-xl h-full p-6 sm:p-7 space-y-6 overflow-y-auto" onclick="event.stopPropagation()">
+    <div id="drawer-overlay" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex justify-end" onclick="closeDrawer(event)">
+        <div id="drawer-panel" class="glass-drawer w-full max-w-xl h-full p-8 space-y-6 overflow-y-auto" onclick="event.stopPropagation()">
             <!-- Drawer Header -->
-            <div class="flex items-center justify-between border-b border-white/[0.08] pb-4">
-                <div class="flex items-center space-x-3">
-                    <div id="drawer-company-avatar" class="w-10 h-10 rounded-xl bg-white/[0.06] border border-white/[0.10] flex items-center justify-center font-bold text-sm text-zinc-200 font-mono">
+            <div class="flex items-center justify-between border-b border-white/[0.08] pb-5">
+                <div class="flex items-center space-x-3.5">
+                    <div id="drawer-company-avatar" class="w-11 h-11 rounded-xl bg-white/[0.06] border border-white/[0.10] flex items-center justify-center font-bold text-sm text-zinc-200 font-mono">
                         CS
                     </div>
                     <div>
                         <h2 id="drawer-title" class="text-base font-semibold text-zinc-100">Staff Distributed Systems Engineer</h2>
-                        <p id="drawer-subtitle" class="text-xs text-zinc-400 font-mono">CloudScale AI • San Francisco, CA (Remote) • $160k - $190k</p>
+                        <p id="drawer-subtitle" class="text-xs text-zinc-400 font-mono mt-0.5">CloudScale AI • San Francisco, CA (Remote) • $160k - $190k</p>
                     </div>
                 </div>
-                <button onclick="closeDrawer()" class="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/[0.06] transition">
+                <button onclick="closeDrawer()" class="p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-white/[0.06] transition">
                     <i data-lucide="x" class="w-4 h-4"></i>
                 </button>
             </div>
 
             <!-- Drawer Tabs -->
-            <div class="flex items-center space-x-1.5 border-b border-white/[0.08] pb-2">
-                <button onclick="switchDrawerTab('fit')" id="dtab-fit" class="px-3 py-1 rounded-md text-xs font-medium bg-white text-black">Fit & Guardrails</button>
-                <button onclick="switchDrawerTab('resume')" id="dtab-resume" class="px-3 py-1 rounded-md text-xs font-medium text-zinc-400 hover:text-white">STAR Resume</button>
-                <button onclick="switchDrawerTab('cold')" id="dtab-cold" class="px-3 py-1 rounded-md text-xs font-medium text-zinc-400 hover:text-white">4-Sentence Pitch</button>
-                <button onclick="switchDrawerTab('ghost')" id="dtab-ghost" class="px-3 py-1 rounded-md text-xs font-medium text-zinc-400 hover:text-white">Anti-Ghost Radar</button>
+            <div class="flex items-center space-x-1.5 border-b border-white/[0.08] pb-2.5">
+                <button onclick="switchDrawerTab('fit')" id="dtab-fit" class="px-3.5 py-1.5 rounded-md text-xs font-medium bg-white text-black">Fit & Guardrails</button>
+                <button onclick="switchDrawerTab('resume')" id="dtab-resume" class="px-3.5 py-1.5 rounded-md text-xs font-medium text-zinc-400 hover:text-white">STAR Resume</button>
+                <button onclick="switchDrawerTab('cold')" id="dtab-cold" class="px-3.5 py-1.5 rounded-md text-xs font-medium text-zinc-400 hover:text-white">4-Sentence Pitch</button>
+                <button onclick="switchDrawerTab('ghost')" id="dtab-ghost" class="px-3.5 py-1.5 rounded-md text-xs font-medium text-zinc-400 hover:text-white">Anti-Ghost Radar</button>
             </div>
 
             <!-- Drawer Tab 1: Fit & Guardrails -->
-            <div id="dcontent-fit" class="space-y-4">
-                <div class="p-4 rounded-xl bg-zinc-900 border border-white/[0.06] space-y-2.5">
+            <div id="dcontent-fit" class="space-y-5">
+                <div class="p-5 rounded-xl bg-zinc-900 border border-white/[0.06] space-y-3">
                     <div class="flex items-center justify-between">
-                        <span class="text-xs font-mono uppercase text-zinc-400">Match Score Breakdown</span>
-                        <span id="drawer-score-badge" class="px-2 py-0.5 text-xs font-mono font-semibold bg-white/[0.06] text-zinc-200 rounded border border-white/[0.10]">95% Fit</span>
+                        <span class="text-xs font-mono uppercase tracking-wider text-zinc-400">Match Score Breakdown</span>
+                        <span id="drawer-score-badge" class="px-2.5 py-0.5 text-xs font-mono font-semibold bg-white/[0.06] text-zinc-200 rounded border border-white/[0.10]">95% Fit</span>
                     </div>
-                    <p id="drawer-reasoning" class="text-xs text-zinc-300 leading-relaxed"></p>
+                    <p id="drawer-reasoning" class="text-xs sm:text-sm text-zinc-300 leading-relaxed font-sans"></p>
                 </div>
 
-                <div class="grid grid-cols-2 gap-3">
-                    <div class="p-3.5 rounded-xl bg-zinc-900 border border-white/[0.06] space-y-1">
-                        <div class="text-[11px] font-mono uppercase text-zinc-400">Compensation Equivalent</div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="p-4 rounded-xl bg-zinc-900 border border-white/[0.06] space-y-1">
+                        <div class="text-[11px] font-mono uppercase tracking-wider text-zinc-400">Compensation Equivalent</div>
                         <div id="drawer-salary" class="text-sm font-semibold text-zinc-100 font-mono tabular-nums">$175,000 / yr USD</div>
                     </div>
-                    <div class="p-3.5 rounded-xl bg-zinc-900 border border-white/[0.06] space-y-1">
-                        <div class="text-[11px] font-mono uppercase text-zinc-400">Timezone Overlap</div>
+                    <div class="p-4 rounded-xl bg-zinc-900 border border-white/[0.06] space-y-1">
+                        <div class="text-[11px] font-mono uppercase tracking-wider text-zinc-400">Timezone Overlap</div>
                         <div id="drawer-tz" class="text-sm font-semibold text-zinc-100 font-mono tabular-nums">8.0h Working Hours</div>
                     </div>
                 </div>
 
-                <div class="p-3.5 rounded-xl bg-zinc-900 border border-white/[0.06] space-y-2">
-                    <div class="text-xs font-mono uppercase text-zinc-400">Skills Matched</div>
-                    <div id="drawer-skills" class="flex flex-wrap gap-1.5"></div>
+                <div class="p-4 rounded-xl bg-zinc-900 border border-white/[0.06] space-y-2.5">
+                    <div class="text-xs font-mono uppercase tracking-wider text-zinc-400">Skills Matched</div>
+                    <div id="drawer-skills" class="flex flex-wrap gap-2"></div>
                 </div>
             </div>
 
             <!-- Drawer Tab 2: STAR Resume -->
-            <div id="dcontent-resume" class="space-y-4 hidden">
+            <div id="dcontent-resume" class="space-y-5 hidden">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-mono uppercase text-zinc-400">Pre-Compiled Experience Bullets (≥80% Metric Grounded)</span>
-                    <a id="drawer-pdf-link" href="#" target="_blank" class="px-3 py-1.5 rounded-lg bg-white text-black hover:bg-zinc-200 text-xs font-medium transition flex items-center space-x-1.5">
+                    <span class="text-xs font-mono uppercase tracking-wider text-zinc-400">Pre-Compiled Experience Bullets (≥80% Metric Grounded)</span>
+                    <a id="drawer-pdf-link" href="#" target="_blank" class="px-3.5 py-1.5 rounded-lg bg-white text-black hover:bg-zinc-200 text-xs font-medium transition flex items-center space-x-1.5">
                         <i data-lucide="download" class="w-3.5 h-3.5"></i>
                         <span>Download ATS PDF</span>
                     </a>
                 </div>
-                <div id="drawer-resume-bullets" class="p-4 rounded-xl bg-zinc-900 border border-white/[0.06] space-y-2.5 text-xs text-zinc-300 font-mono leading-relaxed"></div>
+                <div id="drawer-resume-bullets" class="p-5 rounded-xl bg-zinc-900 border border-white/[0.06] space-y-3 text-xs text-zinc-300 font-mono leading-relaxed"></div>
             </div>
 
             <!-- Drawer Tab 3: 4-Sentence Cold Angle -->
-            <div id="dcontent-cold" class="space-y-4 hidden">
-                <div class="space-y-3">
+            <div id="dcontent-cold" class="space-y-5 hidden">
+                <div class="space-y-4">
                     <div>
-                        <label class="text-[11px] font-mono uppercase text-zinc-400">Subject Line</label>
-                        <div id="drawer-cold-subject" class="mt-1 p-2.5 rounded-lg bg-zinc-900 border border-white/[0.06] text-xs font-mono text-zinc-100 select-all"></div>
+                        <label class="text-[11px] font-mono uppercase tracking-wider text-zinc-400">Subject Line</label>
+                        <div id="drawer-cold-subject" class="mt-1.5 p-3 rounded-lg bg-zinc-900 border border-white/[0.06] text-xs font-mono text-zinc-100 select-all"></div>
                     </div>
                     <div>
-                        <label class="text-[11px] font-mono uppercase text-zinc-400">4-Sentence Pitch</label>
-                        <div id="drawer-cold-body" class="mt-1 p-3.5 rounded-xl bg-zinc-900 border border-white/[0.06] text-xs leading-relaxed text-zinc-200 select-all whitespace-pre-wrap"></div>
+                        <label class="text-[11px] font-mono uppercase tracking-wider text-zinc-400">4-Sentence Engineering Pitch</label>
+                        <div id="drawer-cold-body" class="mt-1.5 p-4 rounded-xl bg-zinc-900 border border-white/[0.06] text-xs leading-relaxed text-zinc-200 select-all whitespace-pre-wrap font-sans"></div>
                     </div>
-                    <div class="flex items-center justify-end space-x-2 pt-2">
-                        <button onclick="copyDrawerColdPitch()" class="px-3.5 py-1.5 rounded-lg bg-white/[0.06] hover:bg-white/[0.10] border border-white/[0.10] text-xs font-medium text-zinc-200 transition flex items-center space-x-1.5">
+                    <div class="flex items-center justify-end space-x-2.5 pt-2">
+                        <button onclick="copyDrawerColdPitch()" class="px-4 py-2 rounded-lg bg-white/[0.06] hover:bg-white/[0.10] border border-white/[0.10] text-xs font-medium text-zinc-200 transition flex items-center space-x-1.5">
                             <i data-lucide="copy" class="w-3.5 h-3.5"></i>
                             <span id="drawer-copy-cold-label">Copy Pitch</span>
                         </button>
-                        <a id="drawer-cold-mailto" href="#" target="_blank" class="px-3.5 py-1.5 rounded-lg bg-white text-black hover:bg-zinc-200 text-xs font-medium transition flex items-center space-x-1.5">
+                        <a id="drawer-cold-mailto" href="#" target="_blank" class="px-4 py-2 rounded-lg bg-white text-black hover:bg-zinc-200 text-xs font-medium transition flex items-center space-x-1.5">
                             <i data-lucide="mail" class="w-3.5 h-3.5"></i>
                             <span>Launch Mail Client</span>
                         </a>
@@ -464,20 +470,20 @@
             </div>
 
             <!-- Drawer Tab 4: Anti-Ghost & ATS Probe -->
-            <div id="dcontent-ghost" class="space-y-4 hidden">
-                <div class="p-4 rounded-xl bg-zinc-900 border border-white/[0.06] space-y-2.5">
+            <div id="dcontent-ghost" class="space-y-5 hidden">
+                <div class="p-5 rounded-xl bg-zinc-900 border border-white/[0.06] space-y-3">
                     <div class="flex items-center justify-between">
-                        <span class="text-xs font-mono uppercase text-zinc-400">Ghost Job Risk</span>
-                        <span id="drawer-ghost-risk" class="px-2 py-0.5 text-xs font-mono font-medium bg-white/[0.06] text-zinc-300 rounded border border-white/[0.08]">LOW RISK</span>
+                        <span class="text-xs font-mono uppercase tracking-wider text-zinc-400">Ghost Job Risk</span>
+                        <span id="drawer-ghost-risk" class="px-2.5 py-0.5 text-xs font-mono font-medium bg-white/[0.06] text-zinc-300 rounded border border-white/[0.08]">LOW RISK</span>
                     </div>
-                    <p id="drawer-ghost-reasoning" class="text-xs text-zinc-300 leading-relaxed"></p>
+                    <p id="drawer-ghost-reasoning" class="text-xs sm:text-sm text-zinc-300 leading-relaxed font-sans"></p>
                 </div>
-                <div class="p-3.5 rounded-xl bg-zinc-900 border border-white/[0.06] flex items-center justify-between">
+                <div class="p-4 rounded-xl bg-zinc-900 border border-white/[0.06] flex items-center justify-between">
                     <div>
                         <div class="text-xs font-medium text-zinc-200">Live ATS Pre-Flight Status</div>
-                        <div id="drawer-ats-url" class="text-[11px] font-mono text-zinc-400 truncate max-w-sm"></div>
+                        <div id="drawer-ats-url" class="text-[11px] font-mono text-zinc-400 truncate max-w-sm mt-0.5"></div>
                     </div>
-                    <button id="drawer-probe-btn" onclick="probeCurrentDrawerLink()" class="px-3 py-1.5 rounded-lg bg-white/[0.06] hover:bg-white/[0.10] border border-white/[0.10] text-xs font-medium text-zinc-200 transition">
+                    <button id="drawer-probe-btn" onclick="probeCurrentDrawerLink()" class="px-3.5 py-1.5 rounded-lg bg-white/[0.06] hover:bg-white/[0.10] border border-white/[0.10] text-xs font-medium text-zinc-200 transition">
                         Probe Portal
                     </button>
                 </div>
@@ -488,27 +494,27 @@
     <!-- ============================================================================= -->
     <!-- MODAL: VOICE MOCK INTERVIEW STUDIO (ELEVENLABS PATTERN) -->
     <!-- ============================================================================= -->
-    <div id="modal-interview" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-md flex items-center justify-center p-4 hidden">
-        <div class="glass-modal rounded-2xl max-w-2xl w-full p-6 sm:p-7 space-y-5 relative max-h-[90vh] overflow-y-auto">
-            <div class="flex items-center justify-between border-b border-white/[0.08] pb-3.5">
-                <div class="flex items-center space-x-2.5">
-                    <div class="w-8 h-8 rounded-lg bg-white/[0.06] border border-white/[0.10] flex items-center justify-center text-zinc-200">
+    <div id="modal-interview" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-center justify-center p-4 hidden">
+        <div class="glass-modal rounded-2xl max-w-2xl w-full p-7 space-y-6 relative max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between border-b border-white/[0.08] pb-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-9 h-9 rounded-lg bg-white/[0.06] border border-white/[0.10] flex items-center justify-center text-zinc-200">
                         <i data-lucide="mic" class="w-4 h-4"></i>
                     </div>
                     <div>
                         <h2 class="text-base font-semibold text-zinc-100">Voice Mock Interview Studio</h2>
-                        <p id="interview-modal-subtitle" class="text-xs text-zinc-400 font-mono">Stage 1 of 4: Technical Architecture</p>
+                        <p id="interview-modal-subtitle" class="text-xs text-zinc-400 font-mono mt-0.5">Stage 1 of 4: Technical Architecture</p>
                     </div>
                 </div>
-                <button onclick="closeInterviewModal()" class="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/[0.06] transition">
+                <button onclick="closeInterviewModal()" class="p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-white/[0.06] transition">
                     <i data-lucide="x" class="w-4 h-4"></i>
                 </button>
             </div>
 
             <!-- Question Card -->
-            <div class="p-4 rounded-xl bg-zinc-900 border border-white/[0.06] space-y-2">
+            <div class="p-5 rounded-xl bg-zinc-900 border border-white/[0.06] space-y-2.5">
                 <div class="flex items-center justify-between">
-                    <span id="interview-category-badge" class="px-2 py-0.5 text-[10px] font-mono font-medium uppercase tracking-wider bg-white/[0.04] text-zinc-300 rounded border border-white/[0.08]">Technical Architecture</span>
+                    <span id="interview-category-badge" class="px-2.5 py-0.5 text-[10px] font-mono font-medium uppercase tracking-wider bg-white/[0.04] text-zinc-300 rounded border border-white/[0.08]">Technical Architecture</span>
                     <button onclick="speakQuestionAloud()" class="text-xs font-mono text-zinc-400 hover:text-white transition flex items-center space-x-1.5">
                         <i data-lucide="volume-2" class="w-3.5 h-3.5"></i>
                         <span>Listen Aloud (TTS)</span>
@@ -519,8 +525,8 @@
                 </h3>
             </div>
 
-            <!-- 32-Bar Discrete Audio Waveform (ElevenLabs Style) -->
-            <div id="voice-waveform" class="p-3.5 rounded-xl bg-zinc-900 border border-white/[0.06] flex flex-col items-center justify-center space-y-2">
+            <!-- 32-Bar Discrete Audio Waveform -->
+            <div id="voice-waveform" class="p-4 rounded-xl bg-zinc-900 border border-white/[0.06] flex flex-col items-center justify-center space-y-2.5">
                 <div class="flex items-center space-x-1 h-7" id="freq-bars-container">
                     <!-- 32 Discrete Bars -->
                     <div class="freq-bar h-1"></div><div class="freq-bar h-1"></div><div class="freq-bar h-1"></div><div class="freq-bar h-1"></div>
@@ -537,12 +543,12 @@
 
             <!-- Answer Input Area -->
             <div class="space-y-2">
-                <textarea id="interview-answer-input" rows="3" placeholder="Speak aloud or type your technical response here..." class="w-full p-3.5 rounded-xl bg-zinc-900 border border-white/[0.08] text-xs sm:text-sm text-zinc-100 focus:outline-none focus:border-white/[0.2] font-mono leading-relaxed resize-none"></textarea>
+                <textarea id="interview-answer-input" rows="3" placeholder="Speak aloud or type your technical response here..." class="w-full p-4 rounded-xl bg-zinc-900 border border-white/[0.08] text-xs sm:text-sm text-zinc-100 focus:outline-none focus:border-white/[0.2] font-mono leading-relaxed resize-none"></textarea>
             </div>
 
             <!-- Controls & Submit -->
             <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
-                <button id="btn-toggle-mic" onclick="toggleMicrophoneDictation()" class="w-full sm:w-auto px-3.5 py-1.5 rounded-lg bg-white/[0.06] hover:bg-white/[0.10] border border-white/[0.10] text-xs font-medium text-zinc-200 transition flex items-center justify-center space-x-2">
+                <button id="btn-toggle-mic" onclick="toggleMicrophoneDictation()" class="w-full sm:w-auto px-4 py-2 rounded-lg bg-white/[0.06] hover:bg-white/[0.10] border border-white/[0.10] text-xs font-medium text-zinc-200 transition flex items-center justify-center space-x-2">
                     <i data-lucide="mic" class="w-3.5 h-3.5" id="mic-icon"></i>
                     <span id="mic-btn-label">Start Speaking (STT)</span>
                 </button>
@@ -556,15 +562,15 @@
             </div>
 
             <!-- Evaluation Results -->
-            <div id="interview-eval-result" class="hidden p-4 rounded-xl bg-zinc-900 border border-white/[0.08] space-y-3">
+            <div id="interview-eval-result" class="hidden p-5 rounded-xl bg-zinc-900 border border-white/[0.08] space-y-3.5">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center space-x-2">
-                        <span class="text-xs font-mono uppercase text-zinc-400">Score</span>
-                        <span id="eval-score-badge" class="text-sm font-semibold font-mono text-zinc-100">92 / 100</span>
+                        <span class="text-xs font-mono uppercase tracking-wider text-zinc-400">Score</span>
+                        <span id="eval-score-badge" class="text-base font-semibold font-mono text-zinc-100">92 / 100</span>
                     </div>
                     <span class="text-xs font-mono text-zinc-400">STAR Grounded</span>
                 </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-mono">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-mono">
                     <div class="space-y-1">
                         <div class="text-zinc-300 font-medium uppercase">Demonstrated Strengths</div>
                         <ul id="eval-strengths" class="text-zinc-400 list-disc list-inside space-y-0.5"></ul>
@@ -581,47 +587,47 @@
     <!-- ============================================================================= -->
     <!-- MODAL: AGENT EVALUATION BENCHMARKS -->
     <!-- ============================================================================= -->
-    <div id="modal-eval" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-md flex items-center justify-center p-4 hidden">
-        <div class="glass-modal rounded-2xl max-w-xl w-full p-6 sm:p-7 space-y-5 relative max-h-[90vh] overflow-y-auto">
-            <div class="flex items-center justify-between border-b border-white/[0.08] pb-3.5">
-                <div class="flex items-center space-x-2.5">
-                    <div class="w-8 h-8 rounded-lg bg-white/[0.06] border border-white/[0.10] flex items-center justify-center text-zinc-200">
+    <div id="modal-eval" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-center justify-center p-4 hidden">
+        <div class="glass-modal rounded-2xl max-w-xl w-full p-7 space-y-5 relative max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between border-b border-white/[0.08] pb-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-9 h-9 rounded-lg bg-white/[0.06] border border-white/[0.10] flex items-center justify-center text-zinc-200">
                         <i data-lucide="gauge" class="w-4 h-4"></i>
                     </div>
                     <div>
                         <h2 class="text-base font-semibold text-zinc-100">Agent Evaluation Suite</h2>
-                        <p class="text-xs text-zinc-400 font-mono">Deterministic Golden Rubrics + LangSmith Cloud Tracing</p>
+                        <p class="text-xs text-zinc-400 font-mono mt-0.5">Deterministic Golden Rubrics + LangSmith Cloud Tracing</p>
                     </div>
                 </div>
-                <button onclick="closeEvalModal()" class="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/[0.06] transition">
+                <button onclick="closeEvalModal()" class="p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-white/[0.06] transition">
                     <i data-lucide="x" class="w-4 h-4"></i>
                 </button>
             </div>
 
-            <div class="space-y-3">
-                <div class="grid grid-cols-2 gap-2.5">
-                    <div class="p-3.5 rounded-xl bg-zinc-900 border border-white/[0.06] space-y-1">
-                        <div class="text-[11px] font-mono uppercase text-zinc-400">STAR Resume Metric Grounding</div>
+            <div class="space-y-4">
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="p-4 rounded-xl bg-zinc-900 border border-white/[0.06] space-y-1">
+                        <div class="text-[11px] font-mono uppercase tracking-wider text-zinc-400">STAR Resume Metric Grounding</div>
                         <div class="text-sm font-semibold text-zinc-100 font-mono">100% Pass (≥80% Req)</div>
                     </div>
-                    <div class="p-3.5 rounded-xl bg-zinc-900 border border-white/[0.06] space-y-1">
-                        <div class="text-[11px] font-mono uppercase text-zinc-400">4-Sentence Pitch Brevity</div>
+                    <div class="p-4 rounded-xl bg-zinc-900 border border-white/[0.06] space-y-1">
+                        <div class="text-[11px] font-mono uppercase tracking-wider text-zinc-400">4-Sentence Pitch Brevity</div>
                         <div class="text-sm font-semibold text-zinc-100 font-mono">100% Pass (≤4 Sentences)</div>
                     </div>
-                    <div class="p-3.5 rounded-xl bg-zinc-900 border border-white/[0.06] space-y-1">
-                        <div class="text-[11px] font-mono uppercase text-zinc-400">Dealbreaker Precision</div>
+                    <div class="p-4 rounded-xl bg-zinc-900 border border-white/[0.06] space-y-1">
+                        <div class="text-[11px] font-mono uppercase tracking-wider text-zinc-400">Dealbreaker Precision</div>
                         <div class="text-sm font-semibold text-zinc-100 font-mono">1.00 Precision / 1.00 Recall</div>
                     </div>
-                    <div class="p-3.5 rounded-xl bg-zinc-900 border border-white/[0.06] space-y-1">
-                        <div class="text-[11px] font-mono uppercase text-zinc-400">Anti-Ghost Job Detection</div>
+                    <div class="p-4 rounded-xl bg-zinc-900 border border-white/[0.06] space-y-1">
+                        <div class="text-[11px] font-mono uppercase tracking-wider text-zinc-400">Anti-Ghost Job Detection</div>
                         <div class="text-sm font-semibold text-zinc-100 font-mono">100% Classification Acc</div>
                     </div>
                 </div>
 
-                <div id="eval-run-output" class="hidden p-3.5 rounded-xl bg-zinc-900 border border-white/[0.08] font-mono text-xs text-zinc-300"></div>
+                <div id="eval-run-output" class="hidden p-4 rounded-xl bg-zinc-900 border border-white/[0.08] font-mono text-xs text-zinc-300 leading-relaxed"></div>
             </div>
 
-            <div class="flex items-center justify-between pt-3 border-t border-white/[0.08]">
+            <div class="flex items-center justify-between pt-4 border-t border-white/[0.08]">
                 <span class="text-[11px] font-mono text-zinc-500">LangSmith Project: rolepointer-benchmark</span>
                 <button onclick="executeAgentEvals()" id="btn-run-evals" class="px-4 py-2 rounded-lg bg-white text-black hover:bg-zinc-200 text-xs font-medium transition flex items-center space-x-1.5">
                     <i data-lucide="play" class="w-3.5 h-3.5"></i>
@@ -634,58 +640,58 @@
     <!-- ============================================================================= -->
     <!-- MODAL: CANDIDATE PROFILE & RESUME IMPORTER -->
     <!-- ============================================================================= -->
-    <div id="modal-profile" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-md flex items-center justify-center p-4 hidden">
-        <div class="glass-modal rounded-2xl max-w-lg w-full p-6 sm:p-7 space-y-5 relative max-h-[90vh] overflow-y-auto">
-            <div class="flex items-center justify-between border-b border-white/[0.08] pb-3.5">
-                <div class="flex items-center space-x-2.5">
-                    <div class="w-8 h-8 rounded-lg bg-white/[0.06] border border-white/[0.10] flex items-center justify-center text-zinc-200">
+    <div id="modal-profile" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-center justify-center p-4 hidden">
+        <div class="glass-modal rounded-2xl max-w-lg w-full p-7 space-y-5 relative max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between border-b border-white/[0.08] pb-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-9 h-9 rounded-lg bg-white/[0.06] border border-white/[0.10] flex items-center justify-center text-zinc-200">
                         <i data-lucide="user-check" class="w-4 h-4"></i>
                     </div>
                     <div>
                         <h2 class="text-base font-semibold text-zinc-100">Candidate Profile & Guardrails</h2>
-                        <p class="text-xs text-zinc-400 font-mono">Configure Target Stack, Compensation Floor & Anti-Goals</p>
+                        <p class="text-xs text-zinc-400 font-mono mt-0.5">Configure Target Stack, Compensation Floor & Anti-Goals</p>
                     </div>
                 </div>
-                <button onclick="closeProfileModal()" class="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/[0.06] transition">
+                <button onclick="closeProfileModal()" class="p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-white/[0.06] transition">
                     <i data-lucide="x" class="w-4 h-4"></i>
                 </button>
             </div>
 
-            <div class="space-y-3.5">
+            <div class="space-y-4">
                 <div>
-                    <label class="text-xs font-mono uppercase text-zinc-400">Quick Resume Text Importer</label>
-                    <textarea id="import-resume-text" rows="3" placeholder="Paste your raw resume or LinkedIn text here..." class="w-full mt-1 p-3 rounded-lg bg-zinc-900 border border-white/[0.08] text-xs text-zinc-100 focus:outline-none focus:border-white/[0.2] font-mono resize-none"></textarea>
-                    <button onclick="importProfileFromText()" class="mt-2 w-full py-1.5 rounded-lg bg-white/[0.06] hover:bg-white/[0.10] border border-white/[0.10] text-xs font-medium text-zinc-200 transition flex items-center justify-center space-x-1.5">
+                    <label class="text-xs font-mono uppercase tracking-wider text-zinc-400">Quick Resume Text Importer</label>
+                    <textarea id="import-resume-text" rows="3" placeholder="Paste your raw resume or LinkedIn text here..." class="w-full mt-1.5 p-3.5 rounded-lg bg-zinc-900 border border-white/[0.08] text-xs text-zinc-100 focus:outline-none focus:border-white/[0.2] font-mono resize-none"></textarea>
+                    <button onclick="importProfileFromText()" class="mt-2.5 w-full py-2 rounded-lg bg-white/[0.06] hover:bg-white/[0.10] border border-white/[0.10] text-xs font-medium text-zinc-200 transition flex items-center justify-center space-x-1.5">
                         <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
                         <span>Auto-Extract Skills with AI</span>
                     </button>
                 </div>
 
-                <div class="grid grid-cols-2 gap-3">
+                <div class="grid grid-cols-2 gap-3.5">
                     <div>
-                        <label class="text-xs font-mono uppercase text-zinc-400">Full Name</label>
-                        <input type="text" id="prof-name" value="Jane Doe" class="w-full mt-1 p-2 rounded-lg bg-zinc-900 border border-white/[0.08] text-xs text-zinc-100 font-mono">
+                        <label class="text-xs font-mono uppercase tracking-wider text-zinc-400">Full Name</label>
+                        <input type="text" id="prof-name" value="Jane Doe" class="w-full mt-1.5 p-2.5 rounded-lg bg-zinc-900 border border-white/[0.08] text-xs text-zinc-100 font-mono">
                     </div>
                     <div>
-                        <label class="text-xs font-mono uppercase text-zinc-400">Salary Floor ($ USD)</label>
-                        <input type="number" id="prof-salary" value="130000" class="w-full mt-1 p-2 rounded-lg bg-zinc-900 border border-white/[0.08] text-xs text-zinc-100 font-mono font-medium">
+                        <label class="text-xs font-mono uppercase tracking-wider text-zinc-400">Salary Floor ($ USD)</label>
+                        <input type="number" id="prof-salary" value="130000" class="w-full mt-1.5 p-2.5 rounded-lg bg-zinc-900 border border-white/[0.08] text-xs text-zinc-100 font-mono font-medium">
                     </div>
                 </div>
 
                 <div>
-                    <label class="text-xs font-mono uppercase text-zinc-400">Core Skills (Comma separated)</label>
-                    <input type="text" id="prof-skills" value="Python, Go, PostgreSQL, Kafka, AWS, Docker, Kubernetes" class="w-full mt-1 p-2 rounded-lg bg-zinc-900 border border-white/[0.08] text-xs text-zinc-100 font-mono">
+                    <label class="text-xs font-mono uppercase tracking-wider text-zinc-400">Core Skills (Comma separated)</label>
+                    <input type="text" id="prof-skills" value="Python, Go, PostgreSQL, Kafka, AWS, Docker, Kubernetes" class="w-full mt-1.5 p-2.5 rounded-lg bg-zinc-900 border border-white/[0.08] text-xs text-zinc-100 font-mono">
                 </div>
 
                 <div>
-                    <label class="text-xs font-mono uppercase text-zinc-400">Anti-Goals & Dealbreakers</label>
-                    <input type="text" id="prof-antigoals" value="on-call weekend shifts, crypto, gambling, staffing agency" class="w-full mt-1 p-2 rounded-lg bg-zinc-900 border border-white/[0.08] text-xs text-zinc-300 font-mono">
+                    <label class="text-xs font-mono uppercase tracking-wider text-zinc-400">Anti-Goals & Dealbreakers</label>
+                    <input type="text" id="prof-antigoals" value="on-call weekend shifts, crypto, gambling, staffing agency" class="w-full mt-1.5 p-2.5 rounded-lg bg-zinc-900 border border-white/[0.08] text-xs text-zinc-300 font-mono">
                 </div>
             </div>
 
-            <div class="flex justify-end space-x-2 pt-3 border-t border-white/[0.08]">
-                <button onclick="closeProfileModal()" class="px-3.5 py-1.5 rounded-lg bg-white/[0.04] text-xs font-medium text-zinc-300 hover:text-white transition">Cancel</button>
-                <button onclick="saveProfilePreferences()" class="px-4 py-1.5 rounded-lg bg-white text-black hover:bg-zinc-200 text-xs font-medium transition">Save Preferences</button>
+            <div class="flex justify-end space-x-2.5 pt-4 border-t border-white/[0.08]">
+                <button onclick="closeProfileModal()" class="px-4 py-2 rounded-lg bg-white/[0.04] text-xs font-medium text-zinc-300 hover:text-white transition">Cancel</button>
+                <button onclick="saveProfilePreferences()" class="px-4.5 py-2 rounded-lg bg-white text-black hover:bg-zinc-200 text-xs font-medium transition">Save Preferences</button>
             </div>
         </div>
     </div>
@@ -693,36 +699,36 @@
     <!-- ============================================================================= -->
     <!-- COMMAND PALETTE MODAL (⌘K) -->
     <!-- ============================================================================= -->
-    <div id="modal-cmd" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-md flex items-start justify-center pt-24 p-4 hidden" onclick="closeCommandPalette(event)">
-        <div class="glass-modal rounded-xl max-w-lg w-full p-3.5 space-y-2.5 overflow-hidden shadow-2xl" onclick="event.stopPropagation()">
-            <div class="flex items-center space-x-2.5 px-2.5 py-1.5 border-b border-white/[0.08]">
+    <div id="modal-cmd" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-start justify-center pt-24 p-4 hidden" onclick="closeCommandPalette(event)">
+        <div class="glass-modal rounded-xl max-w-lg w-full p-4 space-y-3 overflow-hidden shadow-2xl" onclick="event.stopPropagation()">
+            <div class="flex items-center space-x-3 px-2.5 py-1.5 border-b border-white/[0.08]">
                 <i data-lucide="search" class="w-4 h-4 text-zinc-400"></i>
                 <input type="text" id="cmd-input" oninput="filterCommandPalette()" placeholder="Type a command or search..." class="w-full bg-transparent text-xs sm:text-sm text-white focus:outline-none font-mono">
                 <kbd>ESC</kbd>
             </div>
-            <div id="cmd-results" class="max-h-56 overflow-y-auto space-y-1 font-mono text-xs">
-                <div onclick="switchView('briefing'); closeCommandPalette();" class="p-2 rounded-lg hover:bg-white/[0.06] cursor-pointer flex items-center justify-between text-zinc-200">
-                    <span class="flex items-center space-x-2"><i data-lucide="sun" class="w-3.5 h-3.5 text-zinc-400"></i><span>Go to Morning Briefing</span></span>
+            <div id="cmd-results" class="max-h-60 overflow-y-auto space-y-1 font-mono text-xs">
+                <div onclick="switchView('briefing'); closeCommandPalette();" class="p-2.5 rounded-lg hover:bg-white/[0.06] cursor-pointer flex items-center justify-between text-zinc-200">
+                    <span class="flex items-center space-x-2.5"><i data-lucide="sun" class="w-4 h-4 text-zinc-400"></i><span>Go to Morning Briefing</span></span>
                     <kbd>B</kbd>
                 </div>
-                <div onclick="switchView('radar'); closeCommandPalette();" class="p-2 rounded-lg hover:bg-white/[0.06] cursor-pointer flex items-center justify-between text-zinc-200">
-                    <span class="flex items-center space-x-2"><i data-lucide="radar" class="w-3.5 h-3.5 text-zinc-400"></i><span>Go to Response Radar</span></span>
+                <div onclick="switchView('radar'); closeCommandPalette();" class="p-2.5 rounded-lg hover:bg-white/[0.06] cursor-pointer flex items-center justify-between text-zinc-200">
+                    <span class="flex items-center space-x-2.5"><i data-lucide="radar" class="w-4 h-4 text-zinc-400"></i><span>Go to Response Radar</span></span>
                     <kbd>R</kbd>
                 </div>
-                <div onclick="switchView('archive'); closeCommandPalette();" class="p-2 rounded-lg hover:bg-white/[0.06] cursor-pointer flex items-center justify-between text-zinc-200">
-                    <span class="flex items-center space-x-2"><i data-lucide="layers" class="w-3.5 h-3.5 text-zinc-400"></i><span>Browse Full Catalog</span></span>
+                <div onclick="switchView('archive'); closeCommandPalette();" class="p-2.5 rounded-lg hover:bg-white/[0.06] cursor-pointer flex items-center justify-between text-zinc-200">
+                    <span class="flex items-center space-x-2.5"><i data-lucide="layers" class="w-4 h-4 text-zinc-400"></i><span>Browse Full Catalog</span></span>
                     <kbd>A</kbd>
                 </div>
-                <div onclick="triggerSchedulerSync(); closeCommandPalette();" class="p-2 rounded-lg hover:bg-white/[0.06] cursor-pointer flex items-center justify-between text-zinc-200">
-                    <span class="flex items-center space-x-2"><i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-zinc-400"></i><span>Scour Live Job Feeds</span></span>
+                <div onclick="triggerSchedulerSync(); closeCommandPalette();" class="p-2.5 rounded-lg hover:bg-white/[0.06] cursor-pointer flex items-center justify-between text-zinc-200">
+                    <span class="flex items-center space-x-2.5"><i data-lucide="refresh-cw" class="w-4 h-4 text-zinc-400"></i><span>Scour Live Job Feeds</span></span>
                     <kbd>S</kbd>
                 </div>
-                <div onclick="openEvalModal(); closeCommandPalette();" class="p-2 rounded-lg hover:bg-white/[0.06] cursor-pointer flex items-center justify-between text-zinc-200">
-                    <span class="flex items-center space-x-2"><i data-lucide="gauge" class="w-3.5 h-3.5 text-zinc-400"></i><span>Run Agent Evaluations</span></span>
+                <div onclick="openEvalModal(); closeCommandPalette();" class="p-2.5 rounded-lg hover:bg-white/[0.06] cursor-pointer flex items-center justify-between text-zinc-200">
+                    <span class="flex items-center space-x-2.5"><i data-lucide="gauge" class="w-4 h-4 text-zinc-400"></i><span>Run Agent Evaluations</span></span>
                     <kbd>E</kbd>
                 </div>
-                <div onclick="openProfileModal(); closeCommandPalette();" class="p-2 rounded-lg hover:bg-white/[0.06] cursor-pointer flex items-center justify-between text-zinc-200">
-                    <span class="flex items-center space-x-2"><i data-lucide="user" class="w-3.5 h-3.5 text-zinc-400"></i><span>Edit Candidate Profile</span></span>
+                <div onclick="openProfileModal(); closeCommandPalette();" class="p-2.5 rounded-lg hover:bg-white/[0.06] cursor-pointer flex items-center justify-between text-zinc-200">
+                    <span class="flex items-center space-x-2.5"><i data-lucide="user" class="w-4 h-4 text-zinc-400"></i><span>Edit Candidate Profile</span></span>
                     <kbd>P</kbd>
                 </div>
             </div>
@@ -807,19 +813,19 @@
             document.getElementById('view-radar').classList.add('hidden');
             document.getElementById('view-archive').classList.add('hidden');
 
-            document.getElementById('tab-briefing').className = "px-3 py-1.5 rounded-lg text-xs font-medium transition-all text-zinc-400 hover:text-white flex items-center space-x-1.5";
-            document.getElementById('tab-radar').className = "px-3 py-1.5 rounded-lg text-xs font-medium transition-all text-zinc-400 hover:text-white flex items-center space-x-1.5";
-            document.getElementById('tab-archive').className = "px-3 py-1.5 rounded-lg text-xs font-medium transition-all text-zinc-400 hover:text-white flex items-center space-x-1.5";
+            document.getElementById('tab-briefing').className = "px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all text-zinc-400 hover:text-white flex items-center space-x-1.5";
+            document.getElementById('tab-radar').className = "px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all text-zinc-400 hover:text-white flex items-center space-x-1.5";
+            document.getElementById('tab-archive').className = "px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all text-zinc-400 hover:text-white flex items-center space-x-1.5";
 
             if (viewName === 'briefing') {
                 document.getElementById('view-briefing').classList.remove('hidden');
-                document.getElementById('tab-briefing').className = "px-3 py-1.5 rounded-lg text-xs font-medium transition-all bg-white text-black shadow-sm flex items-center space-x-1.5";
+                document.getElementById('tab-briefing').className = "px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all bg-white text-black shadow-sm flex items-center space-x-1.5";
             } else if (viewName === 'radar') {
                 document.getElementById('view-radar').classList.remove('hidden');
-                document.getElementById('tab-radar').className = "px-3 py-1.5 rounded-lg text-xs font-medium transition-all bg-white text-black shadow-sm flex items-center space-x-1.5";
+                document.getElementById('tab-radar').className = "px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all bg-white text-black shadow-sm flex items-center space-x-1.5";
             } else if (viewName === 'archive') {
                 document.getElementById('view-archive').classList.remove('hidden');
-                document.getElementById('tab-archive').className = "px-3 py-1.5 rounded-lg text-xs font-medium transition-all bg-white text-black shadow-sm flex items-center space-x-1.5";
+                document.getElementById('tab-archive').className = "px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all bg-white text-black shadow-sm flex items-center space-x-1.5";
             }
             lucide.createIcons();
         }
@@ -869,7 +875,7 @@
         function renderBriefingCards(bData) {
             const container = document.getElementById('briefing-cards-container');
             if (!bData.top_opportunities || bData.top_opportunities.length === 0) {
-                container.innerHTML = `<div class="p-8 text-center text-zinc-500 font-mono card-surface rounded-2xl text-xs">No high-fit opportunities found. Scouring live feeds...</div>`;
+                container.innerHTML = `<div class="p-10 text-center text-zinc-500 font-mono card-surface rounded-2xl text-xs">No high-fit opportunities found. Scouring live feeds...</div>`;
                 return;
             }
 
@@ -885,19 +891,19 @@
                 ];
 
                 return `
-                <div class="card-surface rounded-2xl p-5 sm:p-6 space-y-4 relative overflow-hidden ${idx === 0 ? 'card-featured' : ''}">
+                <div class="card-surface rounded-2xl p-6 sm:p-7 space-y-5 relative overflow-hidden ${idx === 0 ? 'card-featured' : ''}">
                     <!-- Top Badge & Rank -->
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                        <div class="flex items-center space-x-3 cursor-pointer" onclick="openJobDrawer('${job.id}')">
-                            <div class="w-10 h-10 rounded-xl bg-white/[0.06] border border-white/[0.10] flex items-center justify-center font-bold text-sm text-zinc-200 font-mono">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div class="flex items-center space-x-3.5 cursor-pointer" onclick="openJobDrawer('${job.id}')">
+                            <div class="w-11 h-11 rounded-xl bg-white/[0.06] border border-white/[0.10] flex items-center justify-center font-bold text-sm text-zinc-200 font-mono">
                                 ${job.company.substring(0, 2).toUpperCase()}
                             </div>
                             <div>
-                                <div class="flex items-center space-x-2">
-                                    <h3 class="text-base font-semibold text-zinc-100 hover:text-white transition">${job.title}</h3>
+                                <div class="flex items-center space-x-2.5">
+                                    <h3 class="text-base sm:text-lg font-semibold text-zinc-100 hover:text-white transition">${job.title}</h3>
                                     <span class="px-2 py-0.5 text-[10px] font-mono text-zinc-300 bg-white/[0.04] border border-white/[0.08] rounded">Top Match #${idx + 1}</span>
                                 </div>
-                                <div class="text-xs font-mono text-zinc-400 flex items-center space-x-2 mt-0.5">
+                                <div class="text-xs font-mono text-zinc-400 flex items-center space-x-2 mt-1">
                                     <span class="text-zinc-200 font-medium">${job.company}</span>
                                     <span>•</span>
                                     <span>${job.location}</span>
@@ -909,65 +915,65 @@
 
                         <!-- Match Gauge -->
                         <div class="flex items-center space-x-2">
-                            <span class="px-2.5 py-1 rounded-lg bg-white/[0.06] border border-white/[0.10] font-mono text-xs font-semibold text-zinc-200 tabular-nums">
+                            <span class="px-3 py-1 rounded-lg bg-white/[0.06] border border-white/[0.10] font-mono text-xs font-semibold text-zinc-200 tabular-nums">
                                 ${score}% Match
                             </span>
                         </div>
                     </div>
 
                     <!-- Metric Badges Row -->
-                    <div class="flex flex-wrap items-center gap-2 pt-1">
-                        <span class="px-2.5 py-1 rounded-lg bg-zinc-900 border border-white/[0.06] text-xs font-mono text-zinc-300 flex items-center space-x-1.5 tabular-nums">
+                    <div class="flex flex-wrap items-center gap-2.5 pt-1">
+                        <span class="px-3 py-1 rounded-lg bg-zinc-900 border border-white/[0.06] text-xs font-mono text-zinc-300 flex items-center space-x-1.5 tabular-nums">
                             <i data-lucide="dollar-sign" class="w-3.5 h-3.5 text-zinc-400"></i>
                             <span>${salaryFormatted}</span>
                         </span>
 
-                        <span class="px-2.5 py-1 rounded-lg bg-zinc-900 border border-white/[0.06] text-xs font-mono text-zinc-300 flex items-center space-x-1.5 tabular-nums">
+                        <span class="px-3 py-1 rounded-lg bg-zinc-900 border border-white/[0.06] text-xs font-mono text-zinc-300 flex items-center space-x-1.5 tabular-nums">
                             <i data-lucide="globe" class="w-3.5 h-3.5 text-zinc-400"></i>
                             <span>8.0h Working Hours Overlap</span>
                         </span>
 
-                        <span class="px-2.5 py-1 rounded-lg bg-white/[0.04] border border-white/[0.08] text-xs font-mono text-zinc-300 flex items-center space-x-1.5">
+                        <span class="px-3 py-1 rounded-lg bg-white/[0.04] border border-white/[0.08] text-xs font-mono text-zinc-300 flex items-center space-x-1.5">
                             <i data-lucide="shield-check" class="w-3.5 h-3.5 text-zinc-400"></i>
                             <span>Genuine Employer</span>
                         </span>
 
-                        <span id="link-status-${job.id}" class="px-2.5 py-1 rounded-lg bg-zinc-900 border border-white/[0.06] text-xs font-mono text-zinc-400 flex items-center space-x-1.5">
+                        <span id="link-status-${job.id}" class="px-3 py-1 rounded-lg bg-zinc-900 border border-white/[0.06] text-xs font-mono text-zinc-400 flex items-center space-x-1.5">
                             <i data-lucide="link" class="w-3.5 h-3.5 text-zinc-500"></i>
                             <span>Portal Live (200 OK)</span>
                         </span>
                     </div>
 
                     <!-- Pre-compiled STAR Resume Bullets -->
-                    <div class="space-y-2 p-3.5 rounded-xl bg-zinc-900/90 border border-white/[0.04]">
-                        <div class="text-[11px] font-mono uppercase text-zinc-400 font-medium flex items-center space-x-1.5">
+                    <div class="space-y-2.5 p-4 rounded-xl bg-zinc-900/90 border border-white/[0.04]">
+                        <div class="text-[11px] font-mono uppercase tracking-wider text-zinc-400 font-medium flex items-center space-x-1.5">
                             <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
                             <span>Pre-Compiled STAR Resume Tailoring</span>
                         </div>
-                        <ul class="space-y-1 text-xs text-zinc-300 leading-relaxed font-sans">
+                        <ul class="space-y-1.5 text-xs text-zinc-300 leading-relaxed font-sans">
                             ${bullets.map(b => `<li class="flex items-start space-x-2"><span class="text-zinc-500 font-bold">•</span><span>${b}</span></li>`).join('')}
                         </ul>
                     </div>
 
                     <!-- Action Toolbar -->
-                    <div class="flex flex-wrap items-center justify-between gap-2.5 pt-1">
-                        <div class="flex items-center space-x-2">
-                            <button onclick="openJobDrawer('${job.id}')" class="px-3.5 py-1.5 rounded-lg bg-white text-black hover:bg-zinc-200 text-xs font-medium transition flex items-center space-x-1.5">
+                    <div class="flex flex-wrap items-center justify-between gap-3 pt-2">
+                        <div class="flex items-center space-x-2.5">
+                            <button onclick="openJobDrawer('${job.id}')" class="px-4 py-2 rounded-lg bg-white text-black hover:bg-zinc-200 text-xs font-medium transition flex items-center space-x-1.5">
                                 <i data-lucide="maximize-2" class="w-3.5 h-3.5"></i>
                                 <span>Inspect Package</span>
                             </button>
-                            <button onclick="startMockInterview('${job.id}')" class="px-3 py-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-xs font-medium text-zinc-300 transition flex items-center space-x-1.5">
+                            <button onclick="startMockInterview('${job.id}')" class="px-3.5 py-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-xs font-medium text-zinc-300 transition flex items-center space-x-1.5">
                                 <i data-lucide="mic" class="w-3.5 h-3.5"></i>
                                 <span>Mock Interview</span>
                             </button>
                         </div>
 
-                        <div class="flex items-center space-x-2">
-                            <a href="/api/jobs/${job.id}/pdf" target="_blank" class="px-3 py-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-xs font-medium text-zinc-300 transition flex items-center space-x-1.5">
+                        <div class="flex items-center space-x-2.5">
+                            <a href="/api/jobs/${job.id}/pdf" target="_blank" class="px-3.5 py-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-xs font-medium text-zinc-300 transition flex items-center space-x-1.5">
                                 <i data-lucide="download" class="w-3.5 h-3.5"></i>
                                 <span>ATS PDF</span>
                             </a>
-                            <button onclick="applyToJob('${job.id}')" class="px-3.5 py-1.5 rounded-lg bg-white/[0.08] hover:bg-white/[0.14] border border-white/[0.12] text-xs font-medium text-white transition flex items-center space-x-1.5">
+                            <button onclick="applyToJob('${job.id}')" class="px-4 py-2 rounded-lg bg-white/[0.08] hover:bg-white/[0.14] border border-white/[0.12] text-xs font-medium text-white transition flex items-center space-x-1.5">
                                 <i data-lucide="send" class="w-3.5 h-3.5"></i>
                                 <span>Apply & Radar Track</span>
                             </button>
@@ -990,7 +996,7 @@
             activeCount.innerText = apps.length;
 
             if (apps.length === 0) {
-                container.innerHTML = `<div class="col-span-2 p-8 text-center text-zinc-500 font-mono card-surface rounded-2xl text-xs">No applications currently tracked in radar.</div>`;
+                container.innerHTML = `<div class="col-span-2 p-10 text-center text-zinc-500 font-mono card-surface rounded-2xl text-xs">No applications currently tracked in radar.</div>`;
                 return;
             }
 
@@ -1000,9 +1006,9 @@
                 const days = app.days_since_applied || 0;
 
                 return `
-                <div class="card-surface rounded-2xl p-5 space-y-3.5 relative overflow-hidden">
+                <div class="card-surface rounded-2xl p-6 space-y-4 relative overflow-hidden">
                     <div class="flex items-center justify-between">
-                        <span class="inline-flex items-center gap-1.5 px-2 py-0.5 text-xs font-mono font-medium ${isDue ? 'bg-rose-500/10 text-rose-300 border border-rose-500/20' : 'bg-white/[0.04] text-zinc-300 border border-white/[0.08]'} rounded">
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 text-xs font-mono font-medium ${isDue ? 'bg-rose-500/10 text-rose-300 border border-rose-500/20' : 'bg-white/[0.04] text-zinc-300 border border-white/[0.08]'} rounded">
                             <span class="w-1.5 h-1.5 rounded-full ${isDue ? 'bg-rose-400' : 'bg-zinc-400'}"></span>
                             <span>${isDue ? 'Follow-Up Due (Day 5)' : 'Awaiting Reply'}</span>
                         </span>
@@ -1011,11 +1017,11 @@
 
                     <div>
                         <h3 class="text-base font-semibold text-zinc-100">${app.title}</h3>
-                        <p class="text-xs font-mono text-zinc-400">${app.company}</p>
+                        <p class="text-xs font-mono text-zinc-400 mt-0.5">${app.company}</p>
                     </div>
 
                     <!-- Pipeline Progress Bar -->
-                    <div class="space-y-1">
+                    <div class="space-y-1.5">
                         <div class="flex justify-between text-[10px] font-mono text-zinc-500">
                             <span>Day 0 (Applied)</span>
                             <span>Day 5 (Value-Add Trigger)</span>
@@ -1025,8 +1031,8 @@
                         </div>
                     </div>
 
-                    <div class="pt-2 flex items-center justify-between border-t border-white/[0.06]">
-                        <button onclick="openValueAddDraft('${app.job_id}')" class="px-3 py-1.5 rounded-lg ${isDue ? 'bg-white text-black hover:bg-zinc-200' : 'bg-white/[0.04] text-zinc-300 hover:bg-white/[0.08]'} text-xs font-medium transition flex items-center space-x-1.5">
+                    <div class="pt-3 flex items-center justify-between border-t border-white/[0.06]">
+                        <button onclick="openValueAddDraft('${app.job_id}')" class="px-3.5 py-1.5 rounded-lg ${isDue ? 'bg-white text-black hover:bg-zinc-200' : 'bg-white/[0.04] text-zinc-300 hover:bg-white/[0.08]'} text-xs font-medium transition flex items-center space-x-1.5">
                             <i data-lucide="zap" class="w-3.5 h-3.5"></i>
                             <span>Generate Value-Add Note</span>
                         </button>
@@ -1044,7 +1050,7 @@
         function renderArchiveCards(items) {
             const container = document.getElementById('archive-cards-container');
             if (items.length === 0) {
-                container.innerHTML = `<div class="col-span-3 p-8 text-center text-zinc-500 font-mono card-surface rounded-2xl text-xs">No jobs found.</div>`;
+                container.innerHTML = `<div class="col-span-3 p-10 text-center text-zinc-500 font-mono card-surface rounded-2xl text-xs">No jobs found.</div>`;
                 return;
             }
 
@@ -1054,7 +1060,7 @@
                 const score = evalData.score || 88;
 
                 return `
-                <div class="card-surface rounded-xl p-4 space-y-3 flex flex-col justify-between cursor-pointer" onclick="openJobDrawer('${job.id}')">
+                <div class="card-surface rounded-xl p-5 space-y-3.5 flex flex-col justify-between cursor-pointer" onclick="openJobDrawer('${job.id}')">
                     <div class="space-y-2">
                         <div class="flex items-center justify-between">
                             <span class="text-xs font-medium text-zinc-400 font-mono">${job.source || 'Direct'}</span>
@@ -1062,9 +1068,9 @@
                         </div>
                         <h3 class="text-sm font-semibold text-zinc-100 leading-snug">${job.title}</h3>
                         <p class="text-xs font-mono text-zinc-400">${job.company} • ${job.location}</p>
-                        <p class="text-xs text-zinc-500 line-clamp-2 leading-relaxed">${job.description || ''}</p>
+                        <p class="text-xs text-zinc-500 line-clamp-2 leading-relaxed font-sans">${job.description || ''}</p>
                     </div>
-                    <div class="pt-2.5 border-t border-white/[0.06] flex items-center justify-between">
+                    <div class="pt-3 border-t border-white/[0.06] flex items-center justify-between">
                         <span class="text-xs text-zinc-300 font-mono flex items-center space-x-1">
                             <span>Inspect</span>
                             <i data-lucide="chevron-right" class="w-3 h-3 text-zinc-500"></i>
@@ -1117,7 +1123,7 @@
                         `Optimized query throughput by 45% using PostgreSQL connection pooling and Redis caching.`,
                         `Managed 99.99% system availability with automated Kubernetes self-healing deployments.`
                     ];
-                    document.getElementById('drawer-resume-bullets').innerHTML = bullets.map(b => `<div class="p-2.5 rounded-lg bg-zinc-950 border border-white/[0.04]"><span class="text-zinc-500 font-bold">•</span> ${b}</div>`).join('');
+                    document.getElementById('drawer-resume-bullets').innerHTML = bullets.map(b => `<div class="p-3 rounded-lg bg-zinc-950 border border-white/[0.04]"><span class="text-zinc-500 font-bold">•</span> ${b}</div>`).join('');
                     document.getElementById('drawer-pdf-link').href = `/api/jobs/${job.id}/pdf`;
 
                     // Ghost tab
@@ -1143,10 +1149,10 @@
 
         function switchDrawerTab(tab) {
             ['fit', 'resume', 'cold', 'ghost'].forEach(t => {
-                document.getElementById(`dtab-${t}`).className = "px-3 py-1 rounded-md text-xs font-medium text-zinc-400 hover:text-white";
+                document.getElementById(`dtab-${t}`).className = "px-3.5 py-1.5 rounded-md text-xs font-medium text-zinc-400 hover:text-white";
                 document.getElementById(`dcontent-${t}`).classList.add('hidden');
             });
-            document.getElementById(`dtab-${tab}`).className = "px-3 py-1 rounded-md text-xs font-medium bg-white text-black";
+            document.getElementById(`dtab-${tab}`).className = "px-3.5 py-1.5 rounded-md text-xs font-medium bg-white text-black";
             document.getElementById(`dcontent-${tab}`).classList.remove('hidden');
             lucide.createIcons();
         }
