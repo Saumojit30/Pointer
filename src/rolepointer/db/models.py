@@ -66,6 +66,9 @@ class FitEvaluationORM(Base):
     matching_skills_json: Mapped[str] = mapped_column(Text, default="[]")
     missing_skills_json: Mapped[str] = mapped_column(Text, default="[]")
     summary: Mapped[str] = mapped_column(Text, default="")
+    ghost_json: Mapped[str] = mapped_column(Text, default="{}")
+    salary_norm_json: Mapped[str] = mapped_column(Text, default="{}")
+    work_auth_json: Mapped[str] = mapped_column(Text, default="{}")
     created_at: Mapped[datetime] = mapped_column(DateTime, default=_now)
 
     job: Mapped[JobListingORM] = relationship(back_populates="evaluation")
@@ -136,4 +139,3 @@ class ApplicationRecordORM(Base):
     last_follow_up_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     direct_pitch_letter: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=_now)
-

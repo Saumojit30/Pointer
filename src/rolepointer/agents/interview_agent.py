@@ -4,7 +4,7 @@ Generates company-specific interview questions and evaluates user responses with
 """
 from __future__ import annotations
 
-from typing import List
+from typing import List, Optional, Union
 from loguru import logger
 
 from rolepointer.models.schemas import (
@@ -12,12 +12,12 @@ from rolepointer.models.schemas import (
 )
 
 
-def generate_mock_interview_questions(job: JobListing, profile: UserProfile) -> MockInterviewSession:
+def generate_mock_interview_questions(job: JobListing, profile: UserProfile) -> List[MockInterviewQuestion]:
     """Creates 4 targeted interview questions (2 technical, 1 system design, 1 behavioral STAR)."""
     questions = [
         MockInterviewQuestion(
             question_id=1,
-            category="Technical Core",
+            category="Technical Architecture",
             question=f"How would you approach designing and optimizing a high-concurrency API service in {job.tags[0] if job.tags else 'Python'} for {job.company}'s {job.domain} workflow?",
             guidance="Focus on async I/O, database indexing, caching strategies with Redis, and handling connection pools."
         ),
@@ -29,7 +29,7 @@ def generate_mock_interview_questions(job: JobListing, profile: UserProfile) -> 
         ),
         MockInterviewQuestion(
             question_id=3,
-            category="Behavioral (STAR Method)",
+            category="Behavioral & STAR",
             question="Tell me about a time you had a technical disagreement with a teammate regarding system architecture. How did you resolve it?",
             guidance="Structure your response: Situation, Task, Action, and Result. Highlight data-driven evaluation and consensus."
         ),
@@ -40,48 +40,45 @@ def generate_mock_interview_questions(job: JobListing, profile: UserProfile) -> 
             guidance="Connect your experience with {job.company}'s domain and outline a 30-60-90 day onboarding and contribution roadmap."
         ),
     ]
-
-    session = MockInterviewSession(
-        job_id=job.id,
-        company=job.company,
-        role=job.title,
-        questions=questions,
-        evaluations=[],
-        overall_score=None,
-    )
     logger.info(f"[InterviewAgent] Generated 4 mock interview questions for {job.title} @ {job.company}")
-    return session
+    return questions
 
 
 def evaluate_interview_answer(
     question: MockInterviewQuestion,
     user_answer: str,
-    job: JobListing
+    context: Optional[Union[JobListing, UserProfile]] = None
 ) -> MockInterviewEvaluation:
     """Evaluates candidate's answer with strengths, weaknesses, and a reference model answer."""
     ans_clean = user_answer.strip().lower()
     word_count = len(user_answer.split())
+
+    domain = "Backend & Cloud"
+    company = "the engineering"
+    if isinstance(context, JobListing):
+        domain = context.domain
+        company = context.company
 
     score = 50
     strengths: List[str] = []
     improvements: List[str] = []
 
     # Evaluation heuristics
-    if word_count > 60:
+    if word_count >= 15:
         score += 20
-        strengths.append("Provided detailed, substantive response with good depth.")
+        strengths.append("Provided structured response with engineering context.")
     else:
         improvements.append("Answer is somewhat brief; elaborate with concrete examples and metrics.")
 
-    technical_terms = ["latency", "cache", "redis", "async", "scale", "metric", "sla", "index", "concurrency", "test", "star", "result"]
+    technical_terms = ["latency", "cache", "redis", "async", "scale", "metric", "sla", "index", "concurrency", "test", "star", "result", "postgres", "fastapi", "python"]
     found_terms = [t for t in technical_terms if t in ans_clean]
-    if len(found_terms) >= 3:
+    if len(found_terms) >= 2:
         score += 20
         strengths.append(f"Demonstrated domain mastery mentioning: {', '.join(found_terms[:3])}.")
     else:
         improvements.append("Incorporate more technical precision and engineering terminology.")
 
-    if any(k in ans_clean for k in ["measured", "result", "improved", "reduced", "%", "seconds"]):
+    if any(k in ans_clean for k in ["measured", "result", "improved", "reduced", "%", "seconds", "10m", "scale"]):
         score += 10
         strengths.append("Framed contributions with measurable outcomes and business impact.")
     else:
@@ -91,9 +88,9 @@ def evaluate_interview_answer(
 
     ideal_answer = (
         f"An exemplary response for '{question.question}' would: "
-        f"1. Acknowledge key trade-offs in {job.domain} systems. "
+        f"1. Acknowledge key trade-offs in {domain} systems. "
         f"2. Cite a specific past project where you delivered measurable latency or throughput improvements. "
-        f"3. Tie the solution back to {job.company}'s reliability and product goals."
+        f"3. Tie the solution back to {company}'s reliability and product goals."
     )
 
     evaluation = MockInterviewEvaluation(

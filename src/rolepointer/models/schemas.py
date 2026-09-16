@@ -38,6 +38,92 @@ class TriageStatus(str, Enum):
     OFFER = "offer"
 
 
+# ── Ghost Job Classifications ──────────────────────────────────────────────────
+
+class GhostRiskLevel(str, Enum):
+    LOW_RISK = "LOW_RISK"            # Verified active & genuine posting
+    MODERATE_RISK = "MODERATE_RISK"  # Aged >45 days or agency markers
+    HIGH_GHOST_RISK = "HIGH_GHOST_RISK"  # Strong ghost job signals (>60d, agency boilerplate)
+
+
+class GhostJobVerdict(BaseModel):
+    job_id: str
+    risk_score: int = Field(ge=0, le=100, default=10)
+    risk_level: GhostRiskLevel = GhostRiskLevel.LOW_RISK
+    is_ghost_job: bool = False
+    warning_flags: List[str] = Field(default_factory=list)
+    signals: List[str] = Field(default_factory=list)
+    explanation: str = "Posting appears fresh, specific, and directly posted by hiring employer."
+
+
+# ── Dead Link Classifications ──────────────────────────────────────────────────
+
+class LinkStatus(str, Enum):
+    ACTIVE = "ACTIVE"              # 200 OK, application form detected
+    DEAD = "DEAD"                  # 404/410, page removed
+    CLOSED = "CLOSED"              # 200 OK but text shows 'position closed/filled'
+    AUTH_REQUIRED = "AUTH_REQUIRED" # 401/403 login barrier
+    UNVERIFIED_TIMEOUT = "UNVERIFIED_TIMEOUT" # Probe timed out
+    SIMULATED_VALID = "SIMULATED_VALID" # Mock / test URL verified
+
+
+class LinkStatusVerdict(BaseModel):
+    url: str
+    status: LinkStatus = LinkStatus.ACTIVE
+    http_status_code: Optional[int] = 200
+    is_accessible: bool = True
+    ats_provider: str = "Direct"
+    status_message: str = "Application portal is live and accepting submissions."
+    checked_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+
+# ── Compensation & Currency Normalization ─────────────────────────────────────
+
+class NormalizedSalary(BaseModel):
+    raw_text: str = ""
+    currency: str = "USD"
+    min_amount: Optional[float] = None
+    max_amount: Optional[float] = None
+    is_hourly: bool = False
+    is_annual: bool = True
+    is_equity_only: bool = False
+    is_ote: bool = False
+    base_min_usd: Optional[float] = None
+    base_max_usd: Optional[float] = None
+    annual_min_usd: Optional[float] = None
+    annual_max_usd: Optional[float] = None
+    formatted_usd_equiv: str = "Not Disclosed"
+    confidence: str = "HIGH"
+
+
+# ── Work Authorization & Timezone Compatibility ───────────────────────────────
+
+class WorkAuthVerdict(BaseModel):
+    job_id: str
+    compatible: bool = True
+    has_geographic_restriction: bool = False
+    restriction_type: Optional[str] = None  # "US_ONLY", "EU_ONLY", "CLEARANCE_REQUIRED", "NO_SPONSORSHIP"
+    timezone_overlap_hours: float = 8.0
+    timezone_compatible: bool = True
+    explanation: str = "Candidate cleared for work authorization and meets timezone collaboration requirements."
+    reasons: List[str] = Field(default_factory=list)
+
+
+# ── High-Leverage Cold Outreach Angle ─────────────────────────────────────────
+
+class ColdAngleResult(BaseModel):
+    job_id: str
+    company: str
+    target_role: str
+    detected_tech_challenge: str
+    email_subject: str
+    email_body_4_sentences: str
+    linkedin_inmail_body: str
+    key_talking_points: List[str] = Field(default_factory=list)
+    mailto_url: str = ""
+    rationale: str = ""
+
+
 # ── Application Tracking & Response Radar ──────────────────────────────────
 
 class ApplicationRecord(BaseModel):
@@ -152,6 +238,9 @@ class FitEvaluation(BaseModel):
     matching_skills: List[str] = Field(default_factory=list)
     missing_skills: List[str] = Field(default_factory=list)
     summary: str = ""
+    ghost_verdict: Optional[GhostJobVerdict] = None
+    salary_normalized: Optional[NormalizedSalary] = None
+    work_auth_verdict: Optional[WorkAuthVerdict] = None
 
 
 # ── Tailored Package & Reviewer ───────────────────────────────────────────────

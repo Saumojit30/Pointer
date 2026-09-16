@@ -9,7 +9,7 @@ import json
 from datetime import datetime, timezone
 from typing import Dict, List, Optional, Tuple
 from loguru import logger
-from sqlalchemy import select
+from sqlalchemy import select, text
 from sqlalchemy.orm import Session
 
 from rolepointer.db.engine import Base, engine, SessionLocal
@@ -21,15 +21,34 @@ from rolepointer.models.schemas import (
     JobListing, UserProfile, FitEvaluation, TailoredPackage,
     ReviewAuditResult, MockInterviewSession, MockInterviewQuestion,
     MockInterviewEvaluation, ApplicationRecord, TriageStatus,
-    WorkplaceType, ExperienceLevel, DealbreakerAlert
+    WorkplaceType, ExperienceLevel, DealbreakerAlert,
+    GhostJobVerdict, NormalizedSalary, WorkAuthVerdict
 )
 
 
 def init_db() -> None:
-    """Creates all database tables in SQLite WAL mode."""
+    """Creates all database tables in SQLite WAL mode and performs safe schema migrations."""
     logger.info("[DB] Initializing database schema...")
     Base.metadata.create_all(bind=engine)
-    logger.info("[DB] Database schema initialized.")
+
+    # Safe column migration for SQLite
+    with SessionLocal() as session:
+        try:
+            res = session.execute(text("PRAGMA table_info(fit_evaluations)")).fetchall()
+            existing_cols = {row[1] for row in res}
+            if existing_cols:
+                if "ghost_json" not in existing_cols:
+                    session.execute(text("ALTER TABLE fit_evaluations ADD COLUMN ghost_json TEXT DEFAULT '{}'"))
+                if "salary_norm_json" not in existing_cols:
+                    session.execute(text("ALTER TABLE fit_evaluations ADD COLUMN salary_norm_json TEXT DEFAULT '{}'"))
+                if "work_auth_json" not in existing_cols:
+                    session.execute(text("ALTER TABLE fit_evaluations ADD COLUMN work_auth_json TEXT DEFAULT '{}'"))
+                session.commit()
+        except Exception as e:
+            logger.warning(f"[DB] Migration check notice: {e}")
+            session.rollback()
+
+    logger.info("[DB] Database schema initialized and verified.")
 
 
 def _safe_json_loads(data: Optional[str], default: any) -> any:
@@ -90,6 +109,10 @@ def save_job(job: JobListing, eval_res: Optional[FitEvaluation] = None) -> None:
         if eval_res:
             existing_eval = session.query(FitEvaluationORM).filter_by(job_id=job.id).first()
             dealbreaker_dicts = [d.model_dump() for d in eval_res.dealbreaker_alerts]
+            ghost_dict = eval_res.ghost_verdict.model_dump() if eval_res.ghost_verdict else {}
+            salary_norm_dict = eval_res.salary_normalized.model_dump() if eval_res.salary_normalized else {}
+            work_auth_dict = eval_res.work_auth_verdict.model_dump() if eval_res.work_auth_verdict else {}
+
             if not existing_eval:
                 existing_eval = FitEvaluationORM(
                     job_id=job.id,
@@ -102,6 +125,9 @@ def save_job(job: JobListing, eval_res: Optional[FitEvaluation] = None) -> None:
                     matching_skills_json=json.dumps(eval_res.matching_skills),
                     missing_skills_json=json.dumps(eval_res.missing_skills),
                     summary=eval_res.summary,
+                    ghost_json=json.dumps(ghost_dict),
+                    salary_norm_json=json.dumps(salary_norm_dict),
+                    work_auth_json=json.dumps(work_auth_dict),
                 )
                 session.add(existing_eval)
             else:
@@ -114,6 +140,9 @@ def save_job(job: JobListing, eval_res: Optional[FitEvaluation] = None) -> None:
                 existing_eval.matching_skills_json = json.dumps(eval_res.matching_skills)
                 existing_eval.missing_skills_json = json.dumps(eval_res.missing_skills)
                 existing_eval.summary = eval_res.summary
+                existing_eval.ghost_json = json.dumps(ghost_dict)
+                existing_eval.salary_norm_json = json.dumps(salary_norm_dict)
+                existing_eval.work_auth_json = json.dumps(work_auth_dict)
 
         session.commit()
 
@@ -149,6 +178,16 @@ def get_all_jobs_with_evaluations() -> List[Tuple[JobListing, Optional[FitEvalua
                 oe = orm_job.evaluation
                 raw_db = _safe_json_loads(oe.dealbreakers_json, [])
                 alerts = [DealbreakerAlert(**d) for d in raw_db]
+                
+                raw_ghost = _safe_json_loads(getattr(oe, "ghost_json", "{}"), {})
+                ghost_v = GhostJobVerdict(**raw_ghost) if raw_ghost and "risk_score" in raw_ghost else None
+                
+                raw_sal = _safe_json_loads(getattr(oe, "salary_norm_json", "{}"), {})
+                sal_v = NormalizedSalary(**raw_sal) if raw_sal and "currency" in raw_sal else None
+
+                raw_wa = _safe_json_loads(getattr(oe, "work_auth_json", "{}"), {})
+                wa_v = WorkAuthVerdict(**raw_wa) if raw_wa and "compatible" in raw_wa else None
+
                 eval_res = FitEvaluation(
                     job_id=oe.job_id,
                     score=oe.score,
@@ -160,6 +199,9 @@ def get_all_jobs_with_evaluations() -> List[Tuple[JobListing, Optional[FitEvalua
                     matching_skills=_safe_json_loads(oe.matching_skills_json, []),
                     missing_skills=_safe_json_loads(oe.missing_skills_json, []),
                     summary=oe.summary,
+                    ghost_verdict=ghost_v,
+                    salary_normalized=sal_v,
+                    work_auth_verdict=wa_v,
                 )
             results.append((job, eval_res))
     return results
@@ -201,7 +243,7 @@ def save_application(record: ApplicationRecord) -> None:
 
 
 def get_all_applications() -> Dict[str, ApplicationRecord]:
-    """Retrieves all persisted applications keyed by job_id."""
+    """Retrieves all active tracked applications keyed by job_id."""
     apps: Dict[str, ApplicationRecord] = {}
     with SessionLocal() as session:
         records = session.query(ApplicationRecordORM).all()
@@ -222,13 +264,22 @@ def get_all_applications() -> Dict[str, ApplicationRecord]:
     return apps
 
 
+def delete_application(job_id: str) -> None:
+    """Deletes an application from tracking."""
+    with SessionLocal() as session:
+        existing = session.query(ApplicationRecordORM).filter_by(job_id=job_id).first()
+        if existing:
+            session.delete(existing)
+            session.commit()
+
+
 # ── Tailored Packages ─────────────────────────────────────────────────────────
 
 def save_tailored_package(pkg: TailoredPackage) -> None:
     """Upserts a TailoredPackage."""
     with SessionLocal() as session:
         existing = session.query(TailoredPackageORM).filter_by(job_id=pkg.job_id).first()
-        audit_dict = pkg.audit_result.model_dump()
+        audit_dict = pkg.audit_result.model_dump() if pkg.audit_result else {}
         if not existing:
             existing = TailoredPackageORM(
                 id=pkg.id,
@@ -237,7 +288,7 @@ def save_tailored_package(pkg: TailoredPackage) -> None:
                 tailored_bullets_json=json.dumps(pkg.tailored_experience_bullets),
                 targeted_skills_json=json.dumps(pkg.targeted_skills),
                 direct_pitch_letter=pkg.direct_pitch_letter,
-                ats_score=pkg.audit_result.ats_score,
+                ats_score=pkg.audit_result.ats_score if pkg.audit_result else 90,
                 audit_json=json.dumps(audit_dict),
                 pdf_filename=pkg.pdf_filename,
                 created_at=pkg.created_at,
@@ -248,39 +299,42 @@ def save_tailored_package(pkg: TailoredPackage) -> None:
             existing.tailored_bullets_json = json.dumps(pkg.tailored_experience_bullets)
             existing.targeted_skills_json = json.dumps(pkg.targeted_skills)
             existing.direct_pitch_letter = pkg.direct_pitch_letter
-            existing.ats_score = pkg.audit_result.ats_score
+            existing.ats_score = pkg.audit_result.ats_score if pkg.audit_result else 90
             existing.audit_json = json.dumps(audit_dict)
             existing.pdf_filename = pkg.pdf_filename
         session.commit()
 
 
 def get_all_tailored_packages() -> Dict[str, TailoredPackage]:
-    """Retrieves all persisted TailoredPackages keyed by job_id."""
-    packages: Dict[str, TailoredPackage] = {}
+    """Retrieves all persisted tailored packages keyed by job_id."""
+    pkgs: Dict[str, TailoredPackage] = {}
     with SessionLocal() as session:
-        records = session.query(TailoredPackageORM).all()
-        for r in records:
-            audit_raw = _safe_json_loads(r.audit_json, {})
-            audit_obj = ReviewAuditResult(**audit_raw) if audit_raw else ReviewAuditResult(ats_score=r.ats_score)
+        orm_pkgs = session.query(TailoredPackageORM).all()
+        for op in orm_pkgs:
+            audit_raw = _safe_json_loads(op.audit_json, {})
+            audit = ReviewAuditResult(**audit_raw) if audit_raw else ReviewAuditResult()
             
-            # Look up company and title from job
-            comp = r.job.company if r.job else "Target Company"
-            titl = r.job.title if r.job else "Target Role"
+            # Fetch company and title from job
+            company = "Target Employer"
+            title = "Role"
+            if op.job:
+                company = op.job.company
+                title = op.job.title
 
-            packages[r.job_id] = TailoredPackage(
-                id=r.id,
-                job_id=r.job_id,
-                company=comp,
-                title=titl,
-                tailored_summary=r.tailored_summary,
-                tailored_experience_bullets=_safe_json_loads(r.tailored_bullets_json, []),
-                targeted_skills=_safe_json_loads(r.targeted_skills_json, []),
-                direct_pitch_letter=r.direct_pitch_letter,
-                audit_result=audit_obj,
-                pdf_filename=r.pdf_filename,
-                created_at=r.created_at,
+            pkgs[op.job_id] = TailoredPackage(
+                id=op.id,
+                job_id=op.job_id,
+                company=company,
+                title=title,
+                tailored_summary=op.tailored_summary,
+                tailored_experience_bullets=_safe_json_loads(op.tailored_bullets_json, []),
+                targeted_skills=_safe_json_loads(op.targeted_skills_json, []),
+                direct_pitch_letter=op.direct_pitch_letter,
+                audit_result=audit,
+                pdf_filename=op.pdf_filename,
+                created_at=op.created_at,
             )
-    return packages
+    return pkgs
 
 
 # ── User Profile ─────────────────────────────────────────────────────────────
@@ -326,35 +380,35 @@ def save_user_profile(profile: UserProfile) -> None:
 
 
 def get_user_profile(profile_id: str = "default_user") -> Optional[UserProfile]:
-    """Retrieves the UserProfile from database."""
+    """Retrieves the persisted UserProfile."""
     with SessionLocal() as session:
-        orm = session.query(UserProfileORM).filter_by(id=profile_id).first()
-        if not orm:
+        orm_p = session.query(UserProfileORM).filter_by(id=profile_id).first()
+        if not orm_p:
             return None
-        raw_wp = _safe_json_loads(orm.workplace_types_json, [])
-        wps = [WorkplaceType(w) if w in WorkplaceType.__members__.values() else WorkplaceType.REMOTE for w in raw_wp]
+        raw_wp = _safe_json_loads(orm_p.workplace_types_json, ["REMOTE", "HYBRID", "ONSITE"])
+        wps = [WorkplaceType(w) for w in raw_wp if w in WorkplaceType.__members__.values()]
         return UserProfile(
-            id=orm.id,
-            name=orm.name,
-            email=orm.email,
-            phone=orm.phone,
-            location=orm.location,
-            country_preference=_safe_json_loads(orm.country_pref_json, []),
-            city_preference=_safe_json_loads(orm.city_pref_json, []),
+            id=orm_p.id,
+            name=orm_p.name,
+            email=orm_p.email,
+            phone=orm_p.phone,
+            location=orm_p.location,
+            country_preference=_safe_json_loads(orm_p.country_pref_json, []),
+            city_preference=_safe_json_loads(orm_p.city_pref_json, []),
             preferred_workplace_types=wps,
-            target_domains=_safe_json_loads(orm.target_domains_json, []),
-            target_roles=_safe_json_loads(orm.target_roles_json, []),
-            skills=_safe_json_loads(orm.skills_json, []),
-            experience_summary=orm.experience_summary,
-            min_salary_floor=orm.min_salary_floor,
-            dealbreakers=_safe_json_loads(orm.dealbreakers_json, []),
+            target_domains=_safe_json_loads(orm_p.target_domains_json, []),
+            target_roles=_safe_json_loads(orm_p.target_roles_json, []),
+            skills=_safe_json_loads(orm_p.skills_json, []),
+            experience_summary=orm_p.experience_summary,
+            min_salary_floor=orm_p.min_salary_floor,
+            dealbreakers=_safe_json_loads(orm_p.dealbreakers_json, []),
         )
 
 
-# ── Mock Interview Sessions ───────────────────────────────────────────────────
+# ── Interview Sessions ────────────────────────────────────────────────────────
 
 def save_interview_session(session_data: MockInterviewSession) -> None:
-    """Upserts a MockInterviewSession."""
+    """Upserts an InterviewSession."""
     with SessionLocal() as session:
         existing = session.query(InterviewSessionORM).filter_by(id=session_data.session_id).first()
         q_dicts = [q.model_dump() for q in session_data.questions]
@@ -379,20 +433,20 @@ def save_interview_session(session_data: MockInterviewSession) -> None:
 
 
 def get_interview_session(session_id: str) -> Optional[MockInterviewSession]:
-    """Retrieves a MockInterviewSession by session_id."""
+    """Retrieves an InterviewSession by ID."""
     with SessionLocal() as session:
-        orm = session.query(InterviewSessionORM).filter_by(id=session_id).first()
-        if not orm:
+        orm_s = session.query(InterviewSessionORM).filter_by(id=session_id).first()
+        if not orm_s:
             return None
-        raw_q = _safe_json_loads(orm.questions_json, [])
-        raw_e = _safe_json_loads(orm.evaluations_json, [])
+        raw_qs = _safe_json_loads(orm_s.questions_json, [])
+        raw_es = _safe_json_loads(orm_s.evaluations_json, [])
         return MockInterviewSession(
-            session_id=orm.id,
-            job_id=orm.job_id,
-            company=orm.company,
-            role=orm.role,
-            questions=[MockInterviewQuestion(**q) for q in raw_q],
-            evaluations=[MockInterviewEvaluation(**e) for e in raw_e],
-            overall_score=orm.overall_score,
-            created_at=orm.created_at,
+            session_id=orm_s.id,
+            job_id=orm_s.job_id,
+            company=orm_s.company,
+            role=orm_s.role,
+            questions=[MockInterviewQuestion(**q) for q in raw_qs],
+            evaluations=[MockInterviewEvaluation(**e) for e in raw_es],
+            overall_score=orm_s.overall_score,
+            created_at=orm_s.created_at,
         )
