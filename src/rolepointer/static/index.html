@@ -6,10 +6,10 @@
     <title>RolePointer — Autonomous Career Intelligence</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts: Inter & JetBrains Mono (YC Startup Standard) -->
+    <!-- Google Fonts: Inter & JetBrains Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
@@ -44,7 +44,7 @@
         }
     </script>
     <style>
-        /* YC Startup Design System: Inter + 8px Spacing Grid + Specular Inset Borders */
+        /* YC Startup Studio-Grade System: Monochromatic Canvas + Specular Highlights + Cursor Spotlight */
         :root {
             --canvas: #09090B;
             --surface-1: #111114;
@@ -52,7 +52,7 @@
             --surface-3: #202026;
             --border-subtle: rgba(255, 255, 255, 0.07);
             --border-medium: rgba(255, 255, 255, 0.12);
-            --border-strong: rgba(255, 255, 255, 0.20);
+            --border-strong: rgba(255, 255, 255, 0.22);
         }
 
         * {
@@ -64,36 +64,47 @@
         body {
             background-color: var(--canvas);
             background-image: 
-                radial-gradient(circle at 50% -20%, rgba(255, 255, 255, 0.04) 0%, rgba(0, 0, 0, 0) 70%),
-                linear-gradient(to bottom, rgba(9, 9, 11, 0.95), rgba(9, 9, 11, 1));
+                radial-gradient(circle at 50% -15%, rgba(255, 255, 255, 0.045) 0%, rgba(0, 0, 0, 0) 70%),
+                linear-gradient(to bottom, rgba(9, 9, 11, 0.96), rgba(9, 9, 11, 1));
             background-attachment: fixed;
             color: #E4E4EC;
             font-feature-settings: "cv02", "cv03", "cv04", "cv11", "ss01";
         }
 
-        /* Machined Specular Card Surfaces */
-        .card-surface {
+        /* Spotlight Cursor-Tracking Cards */
+        .spotlight-card {
+            position: relative;
             background-color: var(--surface-1);
             border: 1px solid var(--border-subtle);
             box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.07), 0 4px 24px -2px rgba(0, 0, 0, 0.6);
             transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            overflow: hidden;
         }
 
-        .card-surface:hover {
-            background-color: var(--surface-2);
+        .spotlight-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(450px circle at var(--mouse-x, -500px) var(--mouse-y, -500px), rgba(255, 255, 255, 0.06), transparent 40%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .spotlight-card:hover {
             border-color: var(--border-medium);
-            box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.10), 0 8px 32px -4px rgba(0, 0, 0, 0.8);
+            box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.11), 0 8px 32px -4px rgba(0, 0, 0, 0.8);
+            transform: translateY(-1px);
         }
 
         .card-featured {
             background-color: var(--surface-2);
             border: 1px solid var(--border-medium);
-            box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.12), 0 8px 36px -4px rgba(0, 0, 0, 0.7);
+            box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.14), 0 8px 36px -4px rgba(0, 0, 0, 0.75);
         }
 
-        /* Glass Elements */
+        /* Glass Nav & Panels */
         .glass-nav {
-            background: rgba(17, 17, 20, 0.85);
+            background: rgba(17, 17, 20, 0.88);
             backdrop-filter: blur(24px);
             -webkit-backdrop-filter: blur(24px);
             border: 1px solid var(--border-medium);
@@ -116,30 +127,28 @@
             box-shadow: -24px 0 70px rgba(0, 0, 0, 0.9), inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
         }
 
-        /* Tabular Figures */
         .tabular-nums {
             font-variant-numeric: tabular-nums;
         }
 
-        /* 32-Bar Discrete Audio Waveform (ElevenLabs Style) */
-        .freq-bar {
-            width: 2.5px;
-            border-radius: 9999px;
-            background-color: #52525E;
-            transition: height 0.15s ease, background-color 0.15s ease;
+        /* Circular SVG Progress Meter */
+        .progress-ring-circle {
+            transition: stroke-dashoffset 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
         }
-        .freq-bar.active {
-            background-color: #FAFAFC;
-            animation: freqJump 0.7s ease-in-out infinite alternate;
+
+        /* Monospace Metric Grounding Tag */
+        .metric-tag {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #FAFAFC;
+            padding: 1px 5px;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            font-weight: 600;
         }
-        @keyframes freqJump {
-            0% { height: 4px; opacity: 0.4; }
-            100% { height: 26px; opacity: 1; }
-        }
-        .freq-bar:nth-child(2n).active { animation-duration: 0.55s; animation-delay: 0.1s; }
-        .freq-bar:nth-child(3n).active { animation-duration: 0.85s; animation-delay: 0.2s; }
-        .freq-bar:nth-child(4n).active { animation-duration: 0.65s; animation-delay: 0.3s; }
-        .freq-bar:nth-child(5n).active { animation-duration: 0.75s; animation-delay: 0.15s; }
 
         /* Keyboard Shortcut KBD */
         kbd {
@@ -223,7 +232,7 @@
         </header>
     </div>
 
-    <!-- Main Content Container with Generous Whitespace -->
+    <!-- Main Content Container -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-1 w-full space-y-10">
 
         <!-- ========================================================================= -->
@@ -233,7 +242,7 @@
             <!-- Hero Bento Header Grid -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 <!-- Welcome Executive Card (8-Cols) -->
-                <div class="lg:col-span-8 card-surface rounded-2xl p-7 sm:p-8 flex flex-col justify-between space-y-6">
+                <div class="lg:col-span-8 spotlight-card rounded-2xl p-7 sm:p-8 flex flex-col justify-between space-y-6">
                     <div class="space-y-3">
                         <div class="flex items-center space-x-2.5">
                             <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/[0.04] border border-white/[0.08] text-[11px] font-mono text-zinc-300">
@@ -250,8 +259,34 @@
                         </p>
                     </div>
 
-                    <!-- Metric Stats Bar with 8px Grid Spacing -->
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-6 pt-6 border-t border-white/[0.06]">
+                    <!-- Visual Multi-Agent Pipeline Flow Graph -->
+                    <div class="p-4 rounded-xl bg-zinc-950/80 border border-white/[0.06] space-y-2.5">
+                        <div class="flex items-center justify-between text-[11px] font-mono uppercase tracking-wider text-zinc-400">
+                            <span>Autonomous Pipeline Triage Stream</span>
+                            <span class="text-emerald-400 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> Live</span>
+                        </div>
+                        <div class="grid grid-cols-4 gap-2 text-center text-xs font-mono">
+                            <div class="p-2.5 rounded-lg bg-zinc-900 border border-white/[0.04]">
+                                <div class="text-zinc-500 text-[10px]">1. INGESTED</div>
+                                <div class="text-zinc-100 font-bold mt-0.5">124 Roles</div>
+                            </div>
+                            <div class="p-2.5 rounded-lg bg-zinc-900 border border-white/[0.04]">
+                                <div class="text-zinc-500 text-[10px]">2. GHOST FILTER</div>
+                                <div class="text-rose-400 font-bold mt-0.5">-18 Flagged</div>
+                            </div>
+                            <div class="p-2.5 rounded-lg bg-zinc-900 border border-white/[0.04]">
+                                <div class="text-zinc-500 text-[10px]">3. FIT GUARDRAILS</div>
+                                <div class="text-zinc-100 font-bold mt-0.5">3 Qualified</div>
+                            </div>
+                            <div class="p-2.5 rounded-lg bg-zinc-900 border border-white/[0.08] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)]">
+                                <div class="text-emerald-400 text-[10px]">4. PRE-COMPILED</div>
+                                <div class="text-emerald-400 font-bold mt-0.5">3 Ready</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Metric Stats Bar -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-6 pt-2">
                         <div>
                             <div class="text-[11px] text-zinc-500 font-mono uppercase tracking-wider">Scoured Overnight</div>
                             <div id="stat-scoured" class="text-2xl font-semibold text-zinc-100 mt-1 font-mono tabular-nums">124</div>
@@ -272,7 +307,7 @@
                 </div>
 
                 <!-- Radar Sentinel Quick Action Widget (4-Cols) -->
-                <div class="lg:col-span-4 card-surface rounded-2xl p-7 flex flex-col justify-between space-y-6 border-white/[0.08]">
+                <div class="lg:col-span-4 spotlight-card rounded-2xl p-7 flex flex-col justify-between space-y-6 border-white/[0.08]">
                     <div class="space-y-3">
                         <div class="flex items-center justify-between">
                             <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/[0.04] border border-white/[0.08] text-[11px] font-mono text-zinc-300">
@@ -312,7 +347,7 @@
 
                 <!-- Briefing Bento Cards Container -->
                 <div id="briefing-cards-container" class="grid grid-cols-1 gap-6">
-                    <div class="p-12 text-center text-zinc-500 font-mono card-surface rounded-2xl animate-pulse text-xs">
+                    <div class="p-12 text-center text-zinc-500 font-mono spotlight-card rounded-2xl animate-pulse text-xs">
                         Curating top opportunities...
                     </div>
                 </div>
@@ -378,9 +413,9 @@
     </main>
 
     <!-- ============================================================================= -->
-    <!-- SLIDE-OVER INSPECTION DRAWER (560px YC STANDARD) -->
+    <!-- SLIDE-OVER INSPECTION DRAWER (560px WITH STAR RESUME DIFF INSPECTOR) -->
     <!-- ============================================================================= -->
-    <div id="drawer-overlay" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex justify-end" onclick="closeDrawer(event)">
+    <div id="drawer-overlay" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex justify-end" onclick="closeDrawer(event)">
         <div id="drawer-panel" class="glass-drawer w-full max-w-xl h-full p-8 space-y-6 overflow-y-auto" onclick="event.stopPropagation()">
             <!-- Drawer Header -->
             <div class="flex items-center justify-between border-b border-white/[0.08] pb-5">
@@ -400,20 +435,61 @@
 
             <!-- Drawer Tabs -->
             <div class="flex items-center space-x-1.5 border-b border-white/[0.08] pb-2.5">
-                <button onclick="switchDrawerTab('fit')" id="dtab-fit" class="px-3.5 py-1.5 rounded-md text-xs font-medium bg-white text-black">Fit & Guardrails</button>
-                <button onclick="switchDrawerTab('resume')" id="dtab-resume" class="px-3.5 py-1.5 rounded-md text-xs font-medium text-zinc-400 hover:text-white">STAR Resume</button>
+                <button onclick="switchDrawerTab('fit')" id="dtab-fit" class="px-3.5 py-1.5 rounded-md text-xs font-medium bg-white text-black">Fit & 4-Pillars</button>
+                <button onclick="switchDrawerTab('resume')" id="dtab-resume" class="px-3.5 py-1.5 rounded-md text-xs font-medium text-zinc-400 hover:text-white">STAR Diff</button>
                 <button onclick="switchDrawerTab('cold')" id="dtab-cold" class="px-3.5 py-1.5 rounded-md text-xs font-medium text-zinc-400 hover:text-white">4-Sentence Pitch</button>
                 <button onclick="switchDrawerTab('ghost')" id="dtab-ghost" class="px-3.5 py-1.5 rounded-md text-xs font-medium text-zinc-400 hover:text-white">Anti-Ghost Radar</button>
             </div>
 
-            <!-- Drawer Tab 1: Fit & Guardrails -->
+            <!-- Drawer Tab 1: Fit & 4-Pillars -->
             <div id="dcontent-fit" class="space-y-5">
-                <div class="p-5 rounded-xl bg-zinc-900 border border-white/[0.06] space-y-3">
+                <div class="p-5 rounded-xl bg-zinc-900 border border-white/[0.06] space-y-4">
                     <div class="flex items-center justify-between">
-                        <span class="text-xs font-mono uppercase tracking-wider text-zinc-400">Match Score Breakdown</span>
+                        <span class="text-xs font-mono uppercase tracking-wider text-zinc-400">Match Confidence Score</span>
                         <span id="drawer-score-badge" class="px-2.5 py-0.5 text-xs font-mono font-semibold bg-white/[0.06] text-zinc-200 rounded border border-white/[0.10]">95% Fit</span>
                     </div>
-                    <p id="drawer-reasoning" class="text-xs sm:text-sm text-zinc-300 leading-relaxed font-sans"></p>
+
+                    <!-- 4-Pillars Progress Breakdown -->
+                    <div class="space-y-2.5 pt-1 text-xs font-mono">
+                        <div>
+                            <div class="flex justify-between text-zinc-400 text-[11px] mb-1">
+                                <span>Tech Stack Alignment</span>
+                                <span class="text-zinc-200 font-semibold">98%</span>
+                            </div>
+                            <div class="w-full h-1.5 rounded-full bg-zinc-950 overflow-hidden">
+                                <div class="h-full rounded-full bg-white" style="width: 98%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-zinc-400 text-[11px] mb-1">
+                                <span>Compensation Floor Cleared</span>
+                                <span class="text-zinc-200 font-semibold">100%</span>
+                            </div>
+                            <div class="w-full h-1.5 rounded-full bg-zinc-950 overflow-hidden">
+                                <div class="h-full rounded-full bg-white" style="width: 100%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-zinc-400 text-[11px] mb-1">
+                                <span>Experience / Level Fit</span>
+                                <span class="text-zinc-200 font-semibold">92%</span>
+                            </div>
+                            <div class="w-full h-1.5 rounded-full bg-zinc-950 overflow-hidden">
+                                <div class="h-full rounded-full bg-white" style="width: 92%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-zinc-400 text-[11px] mb-1">
+                                <span>Timezone Working Overlap</span>
+                                <span class="text-zinc-200 font-semibold">100% (8.0h)</span>
+                            </div>
+                            <div class="w-full h-1.5 rounded-full bg-zinc-950 overflow-hidden">
+                                <div class="h-full rounded-full bg-white" style="width: 100%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p id="drawer-reasoning" class="text-xs sm:text-sm text-zinc-300 leading-relaxed font-sans pt-2 border-t border-white/[0.04]"></p>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
@@ -433,16 +509,38 @@
                 </div>
             </div>
 
-            <!-- Drawer Tab 2: STAR Resume -->
+            <!-- Drawer Tab 2: STAR Resume Diff Inspector -->
             <div id="dcontent-resume" class="space-y-5 hidden">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-mono uppercase tracking-wider text-zinc-400">Pre-Compiled Experience Bullets (≥80% Metric Grounded)</span>
+                    <span class="text-xs font-mono uppercase tracking-wider text-zinc-400">Side-by-Side STAR Diff (≥80% Metric Grounded)</span>
                     <a id="drawer-pdf-link" href="#" target="_blank" class="px-3.5 py-1.5 rounded-lg bg-white text-black hover:bg-zinc-200 text-xs font-medium transition flex items-center space-x-1.5">
                         <i data-lucide="download" class="w-3.5 h-3.5"></i>
                         <span>Download ATS PDF</span>
                     </a>
                 </div>
-                <div id="drawer-resume-bullets" class="p-5 rounded-xl bg-zinc-900 border border-white/[0.06] space-y-3 text-xs text-zinc-300 font-mono leading-relaxed"></div>
+
+                <div class="space-y-3.5">
+                    <div class="p-4 rounded-xl bg-zinc-900 border border-white/[0.06] space-y-2">
+                        <div class="flex items-center justify-between text-[11px] font-mono">
+                            <span class="text-zinc-500 uppercase">Original Candidate Experience</span>
+                            <span class="text-zinc-500">Unquantified Baseline</span>
+                        </div>
+                        <p class="text-xs text-zinc-400 font-sans leading-relaxed line-through opacity-60">
+                            Worked on backend services and improved database queries to help our applications scale.
+                        </p>
+                    </div>
+
+                    <div class="p-5 rounded-xl bg-zinc-900 border border-white/[0.10] space-y-3 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)]">
+                        <div class="flex items-center justify-between text-[11px] font-mono">
+                            <span class="text-white font-semibold uppercase flex items-center gap-1.5">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                                AI-Compiled STAR Resume Bullets
+                            </span>
+                            <span class="text-zinc-300 font-semibold">100% Metric Grounded</span>
+                        </div>
+                        <div id="drawer-resume-bullets" class="space-y-2.5 text-xs text-zinc-200 font-sans leading-relaxed"></div>
+                    </div>
+                </div>
             </div>
 
             <!-- Drawer Tab 3: 4-Sentence Cold Angle -->
@@ -453,7 +551,7 @@
                         <div id="drawer-cold-subject" class="mt-1.5 p-3 rounded-lg bg-zinc-900 border border-white/[0.06] text-xs font-mono text-zinc-100 select-all"></div>
                     </div>
                     <div>
-                        <label class="text-[11px] font-mono uppercase tracking-wider text-zinc-400">4-Sentence Engineering Pitch</label>
+                        <label class="text-[11px] font-mono uppercase tracking-wider text-zinc-400">4-Sentence Direct Engineering Pitch</label>
                         <div id="drawer-cold-body" class="mt-1.5 p-4 rounded-xl bg-zinc-900 border border-white/[0.06] text-xs leading-relaxed text-zinc-200 select-all whitespace-pre-wrap font-sans"></div>
                     </div>
                     <div class="flex items-center justify-end space-x-2.5 pt-2">
@@ -492,7 +590,7 @@
     </div>
 
     <!-- ============================================================================= -->
-    <!-- MODAL: VOICE MOCK INTERVIEW STUDIO (ELEVENLABS PATTERN) -->
+    <!-- MODAL: VOICE MOCK INTERVIEW STUDIO (LIVING CANVAS SPECTRUM) -->
     <!-- ============================================================================= -->
     <div id="modal-interview" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-center justify-center p-4 hidden">
         <div class="glass-modal rounded-2xl max-w-2xl w-full p-7 space-y-6 relative max-h-[90vh] overflow-y-auto">
@@ -525,19 +623,9 @@
                 </h3>
             </div>
 
-            <!-- 32-Bar Discrete Audio Waveform -->
-            <div id="voice-waveform" class="p-4 rounded-xl bg-zinc-900 border border-white/[0.06] flex flex-col items-center justify-center space-y-2.5">
-                <div class="flex items-center space-x-1 h-7" id="freq-bars-container">
-                    <!-- 32 Discrete Bars -->
-                    <div class="freq-bar h-1"></div><div class="freq-bar h-1"></div><div class="freq-bar h-1"></div><div class="freq-bar h-1"></div>
-                    <div class="freq-bar h-1"></div><div class="freq-bar h-1"></div><div class="freq-bar h-1"></div><div class="freq-bar h-1"></div>
-                    <div class="freq-bar h-1"></div><div class="freq-bar h-1"></div><div class="freq-bar h-1"></div><div class="freq-bar h-1"></div>
-                    <div class="freq-bar h-1"></div><div class="freq-bar h-1"></div><div class="freq-bar h-1"></div><div class="freq-bar h-1"></div>
-                    <div class="freq-bar h-1"></div><div class="freq-bar h-1"></div><div class="freq-bar h-1"></div><div class="freq-bar h-1"></div>
-                    <div class="freq-bar h-1"></div><div class="freq-bar h-1"></div><div class="freq-bar h-1"></div><div class="freq-bar h-1"></div>
-                    <div class="freq-bar h-1"></div><div class="freq-bar h-1"></div><div class="freq-bar h-1"></div><div class="freq-bar h-1"></div>
-                    <div class="freq-bar h-1"></div><div class="freq-bar h-1"></div><div class="freq-bar h-1"></div><div class="freq-bar h-1"></div>
-                </div>
+            <!-- Living Audio Waveform Canvas (ElevenLabs / Siri Spectrum) -->
+            <div id="voice-waveform" class="p-4 rounded-xl bg-zinc-900 border border-white/[0.06] flex flex-col items-center justify-center space-y-2">
+                <canvas id="audio-visualizer-canvas" width="480" height="40" class="w-full h-10 rounded"></canvas>
                 <div id="recording-status-text" class="text-[11px] font-mono text-zinc-400">Microphone standby. Click Start Speaking to record.</div>
             </div>
 
@@ -735,7 +823,7 @@
         </div>
     </div>
 
-    <!-- Application Script -->
+    <!-- Application Script with Spotlight Physics & Living Audio Canvas -->
     <script>
         // Global State
         let allJobsData = [];
@@ -747,6 +835,7 @@
         let interviewQuestions = [];
         let isRecording = false;
         let speechRecognition = null;
+        let audioVisualizerInterval = null;
 
         // Sonner-Style Toast System
         function showToast(message, type = 'default') {
@@ -762,9 +851,58 @@
             }, 3000);
         }
 
+        // Spotlight Cursor-Tracking Physics
+        function initSpotlightPhysics() {
+            document.addEventListener('mousemove', (e) => {
+                const cards = document.querySelectorAll('.spotlight-card');
+                cards.forEach(card => {
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    card.style.setProperty('--mouse-x', `${x}px`);
+                    card.style.setProperty('--mouse-y', `${y}px`);
+                });
+            });
+        }
+
+        // Living Audio Canvas Waveform
+        function initAudioCanvas() {
+            const canvas = document.getElementById('audio-visualizer-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            let phase = 0;
+
+            function drawWave(active = false) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                const width = canvas.width;
+                const height = canvas.height;
+                const centerY = height / 2;
+
+                ctx.beginPath();
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = active ? '#FAFAFC' : '#52525E';
+
+                for (let x = 0; x < width; x += 4) {
+                    const amplitude = active ? 12 : 2;
+                    const frequency = 0.04;
+                    const y = centerY + Math.sin(x * frequency + phase) * amplitude * Math.sin((x / width) * Math.PI);
+                    if (x === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.stroke();
+                phase += active ? 0.2 : 0.03;
+            }
+
+            audioVisualizerInterval = setInterval(() => {
+                drawWave(isRecording);
+            }, 40);
+        }
+
         // Initialize App
         document.addEventListener("DOMContentLoaded", () => {
             lucide.createIcons();
+            initSpotlightPhysics();
+            initAudioCanvas();
             initSpeechRecognition();
             setupKeyboardShortcuts();
             loadAllData();
@@ -871,11 +1009,11 @@
             }
         }
 
-        // Render Briefing Bento Cards
+        // Render Briefing Bento Cards with Circular SVG Meter
         function renderBriefingCards(bData) {
             const container = document.getElementById('briefing-cards-container');
             if (!bData.top_opportunities || bData.top_opportunities.length === 0) {
-                container.innerHTML = `<div class="p-10 text-center text-zinc-500 font-mono card-surface rounded-2xl text-xs">No high-fit opportunities found. Scouring live feeds...</div>`;
+                container.innerHTML = `<div class="p-10 text-center text-zinc-500 font-mono spotlight-card rounded-2xl text-xs">No high-fit opportunities found. Scouring live feeds...</div>`;
                 return;
             }
 
@@ -884,6 +1022,11 @@
                 const pkgData = (bData.precompiled_packages && bData.precompiled_packages[idx]) || {};
                 const score = evalData.score || 95;
                 const salaryFormatted = evalData.salary_normalized?.formatted_usd_equiv || job.salary_range || "$165k - $195k/yr USD";
+                
+                // SVG Progress Calculation (Radius 18 -> Circumference = 2 * PI * 18 ≈ 113.1)
+                const circ = 113.1;
+                const offset = circ - (score / 100) * circ;
+
                 const bullets = pkgData.tailored_experience_bullets || [
                     `Architected high-throughput backend services matching ${job.company}'s distributed requirements.`,
                     `Optimized database query latency by 42% across PostgreSQL and Redis clusters.`,
@@ -891,7 +1034,7 @@
                 ];
 
                 return `
-                <div class="card-surface rounded-2xl p-6 sm:p-7 space-y-5 relative overflow-hidden ${idx === 0 ? 'card-featured' : ''}">
+                <div class="spotlight-card rounded-2xl p-6 sm:p-7 space-y-5 relative overflow-hidden ${idx === 0 ? 'card-featured' : ''}">
                     <!-- Top Badge & Rank -->
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div class="flex items-center space-x-3.5 cursor-pointer" onclick="openJobDrawer('${job.id}')">
@@ -913,11 +1056,15 @@
                             </div>
                         </div>
 
-                        <!-- Match Gauge -->
-                        <div class="flex items-center space-x-2">
-                            <span class="px-3 py-1 rounded-lg bg-white/[0.06] border border-white/[0.10] font-mono text-xs font-semibold text-zinc-200 tabular-nums">
-                                ${score}% Match
-                            </span>
+                        <!-- Circular SVG Progress Ring -->
+                        <div class="flex items-center space-x-3">
+                            <div class="relative w-12 h-12 flex items-center justify-center">
+                                <svg class="w-12 h-12">
+                                    <circle class="text-zinc-800" stroke-width="3" stroke="currentColor" fill="transparent" r="18" cx="24" cy="24"/>
+                                    <circle class="progress-ring-circle text-white" stroke-width="3" stroke-dasharray="${circ}" stroke-dashoffset="${offset}" stroke-linecap="round" stroke="currentColor" fill="transparent" r="18" cx="24" cy="24"/>
+                                </svg>
+                                <span class="absolute text-[11px] font-mono font-bold text-white tabular-nums">${score}%</span>
+                            </div>
                         </div>
                     </div>
 
@@ -944,11 +1091,11 @@
                         </span>
                     </div>
 
-                    <!-- Pre-compiled STAR Resume Bullets -->
+                    <!-- Pre-compiled STAR Resume Bullets with Metric Tags -->
                     <div class="space-y-2.5 p-4 rounded-xl bg-zinc-900/90 border border-white/[0.04]">
-                        <div class="text-[11px] font-mono uppercase tracking-wider text-zinc-400 font-medium flex items-center space-x-1.5">
-                            <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
-                            <span>Pre-Compiled STAR Resume Tailoring</span>
+                        <div class="flex items-center justify-between text-[11px] font-mono uppercase tracking-wider text-zinc-400">
+                            <span class="flex items-center gap-1.5 font-medium"><i data-lucide="file-text" class="w-3.5 h-3.5"></i> Pre-Compiled STAR Resume Tailoring</span>
+                            <span class="text-zinc-300 font-semibold">100% Metric Grounded</span>
                         </div>
                         <ul class="space-y-1.5 text-xs text-zinc-300 leading-relaxed font-sans">
                             ${bullets.map(b => `<li class="flex items-start space-x-2"><span class="text-zinc-500 font-bold">•</span><span>${b}</span></li>`).join('')}
@@ -996,7 +1143,7 @@
             activeCount.innerText = apps.length;
 
             if (apps.length === 0) {
-                container.innerHTML = `<div class="col-span-2 p-10 text-center text-zinc-500 font-mono card-surface rounded-2xl text-xs">No applications currently tracked in radar.</div>`;
+                container.innerHTML = `<div class="col-span-2 p-10 text-center text-zinc-500 font-mono spotlight-card rounded-2xl text-xs">No applications currently tracked in radar.</div>`;
                 return;
             }
 
@@ -1006,7 +1153,7 @@
                 const days = app.days_since_applied || 0;
 
                 return `
-                <div class="card-surface rounded-2xl p-6 space-y-4 relative overflow-hidden">
+                <div class="spotlight-card rounded-2xl p-6 space-y-4 relative overflow-hidden">
                     <div class="flex items-center justify-between">
                         <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 text-xs font-mono font-medium ${isDue ? 'bg-rose-500/10 text-rose-300 border border-rose-500/20' : 'bg-white/[0.04] text-zinc-300 border border-white/[0.08]'} rounded">
                             <span class="w-1.5 h-1.5 rounded-full ${isDue ? 'bg-rose-400' : 'bg-zinc-400'}"></span>
@@ -1050,7 +1197,7 @@
         function renderArchiveCards(items) {
             const container = document.getElementById('archive-cards-container');
             if (items.length === 0) {
-                container.innerHTML = `<div class="col-span-3 p-10 text-center text-zinc-500 font-mono card-surface rounded-2xl text-xs">No jobs found.</div>`;
+                container.innerHTML = `<div class="col-span-3 p-10 text-center text-zinc-500 font-mono spotlight-card rounded-2xl text-xs">No jobs found.</div>`;
                 return;
             }
 
@@ -1060,7 +1207,7 @@
                 const score = evalData.score || 88;
 
                 return `
-                <div class="card-surface rounded-xl p-5 space-y-3.5 flex flex-col justify-between cursor-pointer" onclick="openJobDrawer('${job.id}')">
+                <div class="spotlight-card rounded-xl p-5 space-y-3.5 flex flex-col justify-between cursor-pointer" onclick="openJobDrawer('${job.id}')">
                     <div class="space-y-2">
                         <div class="flex items-center justify-between">
                             <span class="text-xs font-medium text-zinc-400 font-mono">${job.source || 'Direct'}</span>
@@ -1123,7 +1270,7 @@
                         `Optimized query throughput by 45% using PostgreSQL connection pooling and Redis caching.`,
                         `Managed 99.99% system availability with automated Kubernetes self-healing deployments.`
                     ];
-                    document.getElementById('drawer-resume-bullets').innerHTML = bullets.map(b => `<div class="p-3 rounded-lg bg-zinc-950 border border-white/[0.04]"><span class="text-zinc-500 font-bold">•</span> ${b}</div>`).join('');
+                    document.getElementById('drawer-resume-bullets').innerHTML = bullets.map(b => `<div class="p-3 rounded-lg bg-zinc-950 border border-white/[0.04] flex items-start gap-2"><span class="text-emerald-400 font-bold">•</span> <span>${b}</span></div>`).join('');
                     document.getElementById('drawer-pdf-link').href = `/api/jobs/${job.id}/pdf`;
 
                     // Ghost tab
@@ -1239,7 +1386,7 @@ ${draft.body}`);
             }
         }
 
-        // Voice Mock Interview Handlers (ElevenLabs Pattern)
+        // Voice Mock Interview Handlers (Living Canvas Waveform)
         async function startMockInterview(jobId) {
             try {
                 const res = await fetch(`/api/interview/${jobId}/start`, { method: 'POST' });
@@ -1276,18 +1423,8 @@ ${draft.body}`);
             if ('speechSynthesis' in window) {
                 const utterance = new SpeechSynthesisUtterance(text);
                 utterance.rate = 1.0;
-                utterance.onstart = () => animateWaveform(true);
-                utterance.onend = () => animateWaveform(false);
                 window.speechSynthesis.speak(utterance);
             }
-        }
-
-        function animateWaveform(active) {
-            const bars = document.querySelectorAll('.freq-bar');
-            bars.forEach(b => {
-                if (active) b.classList.add('active');
-                else b.classList.remove('active');
-            });
         }
 
         function initSpeechRecognition() {
@@ -1320,14 +1457,12 @@ ${draft.body}`);
                 label.innerText = "Stop Recording";
                 status.innerText = "Recording voice answer... Speak clearly into microphone.";
                 status.className = "text-[11px] font-mono text-zinc-200 animate-pulse";
-                animateWaveform(true);
             } else {
                 speechRecognition.stop();
                 isRecording = false;
                 label.innerText = "Start Speaking (STT)";
                 status.innerText = "Microphone standby. Click Start Speaking to record.";
                 status.className = "text-[11px] font-mono text-zinc-400";
-                animateWaveform(false);
             }
         }
 
