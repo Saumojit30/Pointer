@@ -2,7 +2,8 @@
 RolePointer — FastAPI Application & Orchestration Gateway
 REST Endpoints, Real-Time SSE Streams, Executive Morning Briefing,
 Response Radar with Value-Add Follow-Up Generator, Resume Importer,
-RFC 5322 EML Exporter, and SQLite WAL Persistence Synchronization.
+RFC 5322 EML Exporter, Multi-Currency Normalizer, Anti-Ghost Heuristics,
+Dead Link Pre-Flight Verifier, Work Auth/Timezone Matcher, and SQLite WAL Persistence.
 """
 from __future__ import annotations
 
@@ -28,19 +29,25 @@ from rolepointer.models.schemas import (
     JobListing, UserProfile, FitEvaluation, TailoredPackage, ReviewAuditResult,
     MockInterviewSession, MockInterviewQuestion, MockInterviewEvaluation,
     TriageStatus, WorkplaceType, FeedFilterQuery, ExecutiveBriefing,
-    ApplicationRecord, FollowUpDraft
+    ApplicationRecord, FollowUpDraft,
+    NormalizedSalary, GhostJobVerdict, GhostRiskLevel, LinkStatus, LinkStatusVerdict,
+    WorkAuthVerdict, ColdAngleResult
 )
 from rolepointer.feeds.mock_feeds import get_mock_jobs
 from rolepointer.feeds.remote_feeds import fetch_jobicy_jobs, fetch_remoteok_jobs
 from rolepointer.feeds.location_feeds import fetch_arbeitnow_jobs, filter_by_location
 from rolepointer.feeds.hn_hiring_feed import fetch_hn_hiring_jobs
 from rolepointer.feeds.url_parser import parse_job_url
+from rolepointer.feeds.salary_normalizer import normalize_compensation
+from rolepointer.feeds.link_and_ghost_verifier import detect_ghost_job, verify_job_url
+from rolepointer.feeds.work_auth_filter import evaluate_work_auth_and_timezone
 from rolepointer.agents.fit_evaluator import evaluate_job_fit
 from rolepointer.agents.drafter import draft_tailored_package
 from rolepointer.agents.reviewer import audit_tailored_package
 from rolepointer.agents.briefing_agent import generate_executive_briefing
 from rolepointer.agents.followup_agent import generate_value_add_followup
 from rolepointer.agents.importer_agent import import_profile_from_text
+from rolepointer.agents.cold_angle_agent import generate_high_leverage_cold_angle
 from rolepointer.agents.email_exporter import generate_eml_file, generate_mailto_url, OUTPUT_DIR as EML_DIR
 from rolepointer.agents.interview_agent import (
     generate_mock_interview_questions, evaluate_interview_answer
@@ -48,7 +55,7 @@ from rolepointer.agents.interview_agent import (
 from rolepointer.compiler.pdf_engine import compile_ats_resume_pdf, OUTPUT_DIR
 from rolepointer.db.repository import (
     init_db, save_job, get_all_jobs_with_evaluations,
-    save_application, get_all_applications,
+    save_application, get_all_applications, delete_application,
     save_tailored_package, get_all_tailored_packages,
     save_user_profile, get_user_profile,
     save_interview_session, get_interview_session
@@ -87,6 +94,10 @@ def _hydrate_or_seed_db():
             JOBS_STORE[job.id] = job
             if eval_res:
                 EVALUATIONS_STORE[job.id] = eval_res
+            else:
+                eval_res = evaluate_job_fit(job, CURRENT_PROFILE)
+                EVALUATIONS_STORE[job.id] = eval_res
+                save_job(job, eval_res)
         logger.info(f"[DB] Hydrated {len(JOBS_STORE)} jobs from database.")
     else:
         # Seed mock jobs
@@ -179,7 +190,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="RolePointer API",
     description="Autonomous Job Discovery, Guardrail Triage & Tailored Career Pipeline",
-    version="0.2.0",
+    version="0.3.0",
     lifespan=lifespan,
 )
 
@@ -248,62 +259,63 @@ def list_jobs(
             continue
         if workplace_type and job.workplace_type != workplace_type:
             continue
-        if country and job.country and country.lower() not in job.country.lower():
+        if country and job.country and job.country.lower() != country.lower():
             continue
-        if city and job.city and city.lower() not in job.city.lower():
+        if city and job.city and job.city.lower() != city.lower():
             continue
         if status and job.triage_status != status:
             continue
 
         eval_res = EVALUATIONS_STORE.get(job_id)
-        if min_score is not None and eval_res and eval_res.score < min_score:
+        if not eval_res:
+            eval_res = evaluate_job_fit(job, CURRENT_PROFILE)
+            EVALUATIONS_STORE[job_id] = eval_res
+            save_job(job, eval_res)
+
+        if min_score and eval_res.score < min_score:
             continue
 
         results.append({
             "job": job.model_dump(),
-            "evaluation": eval_res.model_dump() if eval_res else None,
+            "evaluation": eval_res.model_dump(),
             "has_package": job_id in PACKAGES_STORE,
-            "is_applied": job_id in APPLICATIONS_STORE,
+            "application_status": APPLICATIONS_STORE.get(job_id).status.value if job_id in APPLICATIONS_STORE else None,
         })
 
-    # Sort descending by match score
-    results.sort(key=lambda x: (x["evaluation"]["score"] if x["evaluation"] else 0), reverse=True)
-    return {
-        "total": len(results),
-        "jobs": results,
-        "results": results,
-    }
+    # Sort descending by score
+    results.sort(key=lambda x: x["evaluation"]["score"], reverse=True)
+    return results
 
 
 @app.get("/api/jobs/{job_id}")
-def get_job_detail(job_id: str):
-    if job_id not in JOBS_STORE:
+def get_job(job_id: str):
+    job = JOBS_STORE.get(job_id)
+    if not job:
         raise HTTPException(status_code=404, detail="Job not found")
-    job = JOBS_STORE[job_id]
-    eval_res = EVALUATIONS_STORE.get(job_id)
+    eval_res = EVALUATIONS_STORE.get(job_id) or evaluate_job_fit(job, CURRENT_PROFILE)
     package = PACKAGES_STORE.get(job_id)
     app_rec = APPLICATIONS_STORE.get(job_id)
-
     return {
         "job": job.model_dump(),
-        "evaluation": eval_res.model_dump() if eval_res else None,
+        "evaluation": eval_res.model_dump(),
         "package": package.model_dump() if package else None,
         "application": app_rec.model_dump() if app_rec else None,
     }
 
 
-class URLParseRequest(BaseModel):
+class ImportUrlRequest(BaseModel):
     url: str
 
 
-@app.post("/api/jobs/parse-url")
-def parse_and_add_job_url(req: URLParseRequest):
-    """Scrapes a single job posting URL and adds it to the pipeline."""
+@app.post("/api/jobs/import-url")
+def import_job_from_url(req: ImportUrlRequest):
+    """Imports job listing from arbitrary URL."""
     job = parse_job_url(req.url)
-    JOBS_STORE[job.id] = job
     eval_res = evaluate_job_fit(job, CURRENT_PROFILE)
+    JOBS_STORE[job.id] = job
     EVALUATIONS_STORE[job.id] = eval_res
     save_job(job, eval_res)
+    logger.info(f"[API] Imported job from URL: {job.title} @ {job.company}")
     return {
         "status": "success",
         "job": job.model_dump(),
@@ -311,53 +323,137 @@ def parse_and_add_job_url(req: URLParseRequest):
     }
 
 
-# ── Executive Morning Briefing ────────────────────────────────────────────────
+# ── Anti-Ghost & Dead Link Pre-Flight Verification Endpoints ─────────────────
+
+@app.get("/api/jobs/{job_id}/ghost-analysis")
+def get_ghost_job_analysis(job_id: str):
+    """Returns deep anti-ghost heuristics and risk analysis for a job listing."""
+    job = JOBS_STORE.get(job_id)
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+    verdict = detect_ghost_job(job)
+    return {"status": "success", "ghost_verdict": verdict.model_dump()}
+
+
+@app.post("/api/jobs/{job_id}/verify-link")
+async def verify_job_link(job_id: str):
+    """Probes the job listing's ATS portal URL for 404s, closed notices, or access barriers."""
+    job = JOBS_STORE.get(job_id)
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+    verdict = await verify_job_url(job.url)
+    return {"status": "success", "link_verdict": verdict.model_dump()}
+
+
+# ── High-Leverage Cold Angle Outreach Endpoints ───────────────────────────────
+
+@app.post("/api/jobs/{job_id}/cold-angle")
+def generate_cold_angle(job_id: str):
+    """Generates a personalized, 4-sentence high-leverage outreach pitch for recruiters/founders."""
+    job = JOBS_STORE.get(job_id)
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+    cold_angle = generate_high_leverage_cold_angle(job, CURRENT_PROFILE)
+    return {"status": "success", "cold_angle": cold_angle.model_dump()}
+
+
+# ── Tool Endpoints for Compensation & Work Auth ──────────────────────────────
+
+class SalaryNormalizationRequest(BaseModel):
+    raw_salary: str
+
+@app.post("/api/tools/normalize-salary")
+def normalize_salary_endpoint(req: SalaryNormalizationRequest):
+    """Parses arbitrary salary string (USD, EUR, GBP, INR LPA, Hourly, Equity) to USD annual equivalent."""
+    res = normalize_compensation(req.raw_salary)
+    return {"status": "success", "normalized_salary": res.model_dump()}
+
+
+class WorkAuthCheckRequest(BaseModel):
+    job_id: Optional[str] = None
+    location: str = "Remote (US Only)"
+    country: Optional[str] = "United States"
+    description: str = ""
+
+@app.post("/api/tools/check-work-auth")
+def check_work_auth_endpoint(req: WorkAuthCheckRequest):
+    """Evaluates visa sponsorship and timezone overlap against candidate profile."""
+    temp_job = JobListing(
+        id=req.job_id or "temp-job",
+        title="Engineering Candidate Role",
+        company="Target Company",
+        location=req.location,
+        country=req.country,
+        description=req.description,
+        url="https://example.com",
+    )
+    verdict = evaluate_work_auth_and_timezone(temp_job, CURRENT_PROFILE)
+    return {"status": "success", "work_auth_verdict": verdict.model_dump()}
+
+
+# ── Executive Morning Briefing Endpoint ───────────────────────────────────────
 
 @app.get("/api/briefing", response_model=ExecutiveBriefing)
 def get_executive_briefing():
-    """Returns today's curated Top 3 high-fit opportunities with pre-compiled packages."""
-    briefing, precompiled = generate_executive_briefing(
-        jobs=list(JOBS_STORE.values()),
+    """Compiles the Autonomous 8:00 AM Executive Morning Briefing."""
+    briefing = generate_executive_briefing(
+        all_jobs=list(JOBS_STORE.values()),
         profile=CURRENT_PROFILE,
         packages_store=PACKAGES_STORE,
-        top_limit=3,
     )
-    for pkg in precompiled:
+    for pkg in briefing.precompiled_packages:
+        PACKAGES_STORE[pkg.job_id] = pkg
         save_tailored_package(pkg)
+    logger.info(f"[API] Morning Briefing generated with {len(briefing.top_opportunities)} top roles.")
     return briefing
 
 
-# ── Triage & Application Actions ──────────────────────────────────────────────
+# ── Response Radar & Value-Add Follow-Up Engine ───────────────────────────────
 
-class TriageActionRequest(BaseModel):
-    status: TriageStatus
+@app.get("/api/pipeline/radar")
+def get_response_radar():
+    """Returns all tracked applications with aging status and follow-up flags."""
+    now = datetime.now(timezone.utc)
+    radar_items = []
+    for job_id, app_rec in list(APPLICATIONS_STORE.items()):
+        # Recalculate days since applied
+        app_date = app_rec.applied_at if app_rec.applied_at.tzinfo else app_rec.applied_at.replace(tzinfo=timezone.utc)
+        days = max(0, (now - app_date).days)
+        app_rec.days_since_applied = days
+
+        # If >= 5 days without response, mark follow-up due
+        if app_rec.status == TriageStatus.AWAITING_REPLY and days >= 5:
+            app_rec.status = TriageStatus.FOLLOW_UP_DUE
+            app_rec.follow_up_due = True
+            save_application(app_rec)
+
+        job = JOBS_STORE.get(job_id)
+        radar_items.append({
+            "application": app_rec.model_dump(),
+            "job": job.model_dump() if job else None,
+            "has_draft": job_id in PACKAGES_STORE,
+        })
+
+    radar_items.sort(key=lambda x: x["application"]["days_since_applied"], reverse=True)
+    return {
+        "status": "success",
+        "total_active": len(radar_items),
+        "follow_up_due_count": sum(1 for r in radar_items if r["application"]["follow_up_due"]),
+        "applications": radar_items,
+    }
 
 
-@app.post("/api/jobs/{job_id}/triage")
-def triage_job(job_id: str, req: TriageActionRequest):
-    if job_id not in JOBS_STORE:
-        raise HTTPException(status_code=404, detail="Job not found")
-    
-    job = JOBS_STORE[job_id]
-    job.triage_status = req.status
-    save_job(job, EVALUATIONS_STORE.get(job_id))
-    logger.info(f"[API] Job {job_id} triage updated to: {req.status}")
-    return {"status": "success", "job_id": job_id, "new_status": req.status}
-
-
-@app.post("/api/jobs/{job_id}/apply")
+@app.post("/api/pipeline/{job_id}/apply")
 def mark_job_applied(job_id: str):
-    """Marks role as applied and initiates 5-day Response Radar."""
-    if job_id not in JOBS_STORE:
+    """Transitions a job to Applied status and starts 5-day Response Radar clock."""
+    job = JOBS_STORE.get(job_id)
+    if not job:
         raise HTTPException(status_code=404, detail="Job not found")
 
-    job = JOBS_STORE[job_id]
     job.triage_status = TriageStatus.AWAITING_REPLY
-
     package = PACKAGES_STORE.get(job_id)
-    pitch_text = package.direct_pitch_letter if package else None
 
-    app_record = ApplicationRecord(
+    app_rec = ApplicationRecord(
         job_id=job.id,
         company=job.company,
         title=job.title,
@@ -366,71 +462,30 @@ def mark_job_applied(job_id: str):
         status=TriageStatus.AWAITING_REPLY,
         follow_up_due=False,
         follow_up_count=0,
-        direct_pitch_letter=pitch_text,
+        direct_pitch_letter=package.direct_pitch_letter if package else None,
     )
-    APPLICATIONS_STORE[job_id] = app_record
-    save_application(app_record)
+    APPLICATIONS_STORE[job_id] = app_rec
+    save_application(app_rec)
     save_job(job, EVALUATIONS_STORE.get(job_id))
-    logger.info(f"[API] Application logged and persisted for {job.company} — Response Radar active")
-    return {"status": "success", "application": app_record.model_dump()}
+    logger.info(f"[Radar] Started response clock for {job.title} @ {job.company}")
+    return {"status": "success", "application": app_rec.model_dump()}
 
 
-# ── Application Response Radar & Pipeline ─────────────────────────────────────
-
-@app.get("/api/pipeline")
-def get_pipeline():
-    """Returns active application pipeline with response radar & follow-up due flags."""
-    pipeline_items = []
-    now = datetime.now(timezone.utc)
-    
-    for job_id, app_rec in list(APPLICATIONS_STORE.items()):
-        job = JOBS_STORE.get(job_id)
-        app_dt = app_rec.applied_at if app_rec.applied_at.tzinfo else app_rec.applied_at.replace(tzinfo=timezone.utc)
-        days_elapsed = (now - app_dt).days
-        app_rec.days_since_applied = max(0, days_elapsed)
-        
-        # Follow-up due after 5 days if still awaiting reply
-        if days_elapsed >= 5 and app_rec.status in (TriageStatus.AWAITING_REPLY, TriageStatus.FOLLOW_UP_DUE):
-            app_rec.follow_up_due = True
-            app_rec.status = TriageStatus.FOLLOW_UP_DUE
-            if job:
-                job.triage_status = TriageStatus.FOLLOW_UP_DUE
-                save_job(job, EVALUATIONS_STORE.get(job_id))
-            save_application(app_rec)
-        
-        eval_res = EVALUATIONS_STORE.get(job_id)
-        pipeline_items.append({
-            "application": app_rec.model_dump(),
-            "job": job.model_dump() if job else None,
-            "evaluation": eval_res.model_dump() if eval_res else None,
-            "has_package": job_id in PACKAGES_STORE,
-        })
-
-    pipeline_items.sort(key=lambda x: (x["application"]["follow_up_due"], x["application"]["days_since_applied"]), reverse=True)
-    return {
-        "total_active": len(pipeline_items),
-        "follow_up_due_count": sum(1 for p in pipeline_items if p["application"]["follow_up_due"]),
-        "applications": pipeline_items,
-    }
-
-
-@app.post("/api/jobs/{job_id}/generate-followup")
-def generate_followup(job_id: str):
-    """Generates a 2-sentence value-add follow-up draft."""
+@app.post("/api/pipeline/{job_id}/follow-up/draft", response_model=FollowUpDraft)
+def get_followup_draft(job_id: str):
+    """Generates an Autonomous Value-Add Follow-Up Draft."""
     job = JOBS_STORE.get(job_id)
     if not job:
         raise HTTPException(status_code=404, detail="Job not found")
-
     app_rec = APPLICATIONS_STORE.get(job_id)
-    days = app_rec.days_since_applied if app_rec else 5
+    days_old = app_rec.days_since_applied if app_rec else 5
+    draft = generate_value_add_followup(job, CURRENT_PROFILE, days_old)
+    return draft
 
-    draft = generate_value_add_followup(job, CURRENT_PROFILE, days_since=days)
-    return {"status": "success", "followup_draft": draft.model_dump()}
 
-
-@app.post("/api/jobs/{job_id}/send-followup")
-def record_followup_sent(job_id: str):
-    """Records that a follow-up was dispatched, resetting the follow-up due flag."""
+@app.post("/api/pipeline/{job_id}/follow-up/send")
+def log_followup_sent(job_id: str):
+    """Records follow-up sent event and resets follow-up timer."""
     app_rec = APPLICATIONS_STORE.get(job_id)
     if not app_rec:
         raise HTTPException(status_code=404, detail="Application record not found")
@@ -439,14 +494,8 @@ def record_followup_sent(job_id: str):
     app_rec.last_follow_up_at = datetime.now(timezone.utc)
     app_rec.follow_up_due = False
     app_rec.status = TriageStatus.AWAITING_REPLY
-
-    job = JOBS_STORE.get(job_id)
-    if job:
-        job.triage_status = TriageStatus.AWAITING_REPLY
-        save_job(job, EVALUATIONS_STORE.get(job_id))
-
     save_application(app_rec)
-    logger.info(f"[API] Follow-up #{app_rec.follow_up_count} logged and persisted for {app_rec.company}")
+    logger.info(f"[Radar] Follow-up #{app_rec.follow_up_count} logged for {app_rec.company}")
     return {"status": "success", "application": app_rec.model_dump()}
 
 

@@ -92,7 +92,7 @@
                 </div>
                 <div>
                     <span class="text-lg font-bold tracking-tight text-white">Role<span class="text-brand-500">Pointer</span></span>
-                    <span class="ml-2 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider bg-brand-500/10 text-brand-400 rounded-full border border-brand-500/20">Executive</span>
+                    <span class="ml-2 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider bg-brand-500/10 text-brand-400 rounded-full border border-brand-500/20">Executive Pro</span>
                 </div>
             </div>
 
@@ -120,80 +120,74 @@
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
                 </button>
 
-                <button onclick="openProfileImporterModal()" class="flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-dark-800 hover:bg-dark-700 border border-white/5 transition">
-                    <div class="w-6 h-6 rounded-full bg-brand-500/20 text-brand-400 flex items-center justify-center text-xs font-bold">
-                        <span id="profile-initials">AM</span>
-                    </div>
-                    <span id="header-user-name" class="text-sm font-medium text-slate-200 hidden sm:inline">Alex Morgan</span>
+                <button onclick="openModal('importer-modal')" class="px-3.5 py-1.5 rounded-lg bg-dark-700 hover:bg-dark-600 text-xs font-semibold text-white border border-white/10 transition flex items-center space-x-1.5">
+                    <svg class="w-3.5 h-3.5 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                    <span>Import Profile</span>
                 </button>
             </div>
         </div>
     </header>
 
-    <!-- Main Content Container -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full">
+    <!-- Main Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
         <!-- VIEW 1: Executive Morning Briefing -->
         <section id="view-briefing" class="space-y-6">
-            <!-- Executive Banner -->
-            <div class="glass-panel rounded-2xl p-6 sm:p-8 border border-white/10 relative overflow-hidden">
-                <div class="absolute right-0 top-0 w-96 h-96 bg-brand-500/10 rounded-full blur-3xl pointer-events-none"></div>
-                <div class="relative z-10 space-y-3">
-                    <div class="flex flex-wrap items-center justify-between gap-2">
-                        <div class="flex items-center space-x-2 text-xs font-mono text-brand-400">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            <span id="briefing-date">Tuesday, September 15, 2026</span>
-                        </div>
-                        <span class="px-3 py-1 text-xs font-semibold rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                            Auto-Precompiled in Background
-                        </span>
+            <!-- Hero Briefing Card -->
+            <div class="glass-panel rounded-3xl p-6 sm:p-8 border border-white/10 relative overflow-hidden shadow-2xl">
+                <div class="absolute -right-12 -top-12 w-64 h-64 rounded-full bg-brand-500/10 blur-3xl pointer-events-none"></div>
+                <div class="space-y-4 max-w-3xl">
+                    <div class="flex items-center space-x-2">
+                        <span class="w-2 h-2 rounded-full bg-brand-400"></span>
+                        <span id="briefing-date" class="text-xs font-mono font-semibold uppercase tracking-widest text-brand-400">Autonomous Morning Briefing</span>
                     </div>
-                    <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">Executive Morning Briefing</h1>
-                    <p id="briefing-summary" class="text-slate-300 text-sm sm:text-base leading-relaxed max-w-4xl">
-                        Overnight discovery scoured feeds. We identified 3 tier-one opportunities with high compatibility. All bespoke ATS resume packages and 4-sentence direct pitches are pre-compiled and ready for 1-click review.
+                    <h1 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight">
+                        Today's Top Curated Opportunities
+                    </h1>
+                    <p id="briefing-summary" class="text-sm sm:text-base text-slate-300 leading-relaxed font-normal">
+                        Overnight discovery scoured active job listings across Hacker News, Jobicy, RemoteOK, and Arbeitnow. 
+                        Top tier-one roles are pre-compiled and ready for 1-click review.
                     </p>
                 </div>
             </div>
 
-            <!-- Top 3 Curated Bento Cards -->
-            <div>
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-lg font-bold text-white flex items-center space-x-2">
-                        <span>Top 3 Curated Opportunities</span>
-                        <span class="text-xs px-2 py-0.5 rounded bg-brand-500/20 text-brand-300 font-mono">15-Hr Grind &rarr; 90-Sec Decision</span>
-                    </h2>
-                </div>
-                <div id="briefing-cards" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <!-- Loaded dynamically -->
-                    <div class="col-span-3 text-center py-12 text-slate-500 font-mono text-sm">Loading today's curated briefing...</div>
-                </div>
+            <!-- Precompiled Packages Grid -->
+            <div id="briefing-cards" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Loaded dynamically -->
             </div>
         </section>
 
-        <!-- VIEW 2: Application Response Radar -->
+        <!-- VIEW 2: Response Radar -->
         <section id="view-radar" class="space-y-6 hidden">
-            <div class="glass-panel rounded-2xl p-6 border border-white/10 flex flex-wrap items-center justify-between gap-4">
-                <div>
-                    <h1 class="text-2xl font-bold text-white tracking-tight">Application Response Radar</h1>
-                    <p class="text-sm text-slate-400 mt-1">
-                        Bypasses recruiter spam filters with 2-sentence value-add technical benchmark notes on Day 5.
-                    </p>
-                </div>
-                <div class="flex items-center space-x-3">
-                    <div class="px-4 py-2 rounded-xl bg-dark-800 border border-white/5 text-center">
-                        <span class="text-xs text-slate-400 block font-mono">Active Applications</span>
-                        <span id="radar-active-count" class="text-xl font-bold text-white">2</span>
+            <div class="glass-panel rounded-3xl p-6 sm:p-8 border border-white/10 space-y-4">
+                <div class="flex flex-wrap items-center justify-between gap-4">
+                    <div class="space-y-1">
+                        <div class="flex items-center space-x-2">
+                            <span class="w-2 h-2 rounded-full bg-rose-400 animate-ping"></span>
+                            <span class="text-xs font-mono font-semibold uppercase tracking-widest text-rose-400">Response Radar & Follow-Up Sentinel</span>
+                        </div>
+                        <h2 class="text-2xl font-bold text-white">Active Outreach Pipeline</h2>
                     </div>
-                    <div class="px-4 py-2 rounded-xl bg-rose-500/10 border border-rose-500/20 text-center">
-                        <span class="text-xs text-rose-300 block font-mono">Follow-Up Due (5d+)</span>
-                        <span id="radar-due-count" class="text-xl font-bold text-rose-400">1</span>
+                    <div class="flex items-center space-x-3">
+                        <div class="px-4 py-2 rounded-xl bg-dark-800 border border-white/5 text-center">
+                            <span id="radar-active-count" class="text-lg font-bold text-white font-mono">0</span>
+                            <span class="block text-[10px] text-slate-400 uppercase">Active</span>
+                        </div>
+                        <div class="px-4 py-2 rounded-xl bg-amber-500/10 border border-amber-500/20 text-center">
+                            <span id="radar-due-count" class="text-lg font-bold text-amber-300 font-mono">0</span>
+                            <span class="block text-[10px] text-amber-400 uppercase">Follow-Up Due</span>
+                        </div>
                     </div>
                 </div>
+                <p class="text-xs sm:text-sm text-slate-400">
+                    Bypasses recruiter spam filters by automatically monitoring outreach duration (5-day cadence) and crafting 
+                    <strong>Value-Add Benchmark Follow-Up notes</strong> sharing concrete technical throughput metrics.
+                </p>
             </div>
 
+            <!-- Radar Application List -->
             <div id="radar-pipeline-list" class="space-y-4">
                 <!-- Loaded dynamically -->
-                <div class="text-center py-12 text-slate-500 font-mono text-sm">Loading active pipeline radar...</div>
             </div>
         </section>
 
@@ -419,6 +413,59 @@
         </div>
     </div>
 
+    <!-- MODAL 5: High-Leverage Recruiter Cold Outreach Modal -->
+    <div id="coldangle-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 hidden">
+        <div class="glass-panel w-full max-w-3xl rounded-2xl border border-white/10 max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+            <div class="p-6 border-b border-white/10 flex items-center justify-between">
+                <div>
+                    <h3 class="text-xl font-bold text-white">High-Leverage Recruiter Cold Angle</h3>
+                    <p id="coldangle-modal-target" class="text-sm text-brand-400 font-mono">CognitiveFlow AI • Senior AI Platform Engineer</p>
+                </div>
+                <button onclick="closeModal('coldangle-modal')" class="p-2 rounded-lg text-slate-400 hover:text-white bg-dark-800 border border-white/5">&times;</button>
+            </div>
+            <div class="p-6 overflow-y-auto space-y-5 flex-1 text-sm">
+                <div class="p-3.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-xs text-indigo-300 flex items-center space-x-2">
+                    <span class="text-indigo-400 font-bold font-mono">Detected Architecture Focus:</span>
+                    <span id="coldangle-tech-focus" class="text-slate-200 font-medium">scaling distributed LLM inference pipelines</span>
+                </div>
+
+                <!-- 4-Sentence Email Angle -->
+                <div class="space-y-2">
+                    <div class="flex items-center justify-between">
+                        <label class="text-xs font-mono font-semibold text-brand-300 uppercase">4-Sentence Email Pitch</label>
+                        <button onclick="copyColdAngleEmail()" class="px-2.5 py-1 text-xs rounded-lg bg-brand-600 hover:bg-brand-500 text-white font-medium transition">Copy Pitch</button>
+                    </div>
+                    <div class="space-y-1.5">
+                        <input type="text" id="coldangle-email-subject" class="w-full px-3.5 py-2 rounded-xl bg-dark-800 border border-white/10 text-xs text-white font-mono" readonly>
+                        <textarea id="coldangle-email-body" rows="6" class="w-full p-3.5 rounded-xl bg-dark-800 border border-white/10 text-xs text-slate-200 font-sans focus:outline-none focus:border-brand-500" readonly></textarea>
+                    </div>
+                </div>
+
+                <!-- LinkedIn InMail Angle -->
+                <div class="space-y-2">
+                    <div class="flex items-center justify-between">
+                        <label class="text-xs font-mono font-semibold text-slate-300 uppercase">LinkedIn InMail (Short 3-Line Format)</label>
+                        <button onclick="copyColdAngleLinkedIn()" class="px-2.5 py-1 text-xs rounded-lg bg-dark-700 hover:bg-dark-600 text-slate-200 font-medium border border-white/10 transition">Copy InMail</button>
+                    </div>
+                    <textarea id="coldangle-inmail-body" rows="3" class="w-full p-3.5 rounded-xl bg-dark-800 border border-white/10 text-xs text-slate-200 font-sans focus:outline-none" readonly></textarea>
+                </div>
+
+                <!-- Talking Points -->
+                <div class="p-4 rounded-xl bg-dark-800 border border-white/5 space-y-2">
+                    <span class="text-xs font-semibold text-slate-300 block">Key Talking Points & Levers:</span>
+                    <ul id="coldangle-talking-points" class="space-y-1 text-slate-300 text-xs list-disc list-inside"></ul>
+                </div>
+            </div>
+            <div class="p-4 border-t border-white/10 bg-dark-900/80 flex items-center justify-between">
+                <button onclick="closeModal('coldangle-modal')" class="px-4 py-2 rounded-xl text-slate-400 hover:text-white text-sm">Close</button>
+                <a id="btn-coldangle-mailto" href="#" class="px-5 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-sm shadow-lg shadow-brand-500/20 transition flex items-center space-x-2">
+                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                    <span>Open in Desktop Mailer</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
     <!-- Toast Notification Container -->
     <div id="toast-container" class="fixed bottom-6 right-6 z-50 space-y-2 pointer-events-none"></div>
 
@@ -451,14 +498,16 @@
             toast.innerHTML = `
                 <div class="w-2 h-2 rounded-full ${type === 'success' ? 'bg-emerald-400' : 'bg-brand-400'}"></div>
                 <div>
-                    <strong class="block font-semibold text-white">${title}</strong>
-                    <span class="text-slate-300">${message}</span>
+                    <h5 class="font-bold text-white text-xs">${title}</h5>
+                    <p class="text-slate-300 text-[11px]">${message}</p>
                 </div>
             `;
             container.appendChild(toast);
-            setTimeout(() => { toast.classList.remove('translate-y-2', 'opacity-0'); }, 50);
             setTimeout(() => {
-                toast.classList.add('opacity-0', 'translate-y-2');
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            }, 50);
+            setTimeout(() => {
+                toast.classList.add('opacity-0');
                 setTimeout(() => toast.remove(), 300);
             }, 4000);
         }
@@ -470,32 +519,33 @@
                 const tab = document.getElementById(`tab-${v}`);
                 if (v === viewName) {
                     el.classList.remove('hidden');
-                    tab.className = "px-4 py-1.5 rounded-lg text-sm font-medium transition-all bg-brand-600 text-white shadow-sm";
+                    tab.className = 'px-4 py-1.5 rounded-lg text-sm font-medium transition-all bg-brand-600 text-white shadow-sm';
                 } else {
                     el.classList.add('hidden');
-                    tab.className = "px-4 py-1.5 rounded-lg text-sm font-medium transition-all text-slate-400 hover:text-white";
+                    tab.className = 'px-4 py-1.5 rounded-lg text-sm font-medium transition-all text-slate-400 hover:text-white';
                 }
             });
-            if (viewName === 'briefing') fetchBriefing();
             if (viewName === 'radar') fetchPipeline();
             if (viewName === 'archive') fetchJobsArchive();
+        }
+
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.remove('hidden');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
         }
 
         // ── Profile API ───────────────────────────────────────────────────────
         async function fetchProfile() {
             try {
                 const res = await fetch('/api/profile');
-                const data = await res.json();
-                document.getElementById('header-user-name').innerText = data.name || 'Alex Morgan';
-                const initials = (data.name || 'AM').split(' ').map(n => n[0]).join('');
-                document.getElementById('profile-initials').innerText = initials;
+                const profile = await res.json();
+                console.log("[Profile] Loaded profile for:", profile.name);
             } catch (e) {
                 console.error(e);
             }
-        }
-
-        function openProfileImporterModal() {
-            document.getElementById('importer-modal').classList.remove('hidden');
         }
 
         async function submitProfileImport() {
@@ -515,6 +565,7 @@
                 closeModal('importer-modal');
                 fetchProfile();
                 fetchBriefing();
+                fetchJobsArchive();
             } catch (e) {
                 showToast('Import Error', e.message, 'error');
             }
@@ -541,10 +592,24 @@
             }
             container.innerHTML = jobs.map((job, idx) => {
                 const ev = evaluations[idx] || { score: 90, match_tier: 'EXCELLENT', pros: [] };
+                const ghost = ev.ghost_verdict;
+                const sal = ev.salary_normalized;
+                const wa = ev.work_auth_verdict;
+
+                let ghostBadge = '<span class="px-2 py-0.5 text-[10px] font-mono rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">✓ Verified Active</span>';
+                if (ghost && (ghost.is_ghost_job || ghost.risk_level === 'HIGH_GHOST_RISK')) {
+                    ghostBadge = `<span class="px-2 py-0.5 text-[10px] font-mono rounded bg-rose-500/20 text-rose-300 border border-rose-500/30" title="${ghost.explanation}">⚠️ Ghost Risk (${ghost.risk_score}%)</span>`;
+                } else if (ghost && ghost.risk_level === 'MODERATE_RISK') {
+                    ghostBadge = `<span class="px-2 py-0.5 text-[10px] font-mono rounded bg-amber-500/10 text-amber-300 border border-amber-500/20" title="${ghost.explanation}">⚡ Aged Role</span>`;
+                }
+
+                const salStr = sal && sal.confidence !== 'NONE' ? sal.formatted_usd_equiv : (job.salary_range || 'Comp not disclosed');
+                const tzStr = wa ? `${wa.timezone_overlap_hours}h UTC Overlap` : 'UTC Overlap OK';
+
                 return `
                     <div class="glass-card rounded-2xl p-6 flex flex-col justify-between space-y-5 border border-white/5">
                         <div class="space-y-3">
-                            <div class="flex items-center justify-between">
+                            <div class="flex flex-wrap items-center justify-between gap-1.5">
                                 <span class="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-semibold bg-brand-500/20 text-brand-300">${job.domain || 'Backend'}</span>
                                 <div class="flex items-center space-x-1 text-emerald-400 font-mono font-bold text-sm">
                                     <span>${ev.score}% Match</span>
@@ -554,7 +619,15 @@
                                 <h3 class="text-lg font-bold text-white leading-tight">${job.title}</h3>
                                 <p class="text-sm text-slate-400 font-medium">${job.company} • <span class="text-slate-500">${job.location}</span></p>
                             </div>
-                            <div class="space-y-1 text-xs text-slate-300">
+                            
+                            <!-- Badges: Ghost, Normalized Comp, Timezone -->
+                            <div class="flex flex-wrap gap-1.5 text-[11px]">
+                                ${ghostBadge}
+                                <span class="px-2 py-0.5 font-mono rounded bg-dark-700 text-slate-300 border border-white/5 font-semibold text-emerald-300">${salStr}</span>
+                                <span class="px-2 py-0.5 font-mono rounded bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">${tzStr}</span>
+                            </div>
+
+                            <div class="space-y-1 text-xs text-slate-300 pt-1">
                                 ${(ev.pros || []).slice(0, 2).map(pro => `<div class="flex items-start space-x-1.5"><span class="text-emerald-400">&bull;</span><span>${pro}</span></div>`).join('')}
                             </div>
                         </div>
@@ -563,11 +636,14 @@
                             <button onclick="openPackageModal('${job.id}')" class="w-full py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-xs transition shadow-md shadow-brand-500/20 flex items-center justify-center space-x-2">
                                 <span>Review Precompiled Package & Pitch</span>
                             </button>
-                            <div class="grid grid-cols-2 gap-2">
-                                <button onclick="startMockInterview('${job.id}')" class="py-2 rounded-xl bg-dark-700 hover:bg-dark-600 text-slate-300 font-medium text-xs border border-white/5 transition">
-                                    Mock Interview
+                            <div class="grid grid-cols-3 gap-1.5">
+                                <button onclick="openColdAngleModal('${job.id}')" class="py-2 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 font-semibold text-[11px] border border-indigo-500/30 transition">
+                                    Cold Angle
                                 </button>
-                                <button onclick="applyDirectly('${job.id}')" class="py-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 font-semibold text-xs border border-emerald-500/30 transition">
+                                <button onclick="startMockInterview('${job.id}')" class="py-2 rounded-xl bg-dark-700 hover:bg-dark-600 text-slate-300 font-medium text-[11px] border border-white/5 transition">
+                                    Mock Studio
+                                </button>
+                                <button onclick="applyDirectly('${job.id}')" class="py-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 font-semibold text-[11px] border border-emerald-500/30 transition">
                                     1-Click Apply
                                 </button>
                             </div>
@@ -580,7 +656,7 @@
         // ── Response Radar API ────────────────────────────────────────────────
         async function fetchPipeline() {
             try {
-                const res = await fetch('/api/pipeline');
+                const res = await fetch('/api/pipeline/radar');
                 activePipelineData = await res.json();
                 document.getElementById('radar-active-count').innerText = activePipelineData.total_active || 0;
                 document.getElementById('radar-due-count').innerText = activePipelineData.follow_up_due_count || 0;
@@ -611,8 +687,11 @@
                             <p class="text-xs text-slate-400 font-mono">Follow-ups dispatched: ${app.follow_up_count}</p>
                         </div>
                         <div class="flex items-center space-x-2">
+                            <button onclick="openColdAngleModal('${app.job_id}')" class="px-3 py-2 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 text-xs font-semibold border border-indigo-500/30 transition">
+                                Outreach Hook
+                            </button>
                             <button onclick="openFollowupModal('${app.job_id}')" class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-dark-900 font-bold text-xs shadow-md transition">
-                                Generate Benchmark Note
+                                Value-Add Follow-Up
                             </button>
                             <button onclick="openPackageModal('${app.job_id}')" class="px-3 py-2 rounded-xl bg-dark-700 hover:bg-dark-600 text-slate-300 text-xs font-medium border border-white/5 transition">
                                 View Pitch
@@ -628,7 +707,7 @@
             try {
                 const res = await fetch('/api/jobs');
                 const data = await res.json();
-                allJobsData = data.jobs || data.results || [];
+                allJobsData = data || [];
                 document.getElementById('archive-count').innerText = allJobsData.length;
                 applyFilters();
             } catch (e) {
@@ -663,27 +742,110 @@
             container.innerHTML = filtered.map(item => {
                 const job = item.job;
                 const ev = item.evaluation || { score: 75 };
+                const ghost = ev.ghost_verdict;
+                const sal = ev.salary_normalized;
+                const salStr = sal && sal.confidence !== 'NONE' ? sal.formatted_usd_equiv : (job.salary_range || 'Comp not disclosed');
+
+                let ghostBadge = '<span class="px-1.5 py-0.5 text-[9px] font-mono rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">Active</span>';
+                if (ghost && (ghost.is_ghost_job || ghost.risk_level === 'HIGH_GHOST_RISK')) {
+                    ghostBadge = `<span class="px-1.5 py-0.5 text-[9px] font-mono rounded bg-rose-500/20 text-rose-300 border border-rose-500/30">⚠️ Ghost Risk</span>`;
+                }
+
                 return `
                     <div class="glass-card rounded-2xl p-5 flex flex-col justify-between space-y-4 border border-white/5">
                         <div class="space-y-2">
                             <div class="flex items-center justify-between">
                                 <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-dark-700 text-slate-300">${job.domain}</span>
-                                <span class="text-xs font-mono font-bold text-emerald-400">${ev.score}% Match</span>
+                                <div class="flex items-center space-x-1.5">
+                                    ${ghostBadge}
+                                    <span class="text-xs font-mono font-bold text-emerald-400">${ev.score}% Match</span>
+                                </div>
                             </div>
                             <h4 class="font-bold text-white text-base">${job.title}</h4>
                             <p class="text-xs text-slate-400">${job.company} • ${job.location}</p>
+                            <p class="text-[11px] font-mono text-emerald-300 font-semibold">${salStr}</p>
                         </div>
-                        <div class="flex gap-2">
-                            <button onclick="openPackageModal('${job.id}')" class="flex-1 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-xs transition">
-                                Package & Pitch
-                            </button>
-                            <button onclick="applyDirectly('${job.id}')" class="px-3 py-2 rounded-xl bg-dark-700 hover:bg-dark-600 text-slate-300 text-xs font-medium border border-white/5 transition">
-                                Apply
-                            </button>
+                        <div class="space-y-2 pt-2 border-t border-white/5">
+                            <div class="flex gap-2">
+                                <button onclick="openColdAngleModal('${job.id}')" class="flex-1 py-1.5 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 text-xs font-medium border border-indigo-500/30 transition">
+                                    🚀 Cold Angle
+                                </button>
+                                <button id="link-btn-${job.id}" onclick="verifyJobLink('${job.id}')" class="px-2.5 py-1.5 rounded-lg bg-dark-700 hover:bg-dark-600 text-slate-300 text-xs font-mono border border-white/5 transition" title="Pre-flight ATS Probe">
+                                    Probe URL
+                                </button>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="openPackageModal('${job.id}')" class="flex-1 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-xs transition">
+                                    Package & Pitch
+                                </button>
+                                <button onclick="applyDirectly('${job.id}')" class="px-3 py-2 rounded-xl bg-dark-700 hover:bg-dark-600 text-slate-300 text-xs font-medium border border-white/5 transition">
+                                    Apply
+                                </button>
+                            </div>
                         </div>
                     </div>
                 `;
             }).join('');
+        }
+
+        // ── Pre-Flight URL Verifier ───────────────────────────────────────────
+        async function verifyJobLink(jobId) {
+            const btn = document.getElementById(`link-btn-${jobId}`);
+            if (btn) btn.innerText = 'Probing...';
+            try {
+                const res = await fetch(`/api/jobs/${jobId}/verify-link`, { method: 'POST' });
+                const data = await res.json();
+                const verdict = data.link_verdict;
+                if (btn) {
+                    if (verdict.is_accessible) {
+                        btn.className = 'px-2.5 py-1.5 rounded-lg bg-emerald-500/20 text-emerald-300 text-xs font-mono border border-emerald-500/30';
+                        btn.innerText = '✓ Live Portal';
+                    } else {
+                        btn.className = 'px-2.5 py-1.5 rounded-lg bg-rose-500/20 text-rose-300 text-xs font-mono border border-rose-500/30';
+                        btn.innerText = '⚠️ Closed Link';
+                    }
+                }
+                showToast('Pre-Flight Probe', verdict.status_message, verdict.is_accessible ? 'success' : 'error');
+            } catch (e) {
+                if (btn) btn.innerText = 'Error';
+                showToast('Probe Error', e.message, 'error');
+            }
+        }
+
+        // ── High-Leverage Cold Angle Modal ────────────────────────────────────
+        async function openColdAngleModal(jobId) {
+            selectedJobId = jobId;
+            try {
+                const res = await fetch(`/api/jobs/${jobId}/cold-angle`, { method: 'POST' });
+                const data = await res.json();
+                const angle = data.cold_angle;
+
+                document.getElementById('coldangle-modal-target').innerText = `${angle.company} • ${angle.target_role}`;
+                document.getElementById('coldangle-tech-focus').innerText = angle.detected_tech_challenge;
+                document.getElementById('coldangle-email-subject').value = angle.email_subject;
+                document.getElementById('coldangle-email-body').value = angle.email_body_4_sentences;
+                document.getElementById('coldangle-inmail-body').value = angle.linkedin_inmail_body;
+                document.getElementById('btn-coldangle-mailto').href = angle.mailto_url || '#';
+
+                const tpList = document.getElementById('coldangle-talking-points');
+                tpList.innerHTML = (angle.key_talking_points || []).map(tp => `<li>${tp}</li>`).join('');
+
+                document.getElementById('coldangle-modal').classList.remove('hidden');
+            } catch (e) {
+                showToast('Error', e.message, 'error');
+            }
+        }
+
+        function copyColdAngleEmail() {
+            const body = document.getElementById('coldangle-email-body').value;
+            navigator.clipboard.writeText(body);
+            showToast('Copied', '4-sentence email pitch copied to clipboard.');
+        }
+
+        function copyColdAngleLinkedIn() {
+            const body = document.getElementById('coldangle-inmail-body').value;
+            navigator.clipboard.writeText(body);
+            showToast('Copied', '3-line LinkedIn InMail pitch copied to clipboard.');
         }
 
         // ── Package Modal & Direct Pitch ──────────────────────────────────────
@@ -730,7 +892,7 @@
 
         async function applyDirectly(jobId) {
             try {
-                const res = await fetch(`/api/jobs/${jobId}/apply`, { method: 'POST' });
+                const res = await fetch(`/api/pipeline/${jobId}/apply`, { method: 'POST' });
                 showToast('Application Logged', '5-day Response Radar is now monitoring this role.');
                 fetchPipeline();
                 fetchBriefing();
@@ -743,9 +905,8 @@
         async function openFollowupModal(jobId) {
             selectedJobId = jobId;
             try {
-                const res = await fetch(`/api/jobs/${jobId}/generate-followup`, { method: 'POST' });
-                const data = await res.json();
-                const draft = data.followup_draft;
+                const res = await fetch(`/api/pipeline/${jobId}/follow-up/draft`, { method: 'POST' });
+                const draft = await res.json();
 
                 document.getElementById('followup-modal-target').innerText = draft.company;
                 document.getElementById('followup-subject').value = draft.subject;
@@ -766,7 +927,7 @@
         async function confirmFollowupSent() {
             if (!selectedJobId) return;
             try {
-                await fetch(`/api/jobs/${selectedJobId}/send-followup`, { method: 'POST' });
+                await fetch(`/api/pipeline/${selectedJobId}/follow-up/send`, { method: 'POST' });
                 showToast('Follow-Up Dispatched', 'Reset radar alert flag and recorded timestamp.');
                 closeModal('followup-modal');
                 fetchPipeline();
@@ -946,10 +1107,6 @@
             } catch (e) {
                 showToast('Sync Error', e.message, 'error');
             }
-        }
-
-        function closeModal(modalId) {
-            document.getElementById(modalId).classList.add('hidden');
         }
     </script>
 </body>
