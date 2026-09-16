@@ -36,7 +36,9 @@ from rolepointer.agents.interview_agent import (
     generate_mock_interview_questions, evaluate_interview_answer
 )
 from rolepointer.compiler.pdf_engine import compile_ats_resume_pdf, OUTPUT_DIR
-from rolepointer.core.model_config import get_strands_model
+from rolepointer.core.model_config import (
+    get_strands_model, BedrockStrandsModel, GCPGeminiStrandsModel, OllamaStrandsModel
+)
 from rolepointer.db.repository import (
     init_db, save_job, get_all_jobs_with_evaluations,
     save_application, get_all_applications,
@@ -52,6 +54,33 @@ client = TestClient(app)
 def test_model_config_initialization():
     model = get_strands_model()
     assert model is not None
+    assert hasattr(model, "generate")
+
+    # AWS Bedrock Adapter Test
+    bedrock = BedrockStrandsModel(
+        model_id="anthropic.claude-3-5-haiku-20241022-v1:0",
+        region_name="us-east-1",
+    )
+    assert bedrock.model_id == "anthropic.claude-3-5-haiku-20241022-v1:0"
+    assert bedrock.region_name == "us-east-1"
+
+    # GCP Gemini Adapter Test (AI Studio & Vertex AI modes)
+    gcp_studio = GCPGeminiStrandsModel(
+        model_id="gemini-2.5-flash",
+        api_key="test-api-key",
+    )
+    assert gcp_studio.model_id == "gemini-2.5-flash"
+    assert gcp_studio.api_key == "test-api-key"
+
+    gcp_vertex = GCPGeminiStrandsModel(
+        model_id="gemini-2.5-flash",
+        project="test-gcp-project",
+        location="us-central1",
+        use_vertex_ai=True,
+    )
+    assert gcp_vertex.project == "test-gcp-project"
+    assert gcp_vertex.location == "us-central1"
+    assert gcp_vertex.use_vertex_ai is True
 
 
 def test_mock_feeds_generation():

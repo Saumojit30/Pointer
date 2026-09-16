@@ -116,11 +116,89 @@ class BedrockStrandsModel:
         return self.generate(prompt)
 
 
+class GCPGeminiStrandsModel:
+    """Official Google Cloud (GCP) Gemini client supporting both Google AI Studio and Vertex AI."""
+
+    def __init__(
+        self,
+        model_id: str = "gemini-2.5-flash",
+        api_key: Optional[str] = None,
+        project: Optional[str] = None,
+        location: str = "us-central1",
+        use_vertex_ai: bool = False,
+    ):
+        self.model_id = model_id
+        self.api_key = api_key
+        self.project = project
+        self.location = location
+        self.use_vertex_ai = use_vertex_ai
+        self._genai_client = None
+
+        # 1. Official google-genai SDK
+        try:
+            from google import genai  # type: ignore
+            if use_vertex_ai and project:
+                self._genai_client = genai.Client(vertexai=True, project=project, location=location)
+                logger.info(f"[GCP] Initialized Vertex AI Client (project={project}, location={location}, model={model_id})")
+            elif api_key:
+                self._genai_client = genai.Client(api_key=api_key)
+                logger.info(f"[GCP] Initialized AI Studio Client (model={model_id})")
+        except Exception as e:
+            logger.debug(f"[GCP] google-genai SDK load note: {e}")
+
+    def generate(self, prompt: str, system_prompt: Optional[str] = None) -> str:
+        # Try google-genai client
+        if self._genai_client:
+            try:
+                config: dict[str, Any] = {}
+                if system_prompt:
+                    config["system_instruction"] = system_prompt
+                res = self._genai_client.models.generate_content(
+                    model=self.model_id,
+                    contents=prompt,
+                    config=config if config else None,
+                )
+                if res and hasattr(res, "text") and res.text:
+                    return res.text
+            except Exception as e:
+                logger.warning(f"[GCP] google-genai generation note: {e}")
+
+        # Official Google AI Studio REST API
+        if self.api_key:
+            try:
+                url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model_id}:generateContent?key={self.api_key}"
+                body: dict[str, Any] = {
+                    "contents": [{"parts": [{"text": prompt}]}],
+                    "generationConfig": {"temperature": 0.2, "maxOutputTokens": 2048},
+                }
+                if system_prompt:
+                    body["systemInstruction"] = {"parts": [{"text": system_prompt}]}
+                with httpx.Client(timeout=60.0) as client:
+                    resp = client.post(url, json=body)
+                    if resp.status_code == 200:
+                        data = resp.json()
+                        candidates = data.get("candidates", [])
+                        if candidates:
+                            parts = candidates[0].get("content", {}).get("parts", [])
+                            if parts:
+                                return parts[0].get("text", "")
+                    logger.warning(f"[GCP] Gemini REST API returned HTTP {resp.status_code}: {resp.text}")
+            except Exception as e:
+                logger.warning(f"[GCP] Gemini REST API invocation failed: {e}")
+
+        return ""
+
+    def invoke(self, prompt: str) -> str:
+        return self.generate(prompt)
+
+
 def get_strands_model() -> Any:
-    """Returns Strands BedrockModel or Ollama fallback."""
+    """Returns Strands BedrockModel, GCP Gemini, or Ollama fallback."""
     provider = settings.llm_provider.lower().strip()
     has_aws_keys = bool(settings.aws_access_key_id and settings.aws_secret_access_key)
+    has_gemini_keys = bool(settings.gemini_api_key or (settings.use_vertex_ai and settings.google_cloud_project))
 
+    # Explicit or auto-detected Bedrock
     if provider == "bedrock" or (provider == "auto" and has_aws_keys and not settings.use_local_model):
         return BedrockStrandsModel(
             model_id=settings.bedrock_model_id,
@@ -128,6 +206,16 @@ def get_strands_model() -> Any:
             aws_access_key_id=settings.aws_access_key_id or None,
             aws_secret_access_key=settings.aws_secret_access_key or None,
             aws_session_token=settings.aws_session_token or None,
+        )
+
+    # Explicit or auto-detected Google Cloud / Gemini
+    if provider in ("gemini", "gcp", "vertex") or (provider == "auto" and has_gemini_keys and not settings.use_local_model):
+        return GCPGeminiStrandsModel(
+            model_id=settings.gemini_model,
+            api_key=settings.gemini_api_key or None,
+            project=settings.google_cloud_project or None,
+            location=settings.google_cloud_location,
+            use_vertex_ai=settings.use_vertex_ai,
         )
 
     # Local Ollama Fallback
