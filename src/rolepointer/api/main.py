@@ -203,6 +203,15 @@ app.add_middleware(
 )
 
 
+
+# ── Health Endpoints ──────────────────────────────────────────────────────────
+
+@app.get("/health")
+@app.get("/api/health")
+def health_check():
+    return {"status": "healthy", "service": "rolepointer", "version": "0.3.0"}
+
+
 # ── Profile Endpoints ─────────────────────────────────────────────────────────
 
 @app.get("/api/profile", response_model=UserProfile)
