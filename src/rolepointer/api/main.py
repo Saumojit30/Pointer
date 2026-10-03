@@ -48,6 +48,7 @@ from rolepointer.agents.briefing_agent import generate_executive_briefing
 from rolepointer.agents.followup_agent import generate_value_add_followup
 from rolepointer.agents.importer_agent import import_profile_from_text
 from rolepointer.agents.cold_angle_agent import generate_high_leverage_cold_angle
+from rolepointer.agents.poc_agent import generate_trojan_horse_poc
 from rolepointer.agents.email_exporter import generate_eml_file, generate_mailto_url, OUTPUT_DIR as EML_DIR
 from rolepointer.agents.interview_agent import (
     generate_mock_interview_questions, evaluate_interview_answer
@@ -58,7 +59,8 @@ from rolepointer.db.repository import (
     save_application, get_all_applications, delete_application,
     save_tailored_package, get_all_tailored_packages,
     save_user_profile, get_user_profile,
-    save_interview_session, get_interview_session
+    save_interview_session, get_interview_session,
+    save_poc_artifact, get_poc_artifact
 )
 from rolepointer.scheduler.poller import run_discovery_cycle, background_poller_loop
 
@@ -69,13 +71,14 @@ EVALUATIONS_STORE: Dict[str, FitEvaluation] = {}
 PACKAGES_STORE: Dict[str, TailoredPackage] = {}
 INTERVIEWS_STORE: Dict[str, MockInterviewSession] = {}
 APPLICATIONS_STORE: Dict[str, ApplicationRecord] = {}
+POC_STORE: Dict[str, PoCArtifact] = {}
 SSE_QUEUE: asyncio.Queue = asyncio.Queue()
 POLLER_TASK: Optional[asyncio.Task] = None
 
 
 def _hydrate_or_seed_db():
     """Initializes SQLite schema and hydrates memory cache or seeds initial records."""
-    global CURRENT_PROFILE, JOBS_STORE, EVALUATIONS_STORE, PACKAGES_STORE, APPLICATIONS_STORE
+    global CURRENT_PROFILE, JOBS_STORE, EVALUATIONS_STORE, PACKAGES_STORE, APPLICATIONS_STORE, POC_STORE
     init_db()
 
     # 1. Profile Hydration
@@ -364,6 +367,52 @@ def generate_cold_angle(job_id: str):
         raise HTTPException(status_code=404, detail="Job not found")
     cold_angle = generate_high_leverage_cold_angle(job, CURRENT_PROFILE)
     return {"status": "success", "cold_angle": cold_angle.model_dump()}
+
+
+# ── Moat 1: Trojan Horse Proof-of-Work Artifact & Mini RFC Endpoints ──────────
+
+@app.post("/api/jobs/{job_id}/poc-artifact")
+def generate_poc_artifact_endpoint(job_id: str):
+    """Generates a Trojan Horse Proof-of-Work Benchmark Script & 1-Page Mini RFC Artifact."""
+    job = JOBS_STORE.get(job_id)
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+
+    # Check cache in DB / Memory
+    cached_art = POC_STORE.get(job_id) or get_poc_artifact(job_id)
+    if cached_art:
+        POC_STORE[job_id] = cached_art
+        return {"status": "success", "poc_artifact": cached_art.model_dump(), "cached": True}
+
+    artifact = generate_trojan_horse_poc(job, CURRENT_PROFILE)
+    POC_STORE[job_id] = artifact
+    save_poc_artifact(artifact)
+    logger.info(f"[Moat 1] Generated Trojan Horse PoC Artifact for {job.title} @ {job.company}")
+    return {"status": "success", "poc_artifact": artifact.model_dump(), "cached": False}
+
+
+@app.get("/api/jobs/{job_id}/poc-artifact/download")
+def download_poc_artifact(job_id: str, format: str = Query("md")):
+    """Downloads the 1-Page Mini RFC (.md) or Benchmark Script (.py)."""
+    artifact = POC_STORE.get(job_id) or get_poc_artifact(job_id)
+    if not artifact:
+        job = JOBS_STORE.get(job_id)
+        if not job:
+            raise HTTPException(status_code=404, detail="Job not found")
+        artifact = generate_trojan_horse_poc(job, CURRENT_PROFILE)
+        POC_STORE[job_id] = artifact
+        save_poc_artifact(artifact)
+
+    clean_comp = "".join(c for c in artifact.company if c.isalnum() or c in ("-", "_")).lower()
+    clean_role = "".join(c for c in artifact.role_title if c.isalnum() or c in ("-", "_")).lower()
+
+    if format.lower() in ("py", "python", "code"):
+        filename = f"benchmark_{clean_comp}_{clean_role}.py"
+        return HTMLResponse(content=artifact.code_snippet, media_type="text/plain", headers={"Content-Disposition": f'attachment; filename="{filename}"'})
+
+    filename = f"rfc_poc_{clean_comp}_{clean_role}.md"
+    return HTMLResponse(content=artifact.rfc_markdown, media_type="text/markdown", headers={"Content-Disposition": f'attachment; filename="{filename}"'})
+
 
 
 # ── Tool Endpoints for Compensation & Work Auth ──────────────────────────────

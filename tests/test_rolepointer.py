@@ -597,3 +597,48 @@ def test_api_evals_run_endpoint():
     summary = data["benchmark_summary"]
     assert summary["total_cases"] >= 5
     assert summary["average_overall_score"] >= 0.80
+
+
+def test_trojan_horse_poc_agent():
+    from rolepointer.agents.poc_agent import generate_trojan_horse_poc
+    profile = UserProfile()
+    jobs = get_mock_jobs()
+    job = jobs[0]  # CognitiveFlow AI Platform Engineer
+
+    artifact = generate_trojan_horse_poc(job, profile)
+    assert artifact.job_id == job.id
+    assert artifact.company == job.company
+    assert len(artifact.code_snippet) > 100
+    assert "def " in artifact.code_snippet or "import " in artifact.code_snippet
+    assert "# RFC-042" in artifact.rfc_markdown
+    assert "```mermaid" in artifact.rfc_markdown
+    assert "Hi " in artifact.trojan_horse_pitch
+    assert "gist.github.com" in artifact.gist_url
+
+
+def test_api_poc_artifact_endpoints():
+    jobs = get_mock_jobs()
+    job_id = jobs[0].id
+
+    # 1. Generate / Retrieve PoC Artifact
+    res = client.post(f"/api/jobs/{job_id}/poc-artifact")
+    assert res.status_code == 200
+    data = res.json()
+    assert data["status"] == "success"
+    assert "poc_artifact" in data
+    art = data["poc_artifact"]
+    assert art["job_id"] == job_id
+    assert len(art["code_snippet"]) > 50
+
+    # 2. Download RFC Markdown (.md)
+    md_res = client.get(f"/api/jobs/{job_id}/poc-artifact/download?format=md")
+    assert md_res.status_code == 200
+    assert "text/markdown" in md_res.headers["content-type"]
+    assert "RFC-042" in md_res.text
+
+    # 3. Download Code Snippet (.py)
+    py_res = client.get(f"/api/jobs/{job_id}/poc-artifact/download?format=py")
+    assert py_res.status_code == 200
+    assert "text/plain" in py_res.headers["content-type"]
+    assert "import " in py_res.text or "class " in py_res.text
+

@@ -124,6 +124,32 @@ class ColdAngleResult(BaseModel):
     rationale: str = ""
 
 
+
+
+# ── Moat 1: Trojan Horse Proof-of-Work Artifact & Mini RFC ────────────────────
+
+class PoCArtifactType(str, Enum):
+    BENCHMARK_SCRIPT = "BENCHMARK_SCRIPT"
+    MINI_RFC = "MINI_RFC"
+    ARCHITECTURE_DIAGRAM = "ARCHITECTURE_DIAGRAM"
+    PR_PATCH_PROPOSAL = "PR_PATCH_PROPOSAL"
+
+
+class PoCArtifact(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid4()))
+    job_id: str
+    company: str
+    role_title: str
+    artifact_type: PoCArtifactType = PoCArtifactType.BENCHMARK_SCRIPT
+    target_problem_statement: str
+    primary_stack_topic: str = "Distributed Backend Architecture"
+    code_snippet: str
+    rfc_markdown: str
+    trojan_horse_pitch: str
+    gist_url: str = ""
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+
 # ── Application Tracking & Response Radar ──────────────────────────────────
 
 class ApplicationRecord(BaseModel):

@@ -15,14 +15,15 @@ from sqlalchemy.orm import Session
 from rolepointer.db.engine import Base, engine, SessionLocal
 from rolepointer.db.models import (
     JobListingORM, FitEvaluationORM, TailoredPackageORM,
-    UserProfileORM, InterviewSessionORM, ApplicationRecordORM
+    UserProfileORM, InterviewSessionORM, ApplicationRecordORM, PoCArtifactORM
 )
 from rolepointer.models.schemas import (
     JobListing, UserProfile, FitEvaluation, TailoredPackage,
     ReviewAuditResult, MockInterviewSession, MockInterviewQuestion,
     MockInterviewEvaluation, ApplicationRecord, TriageStatus,
     WorkplaceType, ExperienceLevel, DealbreakerAlert,
-    GhostJobVerdict, NormalizedSalary, WorkAuthVerdict
+    GhostJobVerdict, NormalizedSalary, WorkAuthVerdict,
+    PoCArtifact, PoCArtifactType
 )
 
 
@@ -450,3 +451,58 @@ def get_interview_session(session_id: str) -> Optional[MockInterviewSession]:
             overall_score=orm_s.overall_score,
             created_at=orm_s.created_at,
         )
+
+
+# ── PoC Artifacts Persistence ─────────────────────────────────────────────────
+
+def save_poc_artifact(artifact: PoCArtifact) -> None:
+    """Upserts a PoCArtifact into SQLite."""
+    with SessionLocal() as session:
+        existing = session.query(PoCArtifactORM).filter_by(job_id=artifact.job_id).first()
+        if not existing:
+            existing = PoCArtifactORM(
+                id=artifact.id,
+                job_id=artifact.job_id,
+                company=artifact.company,
+                role_title=artifact.role_title,
+                artifact_type=artifact.artifact_type.value if hasattr(artifact.artifact_type, "value") else str(artifact.artifact_type),
+                target_problem_statement=artifact.target_problem_statement,
+                primary_stack_topic=artifact.primary_stack_topic,
+                code_snippet=artifact.code_snippet,
+                rfc_markdown=artifact.rfc_markdown,
+                trojan_horse_pitch=artifact.trojan_horse_pitch,
+                gist_url=artifact.gist_url,
+                created_at=artifact.created_at,
+            )
+            session.add(existing)
+        else:
+            existing.target_problem_statement = artifact.target_problem_statement
+            existing.primary_stack_topic = artifact.primary_stack_topic
+            existing.code_snippet = artifact.code_snippet
+            existing.rfc_markdown = artifact.rfc_markdown
+            existing.trojan_horse_pitch = artifact.trojan_horse_pitch
+            existing.gist_url = artifact.gist_url
+        session.commit()
+
+
+def get_poc_artifact(job_id: str) -> Optional[PoCArtifact]:
+    """Retrieves a cached PoCArtifact by job_id."""
+    with SessionLocal() as session:
+        orm_art = session.query(PoCArtifactORM).filter_by(job_id=job_id).first()
+        if not orm_art:
+            return None
+        return PoCArtifact(
+            id=orm_art.id,
+            job_id=orm_art.job_id,
+            company=orm_art.company,
+            role_title=orm_art.role_title,
+            artifact_type=PoCArtifactType(orm_art.artifact_type) if orm_art.artifact_type in PoCArtifactType.__members__ else PoCArtifactType.BENCHMARK_SCRIPT,
+            target_problem_statement=orm_art.target_problem_statement,
+            primary_stack_topic=orm_art.primary_stack_topic or "Distributed Systems",
+            code_snippet=orm_art.code_snippet,
+            rfc_markdown=orm_art.rfc_markdown,
+            trojan_horse_pitch=orm_art.trojan_horse_pitch,
+            gist_url=orm_art.gist_url,
+            created_at=orm_art.created_at,
+        )
+

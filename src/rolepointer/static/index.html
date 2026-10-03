@@ -434,11 +434,12 @@
             </div>
 
             <!-- Drawer Tabs -->
-            <div class="flex items-center space-x-1.5 border-b border-white/[0.08] pb-2.5">
-                <button onclick="switchDrawerTab('fit')" id="dtab-fit" class="px-3.5 py-1.5 rounded-md text-xs font-medium bg-white text-black">Fit & 4-Pillars</button>
-                <button onclick="switchDrawerTab('resume')" id="dtab-resume" class="px-3.5 py-1.5 rounded-md text-xs font-medium text-zinc-400 hover:text-white">STAR Diff</button>
-                <button onclick="switchDrawerTab('cold')" id="dtab-cold" class="px-3.5 py-1.5 rounded-md text-xs font-medium text-zinc-400 hover:text-white">4-Sentence Pitch</button>
-                <button onclick="switchDrawerTab('ghost')" id="dtab-ghost" class="px-3.5 py-1.5 rounded-md text-xs font-medium text-zinc-400 hover:text-white">Anti-Ghost Radar</button>
+            <div class="flex items-center space-x-1.5 border-b border-white/[0.08] pb-2.5 overflow-x-auto">
+                <button onclick="switchDrawerTab('fit')" id="dtab-fit" class="px-3.5 py-1.5 rounded-md text-xs font-medium bg-white text-black shrink-0">Fit & 4-Pillars</button>
+                <button onclick="switchDrawerTab('resume')" id="dtab-resume" class="px-3.5 py-1.5 rounded-md text-xs font-medium text-zinc-400 hover:text-white shrink-0">STAR Diff</button>
+                <button onclick="switchDrawerTab('cold')" id="dtab-cold" class="px-3.5 py-1.5 rounded-md text-xs font-medium text-zinc-400 hover:text-white shrink-0">4-Sentence Pitch</button>
+                <button onclick="switchDrawerTab('ghost')" id="dtab-ghost" class="px-3.5 py-1.5 rounded-md text-xs font-medium text-zinc-400 hover:text-white shrink-0">Anti-Ghost Radar</button>
+                <button onclick="switchDrawerTab('poc')" id="dtab-poc" class="px-3.5 py-1.5 rounded-md text-xs font-medium text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 shrink-0 flex items-center space-x-1"><i data-lucide="zap" class="w-3 h-3 text-amber-400"></i><span>Trojan Horse PoC</span></button>
             </div>
 
             <!-- Drawer Tab 1: Fit & 4-Pillars -->
@@ -584,6 +585,68 @@
                     <button id="drawer-probe-btn" onclick="probeCurrentDrawerLink()" class="px-3.5 py-1.5 rounded-lg bg-white/[0.06] hover:bg-white/[0.10] border border-white/[0.10] text-xs font-medium text-zinc-200 transition">
                         Probe Portal
                     </button>
+                </div>
+            </div>
+
+            <!-- Drawer Tab 5: Trojan Horse PoC & Mini RFC Artifact -->
+            <div id="dcontent-poc" class="space-y-5 hidden">
+                <div class="p-5 rounded-xl bg-zinc-900 border border-white/[0.06] space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-mono uppercase tracking-wider text-amber-400 font-semibold flex items-center gap-1.5">
+                            <i data-lucide="zap" class="w-3.5 h-3.5"></i>
+                            Trojan Horse Work Artifact
+                        </span>
+                        <span id="drawer-poc-topic" class="px-2.5 py-0.5 text-xs font-mono font-medium bg-amber-500/10 text-amber-300 border border-amber-500/20 rounded">
+                            Distributed Backend Bottleneck
+                        </span>
+                    </div>
+                    <p id="drawer-poc-problem" class="text-xs sm:text-sm text-zinc-300 leading-relaxed font-sans"></p>
+                </div>
+
+                <!-- Code Benchmark Snippet Box -->
+                <div class="space-y-2">
+                    <div class="flex items-center justify-between text-[11px] font-mono">
+                        <span class="text-zinc-400 uppercase tracking-wider">Executable Verification Harness (.py)</span>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="copyDrawerPoCCode()" class="text-zinc-400 hover:text-white font-mono flex items-center space-x-1">
+                                <i data-lucide="copy" class="w-3 h-3"></i>
+                                <span id="drawer-copy-poc-code-label">Copy Code</span>
+                            </button>
+                            <a id="drawer-poc-py-download" href="#" target="_blank" class="text-zinc-400 hover:text-white font-mono flex items-center space-x-1">
+                                <i data-lucide="download" class="w-3 h-3"></i>
+                                <span>Download .py</span>
+                            </a>
+                        </div>
+                    </div>
+                    <pre class="p-4 rounded-xl bg-zinc-950 border border-white/[0.08] text-[11px] font-mono text-emerald-400 overflow-x-auto max-h-60 leading-relaxed select-all"><code id="drawer-poc-code">Loading executable benchmark script...</code></pre>
+                </div>
+
+                <!-- Trojan Horse Outreach Pitch -->
+                <div class="space-y-2">
+                    <label class="text-[11px] font-mono uppercase tracking-wider text-zinc-400">Trojan Horse Outreach Pitch to Eng Manager</label>
+                    <div id="drawer-poc-pitch" class="p-4 rounded-xl bg-zinc-900 border border-white/[0.06] text-xs leading-relaxed text-zinc-200 select-all whitespace-pre-wrap font-sans"></div>
+                    <div class="flex items-center justify-between pt-1">
+                        <a id="drawer-poc-gist-link" href="#" target="_blank" class="text-xs text-amber-400 hover:text-amber-300 font-mono flex items-center space-x-1">
+                            <i data-lucide="external-link" class="w-3 h-3"></i>
+                            <span id="drawer-poc-gist-url">Gist Link</span>
+                        </a>
+                        <button onclick="copyDrawerPoCPitch()" class="px-3.5 py-1.5 rounded-lg bg-white/[0.06] hover:bg-white/[0.10] border border-white/[0.10] text-xs font-medium text-zinc-200 transition flex items-center space-x-1.5">
+                            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                            <span id="drawer-copy-poc-pitch-label">Copy Trojan Pitch</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Mini RFC Markdown Viewer -->
+                <div class="space-y-2 pt-2 border-t border-white/[0.06]">
+                    <div class="flex items-center justify-between text-[11px] font-mono">
+                        <span class="text-zinc-400 uppercase tracking-wider">1-Page Mini Technical RFC (.md)</span>
+                        <a id="drawer-poc-md-download" href="#" target="_blank" class="text-zinc-400 hover:text-white font-mono flex items-center space-x-1">
+                            <i data-lucide="download" class="w-3 h-3"></i>
+                            <span>Download RFC .md</span>
+                        </a>
+                    </div>
+                    <div id="drawer-poc-rfc-preview" class="p-4 rounded-xl bg-zinc-950 border border-white/[0.06] text-xs text-zinc-300 font-mono leading-relaxed max-h-72 overflow-y-auto whitespace-pre-wrap select-all"></div>
                 </div>
             </div>
         </div>
@@ -1281,6 +1344,9 @@
                     // Cold angle tab
                     fetchColdAngleForDrawer(job.id);
 
+                    // Moat 1: Trojan Horse PoC tab
+                    fetchPoCArtifactForDrawer(job.id);
+
                     switchDrawerTab('fit');
                     document.getElementById('drawer-overlay').classList.remove('hidden');
                     lucide.createIcons();
@@ -1295,11 +1361,15 @@
         }
 
         function switchDrawerTab(tab) {
-            ['fit', 'resume', 'cold', 'ghost'].forEach(t => {
-                document.getElementById(`dtab-${t}`).className = "px-3.5 py-1.5 rounded-md text-xs font-medium text-zinc-400 hover:text-white";
+            ['fit', 'resume', 'cold', 'ghost', 'poc'].forEach(t => {
+                document.getElementById(`dtab-${t}`).className = "px-3.5 py-1.5 rounded-md text-xs font-medium text-zinc-400 hover:text-white shrink-0";
                 document.getElementById(`dcontent-${t}`).classList.add('hidden');
             });
-            document.getElementById(`dtab-${tab}`).className = "px-3.5 py-1.5 rounded-md text-xs font-medium bg-white text-black";
+            if (tab === 'poc') {
+                document.getElementById(`dtab-poc`).className = "px-3.5 py-1.5 rounded-md text-xs font-medium text-amber-300 bg-amber-500/20 border border-amber-500/30 shrink-0 flex items-center space-x-1";
+            } else {
+                document.getElementById(`dtab-${tab}`).className = "px-3.5 py-1.5 rounded-md text-xs font-medium bg-white text-black shrink-0";
+            }
             document.getElementById(`dcontent-${tab}`).classList.remove('hidden');
             lucide.createIcons();
         }
@@ -1317,6 +1387,45 @@
             } catch (err) {
                 console.error("Fetch cold angle error:", err);
             }
+        }
+
+        async function fetchPoCArtifactForDrawer(jobId) {
+            try {
+                const res = await fetch(`/api/jobs/${jobId}/poc-artifact`, { method: 'POST' });
+                if (res.ok) {
+                    const data = await res.json();
+                    const art = data.poc_artifact || {};
+                    document.getElementById('drawer-poc-topic').innerText = art.primary_stack_topic || 'Distributed Architecture';
+                    document.getElementById('drawer-poc-problem').innerText = art.target_problem_statement || 'Optimization challenge.';
+                    document.getElementById('drawer-poc-code').innerText = art.code_snippet || '# Executable code harness';
+                    document.getElementById('drawer-poc-pitch').innerText = art.trojan_horse_pitch || 'Trojan Horse pitch';
+                    document.getElementById('drawer-poc-rfc-preview').innerText = art.rfc_markdown || '# 1-Page Mini Technical RFC';
+                    document.getElementById('drawer-poc-gist-url').innerText = art.gist_url || 'Gist Link';
+                    document.getElementById('drawer-poc-gist-link').href = art.gist_url || '#';
+                    document.getElementById('drawer-poc-py-download').href = `/api/jobs/${jobId}/poc-artifact/download?format=py`;
+                    document.getElementById('drawer-poc-md-download').href = `/api/jobs/${jobId}/poc-artifact/download?format=md`;
+                }
+            } catch (err) {
+                console.error("Fetch PoC artifact error:", err);
+            }
+        }
+
+        function copyDrawerPoCCode() {
+            const code = document.getElementById('drawer-poc-code').innerText;
+            navigator.clipboard.writeText(code);
+            const label = document.getElementById('drawer-copy-poc-code-label');
+            label.innerText = "Copied!";
+            showToast("Benchmark code harness copied to clipboard!");
+            setTimeout(() => { label.innerText = "Copy Code"; }, 2000);
+        }
+
+        function copyDrawerPoCPitch() {
+            const pitch = document.getElementById('drawer-poc-pitch').innerText;
+            navigator.clipboard.writeText(pitch);
+            const label = document.getElementById('drawer-copy-poc-pitch-label');
+            label.innerText = "Copied!";
+            showToast("Trojan Horse pitch copied to clipboard!");
+            setTimeout(() => { label.innerText = "Copy Trojan Pitch"; }, 2000);
         }
 
         function copyDrawerColdPitch() {

@@ -139,3 +139,21 @@ class ApplicationRecordORM(Base):
     last_follow_up_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     direct_pitch_letter: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=_now)
+
+
+class PoCArtifactORM(Base):
+    __tablename__ = "poc_artifacts"
+
+    id: Mapped[str] = mapped_column(String, primary_key=True, default=_uuid)
+    job_id: Mapped[str] = mapped_column(String, nullable=False, unique=True)
+    company: Mapped[str] = mapped_column(String, nullable=False)
+    role_title: Mapped[str] = mapped_column(String, nullable=False)
+    artifact_type: Mapped[str] = mapped_column(String, default="BENCHMARK_SCRIPT")
+    target_problem_statement: Mapped[str] = mapped_column(Text, default="")
+    primary_stack_topic: Mapped[str] = mapped_column(String, default="")
+    code_snippet: Mapped[str] = mapped_column(Text, default="")
+    rfc_markdown: Mapped[str] = mapped_column(Text, default="")
+    trojan_horse_pitch: Mapped[str] = mapped_column(Text, default="")
+    gist_url: Mapped[str] = mapped_column(String, default="")
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=_now)
+
